@@ -1,5 +1,5 @@
 import workletUrl from './pcm-capture.worklet.js?url';
-import { PcmChunker, StreamingTranscription } from '../../shared/streaming-transcription.js';
+import { PcmChunker, StreamingTranscription, createWav } from '../../shared/streaming-transcription.js';
 import { createUtteranceLanguage } from '../../shared/language.js';
 import { apiFetch } from '../backend.js';
 
@@ -62,4 +62,21 @@ export async function startMicrophoneTranscription(context, stream, { language: 
     },
     cancel() { session.cancel(); flush?.(); disconnect(); },
   };
+}
+
+/**
+ * A MediaRecorder recording (webm, ogg) as a 16 kHz mono PCM16 WAV, decoded by the
+ * browser, so no recognizer needs ffmpeg. decodeAudioData resamples to the context's rate.
+ */
+export async function recordingToWav(blob) {
+  const decoded = await new OfflineAudioContext(1, 1, 16000).decodeAudioData(await blob.arrayBuffer());
+  const channels = Array.from({ length: decoded.numberOfChannels }, (_, i) => decoded.getChannelData(i));
+  const pcm = new Uint8Array(decoded.length * 2);
+  const view = new DataView(pcm.buffer);
+  for (let i = 0; i < decoded.length; i++) {
+    let sum = 0;
+    for (const channel of channels) sum += channel[i];
+    view.setInt16(i * 2, Math.max(-1, Math.min(1, sum / channels.length)) * 0x7fff, true);
+  }
+  return createWav(pcm, 16000);
 }

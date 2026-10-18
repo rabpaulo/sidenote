@@ -2,21 +2,18 @@
 
 ## Ambiente
 
-Use Node.js 22.12 ou superior, npm e Python 3. A captura de áudio do PC funciona no Linux (PipeWire/PulseAudio, com `pactl` e `parec`) e no Windows 10/11 (loopback do sistema capturado pelo Electron). macOS não é suportado.
+Use Node.js 22.12 ou superior e npm. O Python 3 é opcional: só os motores de voz Google, Whisper e Vosk o usam (o padrão, Parakeet, roda em Node). A captura de áudio do PC funciona no Linux (PipeWire/PulseAudio, com `pactl` e `parec`) e no Windows 10/11 (loopback do sistema capturado pelo Electron). macOS não é suportado.
 
 ### Linux
 
 Em distribuições Debian/Ubuntu, as dependências de áudio podem ser instaladas com:
 
 ```bash
-sudo apt install python3 python3-venv ffmpeg pulseaudio-utils
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install SpeechRecognition
+sudo apt install pulseaudio-utils
 npm ci
 ```
 
-Inicie o app no mesmo terminal com o ambiente virtual ativo: o backend procura `python3` no `PATH`. O pacote `PyAudio` não é necessário para este fluxo, pois a captura acontece no Electron ou via `parec`, e o Python recebe arquivos de áudio.
+Para o reconhecimento do Google, instale também o Python e o `SpeechRecognition` (por exemplo, no ambiente do app; veja "Reconhecimento de voz local"). O backend procura `python3` no `PATH`. O `PyAudio` não é necessário, pois a captura acontece no Electron ou via `parec`.
 
 Para ouvir só o aplicativo da reunião, o backend usa `pactl list sink-inputs`, `pactl subscribe` e `parec --monitor-stream`, todos do mesmo `pulseaudio-utils` (funcionam também com o `pipewire-pulse`). O `xdotool` é opcional: em sessões X11 ele fornece o título da janela de cada aplicativo na lista (`sudo apt install xdotool`). Sem ele, ou no Wayland, a lista mostra só o nome do aplicativo. Ao listar, o backend grava 600 ms de cada stream com `parec` para mostrar qual está com som.
 
@@ -30,7 +27,7 @@ npm ci
 npm start
 ```
 
-O `ffmpeg` é opcional no Windows: o app envia ao reconhecimento áudio WAV já em 16 kHz, e o `ffmpeg` só é usado para outros formatos. O backend procura o Python como `PYTHON_BIN`, `python`, `py -3` ou `python3`, ignorando o atalho da Microsoft Store.
+O `ffmpeg` é opcional nos dois sistemas: o app envia ao reconhecimento áudio WAV já em 16 kHz (a gravação do microfone é decodificada pela própria janela), e o `ffmpeg` só é usado pelo worker Python para outros formatos. O backend procura o Python como `PYTHON_BIN`, `python`, `py -3` ou `python3`, ignorando o atalho da Microsoft Store.
 
 No Windows, o backend não acessa o dispositivo de áudio: quando a captura do PC é ligada, a janela pede ao Electron o áudio do desktop (`chromeMediaSource: 'desktop'`), reduz para PCM 16 kHz mono num AudioWorklet e envia pacotes binários de 50 ms pelo WebSocket. O backend aplica a mesma detecção de fala e transcrição do Linux. Para testar esse caminho em outro sistema, defina `SIDENOTE_AUDIO_SOURCE=renderer` (o Electron só fornece o loopback no Windows).
 
@@ -38,16 +35,16 @@ Os CLIs instalados pelo npm no Windows são atalhos `.cmd`; o app os encontra pe
 
 ### Reconhecimento de voz local
 
-O Google continua sendo o padrão e só precisa do `SpeechRecognition`. Os motores locais (veja [o guia de uso](usage.md#reconhecimento-de-voz)) precisam de um pacote Python cada, e o Whisper large-v3-turbo, do `whisper-server` do whisper.cpp. Os modelos são baixados pelo próprio app, em **Menu → Reconhecimento de voz**, para `models/` ao lado do perfil.
+O Parakeet é o padrão: roda num processo Node (`server/parakeet-worker.js`, com o `sherpa-onnx-node`, que traz binários prontos para Linux e Windows x64) e só precisa do modelo. O Google precisa do `SpeechRecognition`, os outros motores locais (veja [o guia de uso](usage.md#reconhecimento-de-voz)) de um pacote Python cada, e o Whisper large-v3-turbo, do `whisper-server` do whisper.cpp. Os modelos são baixados pelo próprio app, na tela de boas-vindas ou em **Menu → Reconhecimento de voz**, para `models/` ao lado do perfil.
 
 O backend usa, nesta ordem, o Python de `PYTHON_BIN`, o do ambiente virtual do app (`~/.local/share/sidenote/venv` no Linux, `%APPDATA%\Sidenote\venv` no Windows) e o do sistema. Em distribuições que bloqueiam o `pip` no Python do sistema (Arch, Debian 12+, Ubuntu 23.04+), crie o ambiente do app com os pacotes que for usar:
 
 ```bash
 python3 -m venv ~/.local/share/sidenote/venv
-~/.local/share/sidenote/venv/bin/pip install SpeechRecognition sherpa-onnx faster-whisper vosk
+~/.local/share/sidenote/venv/bin/pip install SpeechRecognition faster-whisper vosk
 ```
 
-A janela de reconhecimento mostra o comando exato para o Python que o app está usando, só com o que falta. No Linux, os quatro pacotes foram instalados e testados com Python 3.14; no Windows, a instalação não foi testada.
+A janela de reconhecimento mostra o comando exato para o Python que o app está usando, só com o que falta. No Linux, os pacotes foram instalados e testados com Python 3.14; no Windows, a instalação não foi testada.
 
 Para o Whisper large-v3-turbo na placa de vídeo, compile o whisper.cpp com Vulkan. No Linux, são necessários `cmake`, um compilador C++, os cabeçalhos do Vulkan e o `glslc` (no Arch: `vulkan-headers`, `shaderc` e o driver, como `vulkan-radeon`; no Ubuntu: `libvulkan-dev` e `glslc`):
 
@@ -98,7 +95,7 @@ npm run build:appimage
 
 Para o Windows, execute `npm run build:win` numa máquina Windows. Ele gera `release/Sidenote-1.0.0-setup.exe` (instalador, permite escolher a pasta) e `release/Sidenote-1.0.0-portable.exe` (sem instalação). No Linux, `npx electron-builder --win portable --x64` também gera o portátil; o instalador NSIS precisa do Wine com suporte a 32 bits para montar o desinstalador.
 
-Os pacotes não incluem o Python nem os CLIs: instale-os na máquina de destino como descrito acima. O app não é assinado digitalmente, então o Windows SmartScreen pode pedir confirmação na primeira execução.
+Os pacotes trazem o Parakeet, mas não o Python nem os CLIs: para usar os motores de voz opcionais ou um CLI, instale-os na máquina de destino como descrito acima. O `sherpa-onnx-node` instala só os binários do sistema em que o `npm ci` rodou, por isso o pacote do Windows precisa ser gerado no Windows. O app não é assinado digitalmente, então o Windows SmartScreen pode pedir confirmação na primeira execução.
 
 O AppImage gerado em `release/` inclui o frontend compilado, o backend Express/WebSocket e as dependências de produção para execução sem precisar do servidor de desenvolvimento ativo.
 
@@ -160,10 +157,11 @@ O backend não carrega `.env` automaticamente. Exporte as variáveis no shell ou
 | server/document-import.js | Extração de texto de PDF (`unpdf`), DOCX (`mammoth`), TXT e MD, prompt de organização e validação dos campos do currículo ou da vaga. |
 | src/components/DocumentDropZone.jsx | Área de arrastar ou escolher arquivo das abas Perfil e Vaga. |
 | server/pc-transcription.js | Encaminhamento dos trechos do PC ao transcritor. |
-| server/transcriber.js | Um processo `transcribe.py --serve` por configuração de motor, ids dos pedidos, espera pelo modelo carregando, cancelamento, troca de motor (o processo antigo termina a fila e sai) e uso do Google quando o motor local não carrega ou falha. |
-| server/transcribe.py e server/speech_engines.py | Processo de reconhecimento: Google (pedidos em paralelo) ou um motor local (modelo carregado uma vez, pedidos em fila); conversão do áudio e escolha do idioma de cada motor. |
+| server/transcriber.js | Um processo por configuração de motor (`parakeet-worker.js` em Node para o Parakeet, `transcribe.py --serve` para os outros), ids dos pedidos, espera pelo modelo carregando, cancelamento, troca de motor (o processo antigo termina a fila e sai) e uso do Google quando o motor local não carrega ou falha. |
+| server/parakeet-worker.js | Parakeet pelo `sherpa-onnx-node`, com o mesmo protocolo do `transcribe.py`: leitura do WAV, idioma pelas palavras e fila de pedidos. |
+| server/transcribe.py e server/speech_engines.py | Processo de reconhecimento em Python: Google (pedidos em paralelo) ou um motor local (modelo carregado uma vez, pedidos em fila); conversão do áudio e escolha do idioma de cada motor. |
 | shared/speech-engines.js | Catálogo dos motores e modelos: descrições, pacotes, URLs e tamanhos. |
-| server/speech-models.js | Download dos modelos (pasta `.partial`, extração com o próprio Python, marcador `.complete`), progresso, cancelamento e exclusão. |
+| server/speech-models.js | Download dos modelos (pasta `.partial`, arquivos soltos ou um arquivo compactado extraído com o Python, marcador `.complete`), progresso, cancelamento e exclusão. |
 | server/speech-settings.js | Motor escolhido (`speech.json` ao lado do perfil), Python e pacotes instalados, `whisper-server`, comando `pip` e configuração do processo. |
 | src/components/SpeechEngineModal.jsx e src/hooks/useSpeechEngines.js | Menu → Reconhecimento de voz. |
 | server/live-copilot.js | Agendamento de respostas: prévias durante a fala e resposta à fala consolidada. |

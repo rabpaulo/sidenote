@@ -863,7 +863,7 @@ app.post('/api/copilot/trigger', (req, res) => {
   res.json({ success: true, text });
 });
 
-// Audio transcription endpoint (Universal fallback using python/ffmpeg)
+// Audio transcription: WAV from the window; other formats only reach Google's worker, which converts them with ffmpeg.
 app.post(
   '/api/transcribe',
   express.raw({

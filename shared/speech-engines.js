@@ -1,16 +1,20 @@
-// Speech recognition engines the app can use. Google is online and needs no
-// download; the others run on this computer (server/speech_engines.py) once their
+// Speech recognition engines the app can use. Parakeet runs in Node
+// (server/parakeet-worker.js) and only needs its model; Google is online and needs
+// Python; the others run on this computer (server/speech_engines.py) once their
 // Python package (or whisper.cpp binary) and model are installed. Downloads come
 // from the models' official releases; sizes are the download sizes.
 
-export const DEFAULT_SPEECH_ENGINE = 'google';
+export const DEFAULT_SPEECH_ENGINE = 'parakeet';
 
 export const SPEECH_MODELS = {
   'parakeet-tdt-0.6b-v3-int8': {
     engine: 'parakeet',
     label: 'Parakeet TDT 0.6B v3 (int8)',
-    bytes: 487170055,
-    archive: 'https://github.com/k2-fsa/sherpa-onnx/releases/download/asr-models/sherpa-onnx-nemo-parakeet-tdt-0.6b-v3-int8.tar.bz2',
+    bytes: 670478772,
+    // The files of sherpa-onnx's release archive, published uncompressed: nothing to extract.
+    files: ['encoder.int8.onnx', 'decoder.int8.onnx', 'joiner.int8.onnx', 'tokens.txt'].map((name) => ({
+      name, url: `https://huggingface.co/csukuangfj/sherpa-onnx-nemo-parakeet-tdt-0.6b-v3-int8/resolve/main/${name}`,
+    })),
   },
   'whisper-large-v3-turbo-q5_0': {
     engine: 'whisper-turbo',
@@ -60,6 +64,7 @@ function hfFiles(repo, modelBytes) {
 }
 
 /**
+ * `runtime: 'node'` engines run inside the app; the rest run in Python.
  * `packages` are Python modules ({ module, pip }); `binary` is a program the app
  * looks for; `models` are what to download. A whisper-small/base choice is the
  * engine's `variant`; Vosk uses every installed language model.
@@ -68,7 +73,7 @@ export const SPEECH_ENGINES = [
   {
     id: 'google',
     name: 'Google',
-    tag: 'online · padrão',
+    tag: 'online',
     local: false,
     packages: [{ module: 'speech_recognition', pip: 'SpeechRecognition' }],
     models: [],
@@ -84,17 +89,18 @@ export const SPEECH_ENGINES = [
   {
     id: 'parakeet',
     name: 'Parakeet TDT 0.6B v3',
-    tag: 'offline · CPU',
+    tag: 'offline · CPU · padrão',
     local: true,
-    packages: [{ module: 'sherpa_onnx', pip: 'sherpa-onnx' }],
+    runtime: 'node',
+    packages: [],
     models: ['parakeet-tdt-0.6b-v3-int8'],
-    summary: 'O mais rápido e preciso na CPU, com pontuação. Recomendado.',
+    summary: 'O mais rápido e preciso na CPU, com pontuação. Só precisa baixar o modelo. Recomendado.',
     details: [
-      ['Disco', '671 MB (download de 487 MB) · ≈ 1,2 GB de RAM em uso'],
+      ['Disco', '671 MB · ≈ 1,2 GB de RAM em uso'],
       ['Velocidade', '0,13 s para 1 s de fala, 0,4 s para 7 s, num i5-10400F (medido)'],
       ['Qualidade', 'erro de palavras de 6% em pt-BR e em inglês (medido), com pontuação'],
       ['Idioma', 'automático (o modelo não informa; o app decide pelas palavras)'],
-      ['Requisitos', 'pacote Python sherpa-onnx'],
+      ['Requisitos', 'só o modelo; roda dentro do app, sem Python'],
     ],
   },
   {

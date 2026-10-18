@@ -56,16 +56,6 @@ def stopword_ratio(language, text):
     return sum(word in vocabulary for word in words) / len(words) if words else 0
 
 
-def language_by_vocabulary(text, languages):
-    """The requested language whose function words fill more of the text; the first one on ties."""
-    best, best_ratio = languages[0], -1
-    for language in languages:
-        ratio = stopword_ratio(language, text)
-        if ratio > best_ratio:
-            best, best_ratio = language, ratio
-    return best
-
-
 def full_language(code, languages):
     """Maps a recognizer's code ("pt") back to the requested form ("pt-BR"), or None."""
     for language in languages:
@@ -114,38 +104,6 @@ def import_package(module, pip_name):
         return __import__(module)
     except ImportError:
         raise EngineError(f"O pacote Python {pip_name} não está instalado.", "package_missing")
-
-
-class ParakeetEngine:
-    """NVIDIA Parakeet TDT 0.6B v3 (int8) through sherpa-onnx, on the CPU.
-    It does not report the language: the text's vocabulary decides between the requested ones."""
-
-    name = "parakeet"
-
-    def __init__(self, config):
-        self.model_dir = require_dir(config.get("modelDir"), "Parakeet")
-        self.device = "CPU"
-
-    def load(self):
-        sherpa_onnx = import_package("sherpa_onnx", "sherpa-onnx")
-        self.recognizer = sherpa_onnx.OfflineRecognizer.from_transducer(
-            encoder=find_one(self.model_dir, "encoder*.onnx"),
-            decoder=find_one(self.model_dir, "decoder*.onnx"),
-            joiner=find_one(self.model_dir, "joiner*.onnx"),
-            tokens=find_one(self.model_dir, "tokens.txt"),
-            num_threads=cpu_threads(),
-            model_type="nemo_transducer",
-            decoding_method="greedy_search",
-        )
-
-    def transcribe(self, wav_path, languages):
-        stream = self.recognizer.create_stream()
-        stream.accept_waveform(16000, read_wav(wav_path))
-        self.recognizer.decode_stream(stream)
-        text = stream.result.text.strip()
-        if not text:
-            raise Unrecognized()
-        return {"text": text, "language": language_by_vocabulary(text, languages)}
 
 
 class FasterWhisperEngine:
@@ -374,7 +332,6 @@ class WhisperCppEngine:
 WHISPER_CODES = {"portuguese": "pt", "english": "en"}
 
 ENGINES = {
-    ParakeetEngine.name: ParakeetEngine,
     WhisperCppEngine.name: WhisperCppEngine,
     FasterWhisperEngine.name: FasterWhisperEngine,
     VoskEngine.name: VoskEngine,

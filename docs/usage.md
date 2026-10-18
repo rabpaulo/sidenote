@@ -2,6 +2,8 @@
 
 ## Preparar uma conversa
 
+Na primeira abertura, se faltar algo, a tela **Bem-vindo ao Sidenote** mostra os dois passos: uma API key (Gemini e Groq têm plano gratuito; **Outros…** abre todas as chaves) ou um CLI autenticado, e o download do Parakeet para o reconhecimento de voz. Cada passo já resolvido aparece marcado. A tela some depois de fechada; os mesmos ajustes ficam em **Menu → Chaves de API** e **Menu → Reconhecimento de voz**.
+
 Abra o app com `npm start`. No menu (☰) da barra inferior, selecione em **Modelo** o provedor, o modelo e o nível de raciocínio, e em **Modo** a persona adequada: conversa geral, vendas, entrevista técnica, arquitetura, comportamental, RH, perguntas ao entrevistador ou vendas.
 
 O app prepara a sessão do agente sem enviar uma pergunta. Ao abrir, o backend verifica cada provedor sem gastar cota: se o CLI está instalado e logado e, no Antigravity (`agy models`) e no Codex (`model/list`), quais modelos a conta oferece. O Claude Code informa só o login, então todos os modelos da lista ficam liberados quando ele está logado. No seletor, provedores e modelos indisponíveis aparecem desativados, com o motivo; **Verificar novamente** refaz a verificação, por exemplo depois de um login.
@@ -85,23 +87,23 @@ Se a chamada ainda não começou, o app espera: os medidores mostram **aguardand
 
 ## Reconhecimento de voz
 
-Em **Menu → Reconhecimento de voz** você escolhe quem transforma o áudio em texto, para o áudio do PC e para o microfone. O padrão é o **Google**, online e sem download. Os outros quatro rodam neste computador: o áudio não sai daqui, não há limite de uso e a transcrição continua sem internet (as sugestões ainda precisam do provedor).
+Em **Menu → Reconhecimento de voz** você escolhe quem transforma o áudio em texto, para o áudio do PC e para o microfone. O padrão é o **Parakeet**, que roda dentro do app e só precisa do modelo, baixado na tela de boas-vindas ou aqui. O **Google** é online, sem download, mas precisa do Python com `SpeechRecognition`. O Parakeet e os outros três rodam neste computador: o áudio não sai daqui, não há limite de uso e a transcrição continua sem internet (as sugestões ainda precisam do provedor).
 
 | Motor | Onde roda | Download | Idioma automático |
 | --- | --- | --- | --- |
 | Google | Servidores do Google | — | Sim, pede os dois idiomas ao mesmo tempo |
-| Parakeet TDT 0.6B v3 | CPU | 487 MB | Sim, pelas palavras reconhecidas |
+| Parakeet TDT 0.6B v3 (padrão) | CPU, dentro do app | 670 MB | Sim, pelas palavras reconhecidas |
 | Whisper large-v3-turbo | GPU (Vulkan) ou CPU | 574 MB | Sim, detectado pelo Whisper |
 | Whisper small / base | CPU | 486 / 148 MB | Sim, detectado pelo Whisper |
 | Vosk | CPU | 32 MB (pt) + 41 MB (en) | Não; veja abaixo |
 
-Cada cartão resume o modelo (os números ficam em **Detalhes**) e mostra o que falta para usá-lo. Quando falta o pacote Python, o botão **Instalar** o instala no Python do app (no Linux, num venv em `~/.local/share/sidenote/venv`); se falhar, o cartão mostra o erro e o comando para rodar à mão. O `whisper-server` (só para o Whisper large-v3-turbo) você compila; o modelo você baixa ali mesmo, com progresso, cancelamento e opção de apagar. O botão **Usar** aparece quando não falta nada. A velocidade e a qualidade medidas neste projeto estão em [Áudio e latência](response-latency.md#reconhecimento-local); rode o mesmo teste com as suas gravações para comparar no seu computador.
+Cada cartão resume o modelo (os números ficam em **Detalhes**) e mostra o que falta para usá-lo. Quando falta o pacote Python (Google, Whisper e Vosk), o botão **Instalar** o instala no Python do app (no Linux, num venv em `~/.local/share/sidenote/venv`); se falhar, o cartão mostra o erro e o comando para rodar à mão. O `whisper-server` (só para o Whisper large-v3-turbo) você compila; o modelo você baixa ali mesmo, com progresso, cancelamento e opção de apagar. O botão **Usar** aparece quando não falta nada. A velocidade e a qualidade medidas neste projeto estão em [Áudio e latência](response-latency.md#reconhecimento-local); rode o mesmo teste com as suas gravações para comparar no seu computador.
 
 O modelo é carregado quando a captura começa (de menos de 1 s a alguns segundos, uma vez por execução) e fica na memória enquanto o app estiver aberto. Um motor local reconhece um pedido por vez: enquanto ele trabalha, o app não acumula trechos, só manda o áudio mais recente quando ele termina. Por isso, numa máquina lenta, o texto parcial atualiza com menos frequência, mas a fala completa sempre é transcrita.
 
 No idioma **Auto**, cada motor decide entre português e inglês do seu jeito. O Whisper detecta o idioma; se achar outro (espanhol, por exemplo), transcreve de novo em português ou inglês (o mais provável dos dois no small/base; o último idioma ouvido no large-v3-turbo). O Parakeet não informa o idioma: o texto sai no idioma falado, e o app o classifica pelas palavras. O Vosk não detecta idioma: no modo automático, cada modelo instalado (português e inglês) transcreve a fala e vence o de melhor confiança, o que dobra o trabalho e às vezes escolhe errado; com só um modelo instalado, ele é usado para tudo. Fixe o idioma no menu quando a reunião for toda num idioma só.
 
-Se o motor local não carregar (pacote ou modelo ausente, `whisper-server` que não abre) ou falhar 3 vezes seguidas, o app passa a usar o Google e mostra um aviso no topo uma vez. Uma falha avulsa só manda aquela fala ao Google. O motor volta a ser usado quando você o escolhe de novo na janela de reconhecimento.
+Se o motor local não carregar (pacote ou modelo ausente, `whisper-server` que não abre) ou falhar 3 vezes seguidas, o app passa a usar o Google (se o Python estiver instalado) e mostra um aviso no topo uma vez. Uma falha avulsa só manda aquela fala ao Google. O motor volta a ser usado quando você o escolhe de novo na janela de reconhecimento.
 
 ## Resumo da sessão
 

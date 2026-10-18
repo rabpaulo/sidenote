@@ -14,6 +14,8 @@ import { CandidateContextEditor } from './components/CandidateContextEditor.jsx'
 import { NotesVaultModal } from './components/NotesVaultModal.jsx';
 import { ApiKeysModal } from './components/ApiKeysModal.jsx';
 import { SpeechEngineModal, speechEngineName } from './components/SpeechEngineModal.jsx';
+import { WelcomeModal } from './components/WelcomeModal.jsx';
+import { welcomeNeeds } from './components/welcome.js';
 import { useSpeechEngines } from './hooks/useSpeechEngines.js';
 import { useVoiceCopilot } from './hooks/useVoiceCopilot.js';
 import { useAgentSocket } from './hooks/useAgentSocket.js';
@@ -129,6 +131,25 @@ export default function App() {
   }, [selectionFallback?.provider, selectionFallback?.model]);
   // With nothing usable, the selection stays and this banner explains why.
   const availabilityAlert = agentNotice || (selectionReason && !selectionFallback ? selectionReason : null);
+
+  // First run: shown once something is known to be missing, and kept open until
+  // closed, so finishing a step does not make it vanish.
+  const WELCOME_KEY = 'sidenote_welcome_v1';
+  const needs = welcomeNeeds(providerAvailability, speech.status);
+  const [isWelcomeOpen, setIsWelcomeOpen] = useState(false);
+  useEffect(() => {
+    if (!needs.known || (!needs.provider && !needs.speech)) return;
+    try {
+      if (localStorage.getItem(WELCOME_KEY) === 'done') return;
+    } catch {}
+    setIsWelcomeOpen(true);
+  }, [needs.known, needs.provider, needs.speech]);
+  const closeWelcome = () => {
+    setIsWelcomeOpen(false);
+    try {
+      localStorage.setItem(WELCOME_KEY, 'done');
+    } catch {}
+  };
 
   // Sincroniza configurações do modelo com o servidor em tempo real
   useEffect(() => {
@@ -633,6 +654,17 @@ export default function App() {
         toggleFastMode={agentSettings.toggleFastMode}
         availability={providerAvailability}
         onRefreshAvailability={refreshProviders}
+        onOpenKeys={() => setIsKeysOpen(true)}
+      />
+
+      <WelcomeModal
+        isOpen={isWelcomeOpen}
+        onClose={closeWelcome}
+        needs={needs}
+        availability={providerAvailability}
+        agentSettings={agentSettings}
+        speech={speech}
+        onRefreshProviders={refreshProviders}
         onOpenKeys={() => setIsKeysOpen(true)}
       />
 

@@ -33,11 +33,11 @@ Copiloto desktop para conversas em tempo real. Ele ouve a chamada, transcreve en
 
 - **Linux** com PipeWire/PulseAudio (`pactl` e `parec`) para capturar o áudio do PC, ou **Windows 10/11** (o áudio do sistema é capturado pelo próprio app).
 - Node.js **22.12+** e npm.
-- Python 3 com `SpeechRecognition`. O `ffmpeg` é necessário no Linux e opcional no Windows.
-- Opcional, para transcrever sem internet: o pacote Python do motor local escolhido (`sherpa-onnx`, `faster-whisper` ou `vosk`) ou o `whisper-server` do whisper.cpp. O app mostra o comando de instalação em **Menu → Reconhecimento de voz**; veja o [guia de desenvolvimento](docs/development.md#reconhecimento-de-voz-local).
+- Nada mais para transcrever: o reconhecimento padrão (Parakeet) roda dentro do app, e o modelo (670 MB) é baixado na tela de boas-vindas.
+- Opcional: Python 3 com `SpeechRecognition` para o reconhecimento online do Google, e o pacote Python dos outros motores locais (`faster-whisper` ou `vosk`) ou o `whisper-server` do whisper.cpp. O app mostra o comando de instalação em **Menu → Reconhecimento de voz**; veja o [guia de desenvolvimento](docs/development.md#reconhecimento-de-voz-local).
 - Uma chave de API de um dos provedores suportados ou um dos CLIs (`agy`, `codex`, `claude` ou `opencode`) instalado e autenticado.
 - `xrandr` (opcional, Linux/X11) para escolher o monitor da captura de tela pelo nome.
-- Internet para as respostas do provedor e para o reconhecimento pelo Google.
+- Internet para as respostas do provedor (e para o reconhecimento pelo Google, se escolhido).
 
 ## Executar
 
@@ -48,15 +48,9 @@ npm ci
 npm start
 ```
 
-No Windows, instale antes o Python e a biblioteca de reconhecimento (PowerShell):
+Na primeira abertura, a tela de boas-vindas pede o que falta: uma API key (Gemini e Groq têm plano gratuito) e o download do modelo de reconhecimento de voz.
 
-```powershell
-py -m pip install SpeechRecognition
-npm ci
-npm start
-```
-
-O app encontra `agy`, `codex` e `claude` no `PATH` (no Windows, também os atalhos `.cmd` do npm). Se o CLI estiver em outro lugar, informe o caminho:
+O app também usa os CLIs autenticados: encontra `agy`, `codex` e `claude` no `PATH` (no Windows, também os atalhos `.cmd` do npm). Se o CLI estiver em outro lugar, informe o caminho:
 
 ```bash
 CLAUDE_BIN="$(command -v claude)" npm start
@@ -91,7 +85,7 @@ Numa máquina Windows:
 npm run build:win
 ```
 
-São gerados em `release/` o instalador `Sidenote-1.0.0-setup.exe` e o executável portátil `Sidenote-1.0.0-portable.exe`. O Python, a biblioteca `SpeechRecognition` e o CLI do provedor precisam estar instalados na máquina. O app não é assinado; o SmartScreen pode pedir confirmação na primeira execução.
+São gerados em `release/` o instalador `Sidenote-1.0.0-setup.exe` e o executável portátil `Sidenote-1.0.0-portable.exe`. Basta uma API key ou um CLI autenticado na máquina; o Python só é necessário para os motores de voz opcionais. O app não é assinado; o SmartScreen pode pedir confirmação na primeira execução.
 
 ## Gerar AppImage
 

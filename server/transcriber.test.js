@@ -122,7 +122,7 @@ test('a local engine that cannot load is replaced by Google, reported once, unti
   let engine = { engine: 'broken' };
   const events = [];
   const transcriber = createTranscriber({
-    python: () => ({ command: process.execPath, args: [] }), script: engineWorker(dir),
+    python: () => ({ command: process.execPath, args: [] }), script: engineWorker(dir), nodeScript: path.join(dir, 'engines.cjs'),
     config: () => engine, onEvent: (event) => events.push(event),
   });
   t.after(() => transcriber.close());
@@ -146,7 +146,7 @@ test('a local engine that fails a request falls back for that request, and is le
   const dir = scratch(t);
   const events = [];
   const transcriber = createTranscriber({
-    python: () => ({ command: process.execPath, args: [] }), script: engineWorker(dir),
+    python: () => ({ command: process.execPath, args: [] }), script: engineWorker(dir), nodeScript: path.join(dir, 'engines.cjs'),
     config: () => ({ engine: 'flaky' }), onEvent: (event) => events.push(event),
   });
   t.after(() => transcriber.close());
@@ -164,7 +164,7 @@ test('a local engine that fails a request falls back for that request, and is le
 test('a model still loading is waited for instead of being taken for a stuck worker', async (t) => {
   const dir = scratch(t);
   const transcriber = createTranscriber({
-    python: () => ({ command: process.execPath, args: [] }), script: engineWorker(dir),
+    python: () => ({ command: process.execPath, args: [] }), script: engineWorker(dir), nodeScript: path.join(dir, 'engines.cjs'),
     config: () => ({ engine: 'slow-load' }),
   });
   t.after(() => transcriber.close());
@@ -175,7 +175,7 @@ test('changing the engine lets the old worker finish and starts the new one', as
   const dir = scratch(t);
   let engine = { engine: 'parakeet' };
   const transcriber = createTranscriber({
-    python: () => ({ command: process.execPath, args: [] }), script: engineWorker(dir), config: () => engine,
+    python: () => ({ command: process.execPath, args: [] }), script: engineWorker(dir), nodeScript: path.join(dir, 'engines.cjs'), config: () => engine,
   });
   t.after(() => transcriber.close());
   const first = transcriber.transcribe(Buffer.alloc(44), 'pt-BR');

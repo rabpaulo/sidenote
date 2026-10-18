@@ -125,7 +125,8 @@ test('settings persist and give the worker the paths of the chosen engine', asyn
     status: () => ({}),
   };
   const settings = createSpeechSettings({ dataDir: dir, models, env: { PYTHON_BIN: 'python3' } });
-  assert.deepEqual(settings.workerConfig(), { engine: 'google' });
+  // Parakeet is the default; without its model the worker reports it and Google takes over.
+  assert.deepEqual(settings.workerConfig(), { engine: 'parakeet', modelDir: null });
   settings.save({ engine: 'vosk' });
   assert.deepEqual(settings.workerConfig(), { engine: 'vosk', modelDirs: { 'pt-BR': path.join(dir, 'models', 'vosk-small-pt') } });
   settings.save({ engine: 'faster-whisper', variant: 'base' });
@@ -138,4 +139,20 @@ test('settings persist and give the worker the paths of the chosen engine', asyn
   assert.equal(status.engines['faster-whisper'].modelsReady, true);
   assert.equal(status.engines.parakeet.modelsReady, false);
   assert.equal(status.engines['whisper-turbo'].binary.found, false);
+});
+
+test('Parakeet is ready with only its model, even without Python', async (t) => {
+  const dir = scratch(t);
+  const models = {
+    dir: path.join(dir, 'models'),
+    installed: (id) => id === 'parakeet-tdt-0.6b-v3-int8',
+    pathOf: (id) => (id === 'parakeet-tdt-0.6b-v3-int8' ? path.join(dir, 'models', id) : null),
+    status: () => ({}),
+  };
+  const settings = createSpeechSettings({ dataDir: dir, models, env: { PYTHON_BIN: path.join(dir, 'no-python') } });
+  await settings.refreshProbe();
+  const status = settings.status();
+  assert.ok(status.python.error);
+  assert.equal(status.engines.parakeet.ready, true);
+  assert.equal(status.engines.vosk.ready, false);
 });

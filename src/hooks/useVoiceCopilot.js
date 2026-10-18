@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { startMicrophoneTranscription } from '../audio/microphone-transcription.js';
+import { recordingToWav, startMicrophoneTranscription } from '../audio/microphone-transcription.js';
 import { AUTO_LANGUAGE, createUtteranceLanguage } from '../../shared/language.js';
 import { apiFetch } from '../backend.js';
 
@@ -393,12 +393,17 @@ export function useVoiceCopilot({
             const controller = new AbortController();
             fallbackControllerRef.current = controller;
             const lang = createUtteranceLanguage(language, lastLanguageRef.current).request;
+            // A WAV works with every recognizer; the original format needs ffmpeg in the backend.
+            const wav = await recordingToWav(blob).catch((error) => {
+              console.warn('[VoiceCopilot] Could not decode the recording; sending it as recorded:', error);
+              return null;
+            });
             const res = await apiFetch(`/api/transcribe?lang=${encodeURIComponent(lang)}`, {
               method: 'POST',
               headers: {
-                'Content-Type': blob.type || 'audio/webm',
+                'Content-Type': wav ? 'audio/wav' : blob.type || 'audio/webm',
               },
-              body: blob,
+              body: wav || blob,
               signal: controller.signal,
             });
 

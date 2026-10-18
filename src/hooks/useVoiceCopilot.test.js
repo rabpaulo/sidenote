@@ -44,6 +44,7 @@ function microphoneHarness({ requestPermission, streamedText = 'Frase completa',
       }
     },
     apiFetch: async (_, options) => { requests.push(options); return { json: async () => ({ text: 'Transcrição recuperada' }) }; },
+    recordingToWav: async () => new Uint8Array([82, 73, 70, 70]),
     startMicrophoneTranscription: async (_, __, options) => {
       let resolve;
       const done = new Promise((finish) => { resolve = finish; });
@@ -103,6 +104,8 @@ test('a failed incremental microphone session recovers using the complete record
   await app.state().stopRecording();
   await tick();
   assert.equal(app.requests.length, 1);
+  // The recording goes as a WAV the window decoded, which any recognizer reads.
+  assert.equal(app.requests[0].headers['Content-Type'], 'audio/wav');
   assert.deepEqual(app.submitted, ['Transcrição recuperada']);
 });
 

@@ -27,7 +27,7 @@ function CopyCommand({ command }) {
   );
 }
 
-function ModelRow({ id, state, busy, onDownload, onCancel, onRemove }) {
+export function ModelRow({ id, state, busy, onDownload, onCancel, onRemove }) {
   const model = SPEECH_MODELS[id];
   const download = state?.download;
   const percent = download?.total ? Math.min(100, Math.round((download.received / download.total) * 100)) : 0;

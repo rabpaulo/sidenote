@@ -148,7 +148,8 @@ export function createSpeechSettings({ dataDir, models, env = process.env, onCha
       pip: pipCommand(probe, missingPackages, dataDir),
       binary: engine.binary ? { path: binary, found: !!binary } : null,
       modelsReady,
-      ready: !probe?.error && missingPackages.length === 0 && (!engine.binary || !!binary) && modelsReady,
+      // An engine that runs in Node does not need Python at all.
+      ready: (engine.runtime === 'node' || !probe?.error) && missingPackages.length === 0 && (!engine.binary || !!binary) && modelsReady,
       installing: installing === engine.id,
       installError: installErrors.get(engine.id) || null,
     };

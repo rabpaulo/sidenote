@@ -4,10 +4,14 @@ import path from 'path';
 import os from 'os';
 import { fileURLToPath } from 'url';
 import { killProcessTree, resolvePython } from './cli-process.js';
+import { SPEECH_ENGINES } from '../shared/speech-engines.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const scriptPath = path.resolve(__dirname, 'transcribe.py');
+const nodeWorkerPath = path.resolve(__dirname, 'parakeet-worker.js');
+// Engines that run in Node (the app's own runtime) instead of transcribe.py.
+const NODE_ENGINES = new Set(SPEECH_ENGINES.filter((engine) => engine.runtime === 'node').map((engine) => engine.id));
 
 const GOOGLE = { engine: 'google' };
 // Answers from a local engine that mean "this engine cannot do it", not "no speech".
@@ -27,8 +31,8 @@ const MAX_LOCAL_FAILURES = 3;
  * exits. When a local engine cannot load or keeps failing, requests go to Google
  * instead, and `onEvent` reports it once, until the configuration changes.
  */
-export function createTranscriber({ python = () => resolvePython(), script = scriptPath, spawnImpl = spawn,
-  config = () => GOOGLE, onEvent = () => {}, loadTimeoutMs = 180000 } = {}) {
+export function createTranscriber({ python = () => resolvePython(), script = scriptPath, nodeScript = nodeWorkerPath,
+  spawnImpl = spawn, config = () => GOOGLE, onEvent = () => {}, loadTimeoutMs = 180000 } = {}) {
   const workers = new Map();
   let nextId = 0;
   let disabled = null; // { key, error }: a local configuration that is not used anymore
@@ -39,12 +43,15 @@ export function createTranscriber({ python = () => resolvePython(), script = scr
   const isLocal = (workerConfig) => workerConfig.engine !== 'google';
 
   function start(workerConfig, key) {
-    const { command, args } = python();
-    const child = spawnImpl(command, [...args, script, '--serve', '--config', key], {
+    // A Node engine runs with this process's executable: Node, or Electron acting as Node.
+    const { command, args } = NODE_ENGINES.has(workerConfig.engine)
+      ? { command: process.execPath, args: [nodeScript] }
+      : { command: python().command, args: [...python().args, script] };
+    const child = spawnImpl(command, [...args, '--serve', '--config', key], {
       windowsHide: true,
       stdio: ['pipe', 'pipe', 'pipe'],
       // Python on Windows defaults stdout to the ANSI code page, which breaks accents in the JSON.
-      env: { ...process.env, PYTHONIOENCODING: 'utf-8', PYTHONUTF8: '1' },
+      env: { ...process.env, PYTHONIOENCODING: 'utf-8', PYTHONUTF8: '1', ELECTRON_RUN_AS_NODE: '1' },
     });
     const state = { child, key, config: workerConfig, pending: new Map(), lastOutput: 0, startedAt: Date.now(), ready: null, failed: null };
     let buffer = '';
@@ -59,7 +66,7 @@ export function createTranscriber({ python = () => resolvePython(), script = scr
         if (!line) continue;
         let message;
         try { message = JSON.parse(line); } catch {
-          console.warn('[Transcriber] Unreadable line from transcribe.py:', line.slice(0, 200));
+          console.warn('[Transcriber] Unreadable line from the speech worker:', line.slice(0, 200));
           continue;
         }
         if (message.event === 'ready') {
@@ -80,7 +87,7 @@ export function createTranscriber({ python = () => resolvePython(), script = scr
     });
     child.stderr.on('data', (data) => {
       const text = String(data).trim();
-      if (text) console.warn('[Transcriber] transcribe.py:', text.slice(0, 500));
+      if (text) console.warn(`[Transcriber] ${workerConfig.engine}:`, text.slice(0, 500));
     });
     child.stdin.on('error', () => {}); // a dead worker is reported by 'close'
     const stop = (reason) => {
@@ -89,7 +96,7 @@ export function createTranscriber({ python = () => resolvePython(), script = scr
       for (const request of [...state.pending.values()]) request.answer({ error: state.failed?.error || reason, ...(code && { code }) });
     };
     child.on('error', (error) => {
-      console.error('[Transcriber] Failed to start transcribe.py:', error.message);
+      console.error('[Transcriber] Failed to start the speech worker:', error.message);
       stop(error.message);
     });
     child.on('close', (code) => stop(`O reconhecimento de voz foi encerrado (código ${code})`));
@@ -197,6 +204,10 @@ export function createTranscriber({ python = () => resolvePython(), script = scr
     const key = keyOf(wanted);
     if (isLocal(wanted) && disabled?.key !== key) {
       const result = await send(workerFor(wanted), audioBuffer, language, { timeoutMs, signal });
+      // A format the engine cannot read says nothing about the engine itself.
+      if (result.code === 'unsupported_audio' && !signal?.aborted) {
+        return send(workerFor(GOOGLE), audioBuffer, language, { timeoutMs, signal });
+      }
       if (!ENGINE_FAILURES.has(result.code) || signal?.aborted) {
         if (result.text) failures = 0;
         return result;

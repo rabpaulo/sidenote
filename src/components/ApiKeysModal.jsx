@@ -14,7 +14,7 @@ function statusOf(entry, key) {
   return { text: 'Não verificada', className: 'text-amber-300', detail: entry.reason };
 }
 
-function KeyRow({ provider, keyInfo, entry, busy, onSave, onRemove }) {
+export function KeyRow({ provider, keyInfo, entry, busy, onSave, onRemove }) {
   const [value, setValue] = useState('');
   const status = statusOf(entry, keyInfo);
 
