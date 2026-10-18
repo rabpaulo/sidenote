@@ -1,0 +1,58 @@
+{
+  "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
+  "appId": "com.interviewai.copilot",
+  "productName": "InterviewAI",
+  "directories": {
+    "output": "release",
+    "buildResources": "build"
+  },
+  "files": [
+    "dist/**/*",
+    "electron/**/*",
+    "server/**/*",
+    "shared/**/*",
+    "build/icon.png",
+    "!**/*.test.js",
+    "!server/fixtures/**/*",
+    "!**/__pycache__/**",
+    "package.json"
+  ],
+  "asar": false,
+  "linux": {
+    "target": [
+      {
+        "target": "appimage",
+        "arch": ["x64"]
+      }
+    ],
+    "category": "Development",
+    "icon": "build/icon.png",
+    "synopsis": "InterviewAI Meeting & Voice Copilot",
+    "description": "InterviewAI Meeting & Voice Copilot tailored for coding agents (Antigravity)",
+    "syncDesktopName": true
+  },
+  "win": {
+    "target": [
+      {
+        "target": "nsis",
+        "arch": ["x64"]
+      },
+      {
+        "target": "portable",
+        "arch": ["x64"]
+      }
+    ],
+    "icon": "build/icon.png"
+  },
+  "nsis": {
+    "artifactName": "${productName}-${version}-setup.${ext}",
+    "oneClick": false,
+    "perMachine": false,
+    "allowToChangeInstallationDirectory": true,
+    "createDesktopShortcut": true,
+    "shortcutName": "InterviewAI"
+  },
+  "portable": {
+    "artifactName": "${productName}-${version}-portable.${ext}"
+  }
+}

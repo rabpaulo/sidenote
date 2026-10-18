@@ -1,0 +1,25 @@
+node_modules/
+dist/
+release/
+.DS_Store
+*.log
+
+# Personal interview context (local only)
+/contexto.md
+
+# Local environment settings; keep shareable examples
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Python cache and virtual environments
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Test output
+coverage/
+playwright-report/
+test-results/

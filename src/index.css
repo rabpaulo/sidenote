@@ -1,0 +1,940 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: dark;
+  --interviewai-bg: #050506;
+  --interviewai-surface: #0b0b0d;
+  --interviewai-surface-raised: #111113;
+  --interviewai-line: rgba(255, 255, 255, 0.09);
+  --interviewai-muted: #8c8c93;
+  --interviewai-blue: #2684ff;
+}
+
+@layer base {
+  html {
+    background: var(--interviewai-bg);
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    background-color: var(--interviewai-bg);
+    color: #f4f4f5;
+    font-feature-settings: "ss01" on;
+    text-rendering: optimizeLegibility;
+  }
+  
+  code, pre {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+.app-shell,
+.app-frame {
+  background: var(--interviewai-bg);
+}
+
+/* Linux desktop: the window is transparent and the app fades itself. */
+html.app-translucent,
+html.app-translucent body {
+  background: transparent;
+}
+
+html.app-translucent:not(.app-solid-text) .app-shell {
+  opacity: var(--app-opacity, 1);
+}
+
+/* Solid text: only the surfaces fade; text stays opaque with boosted contrast.
+   The frame carries the single translucent backdrop and the panels on top of it
+   go clear, so stacked layers don't add up into an opaque block. */
+html.app-solid-text {
+  --app-glass: calc(var(--app-opacity, 1) * 100%);
+}
+
+html.app-solid-text .app-shell {
+  background: transparent;
+}
+
+html.app-solid-text .app-frame {
+  background: color-mix(in srgb, var(--interviewai-bg) var(--app-glass), transparent);
+}
+
+html.app-solid-text .app-tabs,
+html.app-solid-text .app-transcript-feed,
+html.app-solid-text .app-reading-status,
+html.app-solid-text .app-audio-panel,
+html.app-solid-text .app-bottom-bar {
+  background: transparent;
+}
+
+html.app-solid-text .app-shell .transcript-entry,
+html.app-solid-text .app-transcript-feed [class*="bg-["],
+html.app-solid-text .app-transcript-feed [class*="bg-black"],
+html.app-solid-text .app-transcript-feed [class*="bg-zinc-9"],
+html.app-solid-text .app-transcript-feed [class*="bg-gradient-to-"] {
+  background-color: color-mix(in srgb, #0d0d10 calc(var(--app-opacity, 1) * 85%), transparent) !important;
+}
+
+html.app-solid-text .app-shell .say-this {
+  background: color-mix(in srgb, #17140c var(--app-glass), transparent);
+}
+
+html.app-solid-text .app-frame {
+  text-shadow: 0 0 1px rgba(0, 0, 0, 0.9), 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+html.app-solid-text .app-frame [class*="text-zinc-6"],
+html.app-solid-text .app-frame [class*="text-zinc-5"] {
+  color: #c4c4cc !important;
+}
+
+html.app-solid-text .app-frame [class*="text-zinc-4"],
+html.app-solid-text .app-frame [class*="text-zinc-3"] {
+  color: #e4e4e7 !important;
+}
+
+/* Popovers stay opaque, so they don't need the reading aids. */
+html.app-solid-text .app-menu,
+html.app-solid-text .app-context-editor {
+  text-shadow: none;
+}
+
+.app-menu {
+  background: #0d0d0f;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+}
+
+.app-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  padding: 7px 10px;
+  border-radius: 8px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.app-menu-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.app-menu-item--danger {
+  color: #ff9a9a;
+}
+
+.app-menu-item--danger:hover {
+  background: rgba(255, 87, 87, 0.1);
+}
+
+.app-menu-divider {
+  height: 1px;
+  margin: 4px 6px;
+  background: var(--interviewai-line);
+}
+
+.app-menu-switch {
+  position: relative;
+  flex-shrink: 0;
+  width: 26px;
+  height: 15px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  transition: background-color 180ms ease-out;
+}
+
+.app-menu-switch::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 11px;
+  height: 11px;
+  border-radius: 999px;
+  background: #f4f4f5;
+  transition: transform 180ms ease-out;
+}
+
+.app-menu-switch--on {
+  background: var(--interviewai-blue);
+}
+
+.app-menu-switch--on::after {
+  transform: translateX(11px);
+}
+
+.app-opacity-slider {
+  accent-color: var(--interviewai-blue);
+}
+
+.app-shell {
+  color: #f4f4f5;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+}
+
+.app-shell button,
+.app-shell input,
+.app-shell textarea {
+  font-family: inherit;
+}
+
+.app-shell button {
+  transition-property: color, background-color, border-color, opacity, transform, box-shadow;
+  transition-duration: 180ms;
+  transition-timing-function: ease-out;
+}
+
+.app-shell button:focus-visible,
+.app-shell input:focus-visible {
+  outline: 2px solid var(--interviewai-blue);
+  outline-offset: 2px;
+}
+
+.app-shell button:active:not(:disabled) {
+  transform: translateY(1px) scale(0.985);
+}
+
+.app-quiet-button:hover {
+  background: rgba(255, 255, 255, 0.075);
+  color: #fff;
+}
+
+.app-tabs {
+  background: #070708;
+  border-bottom: 1px solid var(--interviewai-line);
+}
+
+.app-tab-active {
+  background: #151517;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.app-transcript-feed {
+  background: #070708;
+  scrollbar-gutter: stable;
+}
+
+/* Ctrl +/- text zoom (useTextZoom): scales the feed's content, not the scroller or the rest of the UI. */
+.app-transcript-feed > * {
+  zoom: var(--text-zoom, 1);
+}
+
+.app-reading-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-shrink: 0;
+  padding: 7px 16px;
+  border-top: 1px solid var(--interviewai-line);
+  background: var(--interviewai-surface);
+  color: var(--interviewai-muted);
+  font-size: 10px;
+}
+
+.app-resume-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  padding: 5px 8px;
+  border-radius: 6px;
+  background: rgba(38, 132, 255, 0.13);
+  color: #8ebcff;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.app-resume-live:hover {
+  background: rgba(38, 132, 255, 0.22);
+  color: #c1d9ff;
+}
+
+.app-transcript-feed p,
+.app-transcript-feed pre {
+  user-select: text;
+}
+
+.transcript-entry {
+  border-color: rgba(255, 255, 255, 0.09);
+  background: #0d0d0f;
+  box-shadow: none;
+}
+
+.transcript-entry--question {
+  border-left: 2px solid rgba(255, 255, 255, 0.25);
+}
+
+.transcript-entry--answer,
+.transcript-entry--assistant {
+  border-left: 2px solid var(--interviewai-blue);
+}
+
+.app-audio-panel {
+  background: #070708;
+  border-top: 1px solid var(--interviewai-line);
+}
+
+.audio-level-track {
+  background: rgba(255, 255, 255, 0.09);
+}
+
+.audio-level-fill {
+  background: linear-gradient(90deg, #1c66dc, #76adff);
+  box-shadow: 0 0 12px rgba(38, 132, 255, 0.2);
+}
+
+.audio-toggle-active {
+  border-color: rgba(38, 132, 255, 0.35);
+}
+
+.app-bottom-bar {
+  background: rgba(5, 5, 6, 0.97);
+  border-top: 1px solid var(--interviewai-line);
+}
+
+.app-primary-button:hover {
+  box-shadow: 0 5px 20px rgba(38, 132, 255, 0.14);
+}
+
+.app-text-input {
+  background: #0e0e10;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Meu contexto: full-window sheet with tabbed sections. */
+.app-context-editor {
+  background: var(--interviewai-bg);
+  animation: app-sheet-in 160ms ease-out;
+}
+
+@keyframes app-sheet-in {
+  from { opacity: 0; transform: translateY(6px); }
+}
+
+.app-context-tabs {
+  border-bottom: 1px solid var(--interviewai-line);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.app-context-tab {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 9px 10px;
+  font-size: 12px;
+  color: var(--interviewai-muted);
+  cursor: pointer;
+}
+
+.app-context-tab:hover {
+  color: #f4f4f5;
+}
+
+.app-context-tab[aria-selected="true"] {
+  color: #fff;
+}
+
+.app-context-tab[aria-selected="true"]::after {
+  content: "";
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: -1px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--interviewai-blue);
+}
+
+.app-context-tab__dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--interviewai-blue);
+}
+
+.app-context-tab__count {
+  min-width: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: rgba(38, 132, 255, 0.18);
+  color: #9cc4ff;
+  font-size: 10px;
+  line-height: 16px;
+  text-align: center;
+}
+
+.app-context-card {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--interviewai-surface-raised);
+  border: 1px solid var(--interviewai-line);
+}
+
+.app-dropzone {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px dashed rgba(255, 255, 255, 0.16);
+  background: var(--interviewai-surface-raised);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 150ms ease-out, background-color 150ms ease-out;
+}
+
+.app-dropzone:hover,
+.app-dropzone--active {
+  border-color: rgba(38, 132, 255, 0.6);
+  background: rgba(38, 132, 255, 0.08);
+}
+
+.app-dropzone[aria-busy="true"] {
+  cursor: progress;
+  border-style: solid;
+}
+
+.app-dropzone__icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: rgba(38, 132, 255, 0.14);
+  color: #8fbcff;
+}
+
+.app-context-footer {
+  border-top: 1px solid var(--interviewai-line);
+  background: var(--interviewai-surface);
+}
+
+.app-field {
+  display: block;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #0e0e10;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #f4f4f5;
+  font-size: 12px;
+  font-family: inherit;
+  transition: border-color 150ms ease-out;
+}
+
+.app-field::placeholder {
+  color: #71717a;
+}
+
+.app-field:focus,
+.app-field:focus-within {
+  outline: none;
+  border-color: rgba(38, 132, 255, 0.55);
+}
+
+/* The border already marks focus; skip the shell's generic outline. */
+.app-shell .app-field:focus-visible,
+.app-shell .app-field input:focus-visible {
+  outline: none;
+}
+
+.app-chip {
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 11px;
+  color: #a1a1aa;
+  cursor: pointer;
+}
+
+.app-chip:hover {
+  color: #f4f4f5;
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.app-chip--on {
+  color: #fff;
+  background: rgba(38, 132, 255, 0.18);
+  border-color: rgba(38, 132, 255, 0.5);
+}
+
+.app-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px 2px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 11px;
+  color: #e4e4e7;
+}
+
+/* Keep older per-provider utility colors inside the app's restrained palette. */
+.app-shell [class*="text-cyan-"],
+.app-shell [class*="text-indigo-"],
+.app-shell [class*="text-purple-"],
+.app-shell [class*="text-emerald-"],
+.app-shell [class*="text-amber-"] {
+  color: #8ebcff !important;
+}
+
+.app-shell [class*="bg-cyan-"],
+.app-shell [class*="bg-indigo-"],
+.app-shell [class*="bg-purple-"],
+.app-shell [class*="bg-emerald-"],
+.app-shell [class*="bg-amber-"] {
+  background-color: rgba(255, 255, 255, 0.055) !important;
+}
+
+.app-shell [class*="border-cyan-"],
+.app-shell [class*="border-indigo-"],
+.app-shell [class*="border-purple-"],
+.app-shell [class*="border-emerald-"],
+.app-shell [class*="border-amber-"] {
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+.app-shell [class*="bg-gradient-to-"] {
+  background-image: none !important;
+  background-color: #101012 !important;
+}
+
+.app-shell [class*="shadow-cyan-"],
+.app-shell [class*="shadow-indigo-"],
+.app-shell [class*="shadow-purple-"],
+.app-shell [class*="shadow-emerald-"],
+.app-shell [class*="shadow-amber-"] {
+  box-shadow: none !important;
+}
+
+.app-shell .app-transcript-feed div[class*="rounded"][class*="border"] {
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+/* The spoken suggestion keeps one recognizable color across AI providers. */
+.app-shell .say-this {
+  position: relative;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid #756033;
+  border-left: 4px solid #f0c15a;
+  border-radius: 12px;
+  background: #17140c;
+}
+
+.say-this__copy {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  min-height: 28px;
+  border-radius: 6px;
+  color: #c3ac7c;
+  cursor: pointer;
+}
+
+.say-this__copy:hover {
+  background: rgba(240, 193, 90, 0.12);
+}
+
+.say-this__copy:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+.say-this__content {
+  padding: 12px 44px 12px 12px;
+}
+
+.say-this__body,
+.say-this__body > div {
+  color: #fff5dc;
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.say-this__pending {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px !important;
+}
+
+/* Raw note sections from the local Obsidian search, shown before the answer. */
+.app-shell .notes-card {
+  margin-top: 8px;
+  padding: 8px 10px;
+  border: 1px solid rgba(52, 211, 153, 0.28);
+  border-left: 3px solid #34d399;
+  border-radius: 10px;
+  background: #0c1713;
+  font-style: normal;
+}
+
+.notes-card__header {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 6px;
+  color: #6ee7b7;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.notes-card__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.notes-card__source {
+  overflow: hidden;
+  color: #a7f3d0;
+  font-size: 10px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.notes-card__snippet {
+  margin-top: 2px;
+  color: #e4f5ec;
+  font-size: 12.5px;
+  line-height: 1.55;
+  white-space: pre-line;
+  user-select: text;
+}
+
+.notes-card__snippet mark {
+  padding: 0 2px;
+  border-radius: 3px;
+  background: rgba(52, 211, 153, 0.22);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Glassmorphism effects */
+.glass-panel {
+  background: rgba(18, 18, 24, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-card {
+  background: rgba(24, 24, 32, 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.glow-cyan {
+  box-shadow: 0 0 35px -5px rgba(6, 182, 212, 0.25);
+}
+
+.glow-purple {
+  box-shadow: 0 0 35px -5px rgba(168, 85, 247, 0.25);
+}
+
+/* Custom waveform animation for idle/speech states */
+@keyframes wavePulse {
+  0%, 100% {
+    transform: scaleY(0.2);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+.animate-wave-bar {
+  animation: wavePulse 1.2s ease-in-out infinite;
+  transform-origin: bottom;
+}
+
+/* Custom sleek scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Electron Window Drag Regions */
+.app-drag-region {
+  -webkit-app-region: drag;
+  user-select: none;
+}
+
+.app-no-drag {
+  -webkit-app-region: no-drag;
+}
+
+/* Subtle glow animations */
+@keyframes interviewaiPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.92);
+  }
+}
+
+.animate-interviewai-pulse {
+  animation: interviewaiPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Let CodeBlock's container provide the background for highlighted code. */
+.hljs {
+  background: transparent;
+  padding: 0;
+}
+
+/* Agent replies: compact markdown tuned for a narrow floating window. */
+.agent-markdown {
+  color: #e4e4e7;
+  font-size: 13px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+  user-select: text;
+}
+
+.agent-markdown > * + *,
+.agent-markdown :is(blockquote, li) > * + * {
+  margin-top: 0.7em;
+}
+
+.agent-markdown :is(h1, h2, h3, h4, h5, h6) {
+  color: #fafafa;
+  font-weight: 700;
+  line-height: 1.35;
+  margin-top: 1.1em;
+}
+
+.agent-markdown > :first-child {
+  margin-top: 0;
+}
+
+.agent-markdown :is(h1, h2) { font-size: 1.12em; }
+.agent-markdown h3 { font-size: 1.05em; }
+.agent-markdown :is(h4, h5, h6) {
+  font-size: 0.82em;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #a1a1aa;
+}
+
+.agent-markdown strong {
+  color: #fafafa;
+  font-weight: 700;
+}
+
+.agent-markdown :is(ul, ol) {
+  padding-left: 1.3em;
+}
+
+.agent-markdown ul { list-style: disc; }
+.agent-markdown ol { list-style: decimal; }
+.agent-markdown li + li { margin-top: 0.3em; }
+.agent-markdown li::marker { color: #71717a; }
+
+.agent-markdown blockquote {
+  border-left: 2px solid rgba(34, 211, 238, 0.45);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 0 8px 8px 0;
+  padding: 0.5em 0.8em;
+  color: #d4d4d8;
+}
+
+.agent-markdown hr {
+  border: 0;
+  border-top: 1px solid var(--interviewai-line);
+  margin: 1em 0;
+}
+
+.agent-markdown a {
+  color: #67e8f9;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.agent-markdown :not(pre) > code {
+  padding: 0.1em 0.38em;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #a5f3fc;
+  font-size: 0.9em;
+}
+
+.agent-markdown__table {
+  overflow-x: auto;
+}
+
+.agent-markdown table {
+  border-collapse: collapse;
+  font-size: 0.92em;
+}
+
+.agent-markdown :is(th, td) {
+  border: 1px solid var(--interviewai-line);
+  padding: 0.35em 0.6em;
+  text-align: left;
+}
+
+.agent-markdown th {
+  background: rgba(255, 255, 255, 0.04);
+  font-weight: 600;
+}
+
+.code-frame {
+  overflow: hidden;
+  border: 1px solid #27272a;
+  border-radius: 10px;
+  background: #0d0d12;
+}
+
+.code-frame__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 6px 0 10px;
+  min-height: 34px;
+  background: rgba(24, 24, 27, 0.85);
+  border-bottom: 1px solid rgba(39, 39, 42, 0.8);
+  font-size: 11px;
+  color: #a1a1aa;
+}
+
+.code-frame__title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+  color: #d4d4d8;
+}
+
+.code-frame__tabs {
+  display: flex;
+  align-self: stretch;
+  min-width: 0;
+  margin-left: -10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.code-frame__tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 200px;
+  padding: 0 12px;
+  border-bottom: 2px solid transparent;
+  color: #a1a1aa;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.code-frame__tab > span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.code-frame__tab:hover {
+  color: #f4f4f5;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.code-frame__tab[aria-selected="true"] {
+  color: #f4f4f5;
+  border-bottom-color: #22d3ee;
+  background: rgba(34, 211, 238, 0.06);
+}
+
+.code-frame__tab:focus-visible {
+  outline: 2px solid #22d3ee;
+  outline-offset: -2px;
+}
+
+.code-frame__streaming {
+  width: 6px;
+  height: 6px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: #22d3ee;
+  animation: interviewaiPulse 1.2s ease-in-out infinite;
+}
+
+.code-frame__copy {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: #27272a;
+  color: #d4d4d8;
+  cursor: pointer;
+}
+
+.code-frame__copy:hover {
+  background: #3f3f46;
+  color: #fff;
+}
+
+.code-frame__note {
+  padding: 8px 12px 0;
+  font-size: 12px;
+  color: #a1a1aa;
+}
+
+.code-frame__body {
+  margin: 0;
+  padding: 12px 14px;
+  overflow-x: auto;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: #e4e4e7;
+  user-select: text;
+}
+
+.code-frame__body code.hljs {
+  display: block;
+  padding: 0;
+  overflow: visible;
+}
