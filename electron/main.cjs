@@ -99,21 +99,36 @@ function ensureServerRunning() {
 
   return (async () => {
     // A backend this window did not start wrote its token to the profile folder.
-    const reuseToken = () => {
+    // Another backend (an old run, or one with another profile) may hold the port with a
+    // token this window cannot read: every request would fail with "Não autorizado".
+    const reuseToken = async () => {
       backendToken = readBackendToken();
-      if (!backendToken) console.warn('[Electron] The running backend has no token file; restart it to use the app.');
+      if (backendToken && await tokenAccepted(backendToken)) return;
+      const message = `Outro backend do Sidenote está usando a porta 3001 e não aceita o token deste app. `
+        + `Feche-o (por exemplo: fuser -k 3001/tcp) e abra o app de novo.`;
+      console.error(`[Electron] ${message}`);
+      dialog.showErrorBox('Sidenote', message);
+      throw new Error('The backend on port 3001 rejects this token');
     };
+    const tokenAccepted = (token) => new Promise((resolve) => {
+      const request = http.get(`${BACKEND_URL}/api/status`, { headers: { 'x-sidenote-token': token } }, (response) => {
+        response.resume();
+        resolve(response.statusCode !== 401);
+      });
+      request.setTimeout(2000, () => request.destroy());
+      request.on('error', () => resolve(false));
+    });
 
     if (await isBackendRunning()) {
       console.log('[Electron] Backend server is already running.');
-      reuseToken();
+      await reuseToken();
       return;
     }
 
     if (managedByDevScript) {
       console.log('[Electron] Waiting for the dev script backend...');
       await waitForBackend();
-      reuseToken();
+      await reuseToken();
       console.log('[Electron] Dev backend is ready!');
       return;
     }
@@ -123,7 +138,8 @@ function ensureServerRunning() {
     const serverScript = path.join(__dirname, '../server/index.js');
     serverProcess = spawn(process.execPath || 'node', [serverScript], {
       cwd: path.join(__dirname, '..'),
-      stdio: 'inherit',
+      // The IPC channel lets the backend notice when this process dies (server/index.js).
+      stdio: ['inherit', 'inherit', 'inherit', 'ipc'],
       windowsHide: true,
       env: { ...process.env, PORT: '3001', ELECTRON_RUN_AS_NODE: '1', SIDENOTE_TOKEN: backendToken },
     });

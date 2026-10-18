@@ -1280,18 +1280,21 @@ function handleClientMessage(ws, data) {
   }
 }
 
-for (const signal of ['SIGINT', 'SIGTERM']) {
-  process.on(signal, () => {
-    liveCopilot.cancel();
-    activeAgentProcess?.kill();
-    closeAgentSession();
-    systemAudioEngine.stopCapture();
-    notesVault.close();
-    // The meeting in progress is summarized and titled on the next start.
-    meetingHistory.flushDraft();
-    process.exit(0);
-  });
+function shutdown() {
+  liveCopilot.cancel();
+  activeAgentProcess?.kill();
+  closeAgentSession();
+  systemAudioEngine.stopCapture();
+  notesVault.close();
+  // The meeting in progress is summarized and titled on the next start.
+  meetingHistory.flushDraft();
+  process.exit(0);
 }
+
+for (const signal of ['SIGINT', 'SIGTERM']) process.on(signal, shutdown);
+// Started by Electron with an IPC channel: the channel closes when Electron dies, even
+// when it is killed, so the backend never outlives it holding the port with its token.
+if (process.send) process.on('disconnect', shutdown);
 
 // Another backend already has the port: stop here, before touching any data.
 server.on('error', (error) => {
