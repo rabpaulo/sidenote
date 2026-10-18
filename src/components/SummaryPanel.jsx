@@ -93,6 +93,7 @@ export function SummaryPanel({
           <div className="mb-3 p-2.5 rounded-lg bg-white/[0.03] border border-white/[0.06] space-y-2 text-[11px] text-zinc-300">
             <Toggle label="Atualizar automaticamente durante a conversa" checked={settings.auto} onChange={(auto) => onChangeSettings({ auto })} />
             <Toggle label="Salvar sessão ao iniciar uma nova" checked={settings.saveOnReset} onChange={(saveOnReset) => onChangeSettings({ saveOnReset })} />
+            <Toggle label="Salvar reuniões terminadas na vault do Obsidian" checked={settings.saveToVault} onChange={(saveToVault) => onChangeSettings({ saveToVault })} />
             <label className="block space-y-1">
               <span>Modelo do resumo</span>
               <select

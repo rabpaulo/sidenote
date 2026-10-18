@@ -78,6 +78,7 @@ function listItem(record, snippet = null) {
     endedAt: record.endedAt,
     status: record.status,
     summaryError: record.summaryError || null,
+    vaultFile: record.vaultFile || null,
     counts: { interlocutor: count('interlocutor'), user: count('user') },
     snippet,
   };

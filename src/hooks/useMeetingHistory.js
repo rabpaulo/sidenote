@@ -18,6 +18,7 @@ export function useMeetingHistory(version) {
   const [error, setError] = useState('');
   const [selectedId, setSelectedId] = useState(null);
   const [selected, setSelected] = useState(null);
+  const [notice, setNotice] = useState('');
 
   useEffect(() => {
     let cancelled = false;
@@ -53,6 +54,19 @@ export function useMeetingHistory(version) {
     }
   }, []);
 
+  // Writes one meeting (or, without an id, every meeting not there yet) to the Obsidian vault.
+  const saveToVault = useCallback(async (id) => {
+    setError('');
+    setNotice('');
+    try {
+      const result = await requestHistory(id ? `/${encodeURIComponent(id)}/vault` : '/vault', 'POST');
+      if (id) setNotice(`Salvo na vault: ${result.file.split(/[\\/]/).pop()}`);
+      else setNotice(result.saved ? `${result.saved} ${result.saved === 1 ? 'reunião salva' : 'reuniões salvas'} na vault.` : 'Todas as reuniões já estão na vault.');
+    } catch (failure) {
+      setError(failure.message);
+    }
+  }, []);
+
   const summarize = useCallback(async (id) => {
     try {
       await requestHistory(`/${encodeURIComponent(id)}/summarize`, 'POST');
@@ -61,5 +75,8 @@ export function useMeetingHistory(version) {
     }
   }, []);
 
-  return { query, setQuery, meetings, error, clearError: () => setError(''), selectedId, select: setSelectedId, selected, remove, summarize };
+  return {
+    query, setQuery, meetings, error, clearError: () => setError(''), notice, clearNotice: () => setNotice(''),
+    selectedId, select: setSelectedId, selected, remove, summarize, saveToVault,
+  };
 }

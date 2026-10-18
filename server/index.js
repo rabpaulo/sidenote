@@ -22,6 +22,7 @@ import { createConversationMemory } from './conversation-memory.js';
 import { createSessionTranscript } from './session-transcript.js';
 import { buildSummaryPrompt, createSummaryService, parseSummary, saveSessionMarkdown, sessionMarkdown } from './session-summary.js';
 import { createMeetingHistory } from './meeting-history.js';
+import { existingNote, writeMeetingNote } from './meeting-vault.js';
 import { listAudioStreams } from './audio-apps.js';
 import { createBackendAuth } from './backend-auth.js';
 import { buildAgentPrompt } from './agent-prompt.js';
@@ -104,7 +105,7 @@ let activeLanguage = AUTO_LANGUAGE;
 const conversationMemory = createConversationMemory();
 const sessionTranscript = createSessionTranscript();
 // Summary settings come from the client. No provider means the conversation's model.
-let summarySettings = { auto: true, provider: null, model: null, saveOnReset: true };
+let summarySettings = { auto: true, provider: null, model: null, saveOnReset: true, saveToVault: false };
 // Finished meetings, titled by the model that writes their final summary.
 // Speech recognition: Google, or a local engine whose model is downloaded next to the profile.
 const dataDir = path.dirname(profileStore.file);
@@ -366,8 +367,39 @@ function summarizeMeeting(id, { previous = null } = {}) {
 
 async function summarizePendingMeetings() {
   for (const id of pendingMeetings.splice(0)) {
-    if (meetingHistory.get(id)?.status === 'pending') await summarizeMeeting(id);
+    if (meetingHistory.get(id)?.status !== 'pending') continue;
+    await summarizeMeeting(id);
+    autoSaveToVault(id);
   }
+}
+
+function connectedVault() {
+  const { connected, path: vaultPath } = notesVault.status;
+  return connected && vaultPath ? vaultPath : null;
+}
+
+// Writes a history meeting into the Obsidian vault and remembers its note.
+async function saveMeetingToVault(id) {
+  const vaultPath = connectedVault();
+  if (!vaultPath) throw Object.assign(new Error('Conecte uma vault do Obsidian para salvar nela.'), { status: 400 });
+  const record = meetingHistory.get(id);
+  if (!record) throw Object.assign(new Error('Reunião não encontrada.'), { status: 404 });
+  const file = await writeMeetingNote(vaultPath, record);
+  meetingHistory.update(id, { vaultFile: file });
+  return file;
+}
+
+function autoSaveToVault(id) {
+  if (!summarySettings.saveToVault || !connectedVault()) return;
+  saveMeetingToVault(id)
+    .then((file) => {
+      console.log(`[History] Saved ${id} to the vault at ${file}`);
+      broadcast({ type: 'summary_saved', file, archived: true, vault: true });
+    })
+    .catch((error) => {
+      console.error(`[History] Could not save ${id} to the vault: ${error.message}`);
+      broadcast({ type: 'summary_save_error', error: error.message });
+    });
 }
 
 // "Nova sessão" moves the finished meeting into the history, summarizing it first
@@ -384,6 +416,7 @@ function archiveSession() {
   });
   if (!record) return;
   const finished = current ? Promise.resolve(record) : summarizeMeeting(record.id, { previous: summaryService.basis() });
+  finished.then(() => autoSaveToVault(record.id));
   if (!summarySettings.saveOnReset) return;
   finished
     .then((saved) => saveSessionMarkdown(sessionsDir(),
@@ -835,6 +868,39 @@ app.post('/api/history/:id/summarize', (req, res) => {
   res.json({ success: true });
 });
 
+// Writes every finished meeting that has no note in the connected vault yet.
+app.post('/api/history/vault', async (req, res) => {
+  const vaultPath = connectedVault();
+  if (!vaultPath) return res.status(400).json({ error: 'Conecte uma vault do Obsidian para salvar nela.' });
+  let saved = 0;
+  let skipped = 0;
+  try {
+    for (const { id, status } of meetingHistory.list({ limit: Infinity })) {
+      const record = meetingHistory.get(id);
+      if (status === 'pending' || status === 'summarizing' || await existingNote(vaultPath, record)) { skipped++; continue; }
+      await saveMeetingToVault(id);
+      saved++;
+    }
+    console.log(`[History] Saved ${saved} meetings to the vault (${skipped} skipped)`);
+    res.json({ saved, skipped });
+  } catch (error) {
+    console.error(`[History] Vault export failed: ${error.message}`);
+    res.status(500).json({ error: 'Não foi possível salvar na vault.', saved, skipped });
+  }
+});
+
+app.post('/api/history/:id/vault', async (req, res) => {
+  try {
+    const file = await saveMeetingToVault(req.params.id);
+    console.log(`[History] Saved ${req.params.id} to the vault at ${file}`);
+    res.json({ file });
+  } catch (error) {
+    if (error.status) return res.status(error.status).json({ error: error.message });
+    console.error(`[History] Could not save ${req.params.id} to the vault: ${error.message}`);
+    res.status(500).json({ error: 'Não foi possível salvar na vault.' });
+  }
+});
+
 app.delete('/api/history/:id', async (req, res) => {
   try {
     if (!(await meetingHistory.remove(req.params.id))) return res.status(404).json({ error: 'Reunião não encontrada.' });
@@ -1125,12 +1191,13 @@ function handleClientMessage(ws, data) {
   }
 
   if (type === 'summary_settings') {
-    const { auto, provider, model, saveOnReset } = data.settings || {};
+    const { auto, provider, model, saveOnReset, saveToVault } = data.settings || {};
     summarySettings = {
       auto: auto !== undefined ? !!auto : summarySettings.auto,
       provider: provider === undefined ? summarySettings.provider : PROVIDER_IDS.includes(provider) ? provider : null,
       model: model === undefined ? summarySettings.model : (typeof model === 'string' && model) || null,
       saveOnReset: saveOnReset !== undefined ? !!saveOnReset : summarySettings.saveOnReset,
+      saveToVault: saveToVault !== undefined ? !!saveToVault : summarySettings.saveToVault,
     };
     summaryService.refresh();
     return;

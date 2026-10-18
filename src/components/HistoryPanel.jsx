@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Search, ArrowLeft, Trash2, Copy, Check, Sparkles, X, AlertCircle, History } from 'lucide-react';
+import { Search, ArrowLeft, Trash2, Copy, Check, Sparkles, X, AlertCircle, History, BookOpen } from 'lucide-react';
 import { FormattedAgentResponse } from './CodeBlock.jsx';
 
 const ROLE_LABELS = { interlocutor: 'Interlocutor', user: 'Você', assistant: 'Sugestão da IA' };
@@ -45,7 +45,12 @@ function Snippet({ snippet }) {
   );
 }
 
-function MeetingDetail({ meeting, onBack, onDelete, onSummarize }) {
+function vaultTitle(vaultConnected, meeting) {
+  if (!vaultConnected) return 'Conecte uma vault do Obsidian para salvar nela';
+  return meeting.vaultFile ? 'Atualizar a nota na vault do Obsidian' : 'Salvar na vault do Obsidian (pasta Sidenote)';
+}
+
+function MeetingDetail({ meeting, onBack, onDelete, onSummarize, onSaveToVault, vaultConnected }) {
   const [copied, setCopied] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const running = summarizing(meeting);
@@ -79,6 +84,16 @@ function MeetingDetail({ meeting, onBack, onDelete, onSummarize }) {
             className="p-1 rounded text-zinc-400 hover:bg-white/10 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {copied ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
+          </button>
+          <button
+            type="button"
+            onClick={() => onSaveToVault(meeting.id)}
+            disabled={!vaultConnected || running}
+            title={vaultTitle(vaultConnected, meeting)}
+            aria-label={vaultTitle(vaultConnected, meeting)}
+            className={`p-1 rounded hover:bg-white/10 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${meeting.vaultFile ? 'text-emerald-300' : 'text-zinc-400'}`}
+          >
+            <BookOpen size={12} />
           </button>
           <button
             type="button"
@@ -144,8 +159,17 @@ function MeetingDetail({ meeting, onBack, onDelete, onSummarize }) {
   );
 }
 
-export function HistoryPanel({ history }) {
-  const { query, setQuery, meetings, error, clearError, selectedId, select, selected, remove, summarize } = history;
+export function HistoryPanel({ history, vaultConnected }) {
+  const {
+    query, setQuery, meetings, error, clearError, notice, clearNotice, selectedId, select, selected, remove, summarize, saveToVault,
+  } = history;
+  const [savingAll, setSavingAll] = useState(false);
+
+  const saveAll = async () => {
+    setSavingAll(true);
+    await saveToVault();
+    setSavingAll(false);
+  };
 
   return (
     <div className="app-transcript-feed flex-1 overflow-y-auto px-4 py-4 space-y-3 text-xs">
@@ -158,26 +182,54 @@ export function HistoryPanel({ history }) {
         </div>
       )}
 
+      {notice && (
+        <div role="status" className="flex items-start justify-between gap-2 text-[11px] text-emerald-300">
+          <span className="break-all">{notice}</span>
+          <button type="button" onClick={clearNotice} className="p-0.5 rounded hover:bg-white/10 cursor-pointer shrink-0" aria-label="Fechar aviso">
+            <X size={10} />
+          </button>
+        </div>
+      )}
+
       {selectedId && selected ? (
-        <MeetingDetail meeting={selected} onBack={() => select(null)} onDelete={remove} onSummarize={summarize} />
+        <MeetingDetail
+          meeting={selected}
+          onBack={() => select(null)}
+          onDelete={remove}
+          onSummarize={summarize}
+          onSaveToVault={saveToVault}
+          vaultConnected={vaultConnected}
+        />
       ) : (
         <>
-          <label className="flex items-center gap-2 rounded-lg border border-white/10 bg-black/30 px-2.5 py-1.5 focus-within:border-blue-500/50">
-            <Search size={12} className="text-zinc-500 shrink-0" />
-            <input
-              type="search"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Buscar por título, assunto ou fala…"
-              aria-label="Buscar no histórico"
-              className="flex-1 min-w-0 bg-transparent text-[12px] text-zinc-100 outline-none placeholder:text-zinc-600"
-            />
-            {query && (
-              <button type="button" onClick={() => setQuery('')} aria-label="Limpar busca" className="p-0.5 rounded text-zinc-500 hover:text-zinc-200 cursor-pointer">
-                <X size={11} />
-              </button>
-            )}
-          </label>
+          <div className="flex items-center gap-1.5">
+            <label className="flex-1 min-w-0 flex items-center gap-2 rounded-lg border border-white/10 bg-black/30 px-2.5 py-1.5 focus-within:border-blue-500/50">
+              <Search size={12} className="text-zinc-500 shrink-0" />
+              <input
+                type="search"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Buscar por título, assunto ou fala…"
+                aria-label="Buscar no histórico"
+                className="flex-1 min-w-0 bg-transparent text-[12px] text-zinc-100 outline-none placeholder:text-zinc-600"
+              />
+              {query && (
+                <button type="button" onClick={() => setQuery('')} aria-label="Limpar busca" className="p-0.5 rounded text-zinc-500 hover:text-zinc-200 cursor-pointer">
+                  <X size={11} />
+                </button>
+              )}
+            </label>
+            <button
+              type="button"
+              onClick={saveAll}
+              disabled={!vaultConnected || savingAll || !meetings?.length}
+              title={vaultConnected ? 'Salvar na vault as reuniões que ainda não estão lá' : 'Conecte uma vault do Obsidian para salvar nela'}
+              aria-label="Salvar todas as reuniões na vault do Obsidian"
+              className="shrink-0 p-1.5 rounded-lg border border-white/10 text-zinc-300 hover:bg-white/10 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <BookOpen size={13} className={savingAll ? 'animate-pulse' : ''} />
+            </button>
+          </div>
 
           {meetings === null ? (
             <p className="text-[11px] text-zinc-500">Carregando…</p>
@@ -211,6 +263,7 @@ export function HistoryPanel({ history }) {
                       <span>{meeting.counts.interlocutor + meeting.counts.user} falas</span>
                       {summarizing(meeting) && <span className="text-emerald-300/80">· resumindo…</span>}
                       {!summarizing(meeting) && meeting.summaryError && <span className="text-rose-300/80">· sem resumo</span>}
+                      {meeting.vaultFile && <span className="text-emerald-300/70" title={meeting.vaultFile}>· na vault</span>}
                     </div>
                     <Snippet snippet={meeting.snippet} />
                   </button>

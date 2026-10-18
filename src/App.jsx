@@ -563,7 +563,7 @@ export default function App() {
 
         {/* Core Feed ("Mostra só o que deve mostrar") */}
         {!isCompact && activeTab === 'history' ? (
-          <HistoryPanel history={meetingHistory} />
+          <HistoryPanel history={meetingHistory} vaultConnected={!!notesVault.status?.connected} />
         ) : !isCompact && activeTab === 'summary' ? (
           <SummaryPanel
             messages={messages}
