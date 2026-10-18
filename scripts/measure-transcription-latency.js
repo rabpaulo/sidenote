@@ -23,9 +23,9 @@ if (!file) {
   process.exit(2);
 }
 const dataDir = path.dirname(defaultProfilePath());
-const models = createModelStore({ dir: process.env.INTERVIEWAI_MODELS_DIR || path.join(dataDir, 'models') });
+const models = createModelStore({ dir: process.env.SIDENOTE_MODELS_DIR || path.join(dataDir, 'models') });
 // The choice is kept in a scratch folder, so the app's own setting is not touched.
-const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'interviewai-latency-'));
+const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'sidenote-latency-'));
 const choice = createSpeechSettings({ dataDir: scratch, models });
 choice.save({ engine: speechEngine, variant });
 fs.rmSync(scratch, { recursive: true, force: true });

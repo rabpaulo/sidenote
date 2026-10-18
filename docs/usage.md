@@ -1,8 +1,8 @@
 # Guia de uso
 
-## Preparar uma entrevista
+## Preparar uma conversa
 
-Abra o app com `npm start`. No menu (☰) da barra inferior, selecione em **Modelo** o provedor, o modelo e o nível de raciocínio, e em **Modo** a persona adequada: conversa geral, entrevista técnica, arquitetura, comportamental, RH, perguntas ao entrevistador ou vendas.
+Abra o app com `npm start`. No menu (☰) da barra inferior, selecione em **Modelo** o provedor, o modelo e o nível de raciocínio, e em **Modo** a persona adequada: conversa geral, vendas, entrevista técnica, arquitetura, comportamental, RH, perguntas ao entrevistador ou vendas.
 
 O app prepara a sessão do agente sem enviar uma pergunta. Ao abrir, o backend verifica cada provedor sem gastar cota: se o CLI está instalado e logado e, no Antigravity (`agy models`) e no Codex (`model/list`), quais modelos a conta oferece. O Claude Code informa só o login, então todos os modelos da lista ficam liberados quando ele está logado. No seletor, provedores e modelos indisponíveis aparecem desativados, com o motivo; **Verificar novamente** refaz a verificação, por exemplo depois de um login.
 
@@ -14,7 +14,7 @@ Com o [OpenCode](https://opencode.ai) instalado (`opencode` no PATH, em `~/.open
 
 ### Chaves de API
 
-Em **Menu → Chaves de API** (ou **Gerenciar keys** no seletor de modelo), cole a key de OpenAI, Anthropic, Google Gemini, OpenRouter, Groq, DeepSeek, Mistral ou xAI. O backend valida a key listando os modelos da conta, sem gastar tokens, e o provedor passa a aparecer em **Modelo** com esses modelos; uma key recusada aparece como **Inválida**. Para um modelo que não estiver na lista, informe o ID em **Outro modelo**. As keys ficam em `api-keys.json`, ao lado do perfil (`~/.local/share/interviewai/` no Linux, `%APPDATA%\InterviewAI\` no Windows), legíveis só pelo seu usuário; a interface nunca recebe a key de volta, só os últimos caracteres. Sem key salva, o app usa a variável de ambiente do provedor (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`...). As keys também são repassadas ao OpenCode, que então oferece os modelos desses provedores.
+Em **Menu → Chaves de API** (ou **Gerenciar keys** no seletor de modelo), cole a key de OpenAI, Anthropic, Google Gemini, OpenRouter, Groq, DeepSeek, Mistral ou xAI. O backend valida a key listando os modelos da conta, sem gastar tokens, e o provedor passa a aparecer em **Modelo** com esses modelos; uma key recusada aparece como **Inválida**. Para um modelo que não estiver na lista, informe o ID em **Outro modelo**. As keys ficam em `api-keys.json`, ao lado do perfil (`~/.local/share/sidenote/` no Linux, `%APPDATA%\Sidenote\` no Windows), legíveis só pelo seu usuário; a interface nunca recebe a key de volta, só os últimos caracteres. Sem key salva, o app usa a variável de ambiente do provedor (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`...). As keys também são repassadas ao OpenCode, que então oferece os modelos desses provedores.
 
 Nesses provedores o histórico da conversa fica na memória do backend e vai junto a cada pergunta, até ser apagado por **Nova sessão**. Em **Raciocínio**, **Padrão** não envia nível de esforço; OpenAI, Anthropic, Gemini e OpenRouter aceitam Low, Médio e High (modelos sem raciocínio podem recusar o parâmetro). Nos modelos Claude Fable 5.1, Opus 5.5, Opus 5 e Sonnet 5.5 o app ativa o fallback de recusa da Anthropic, que reenvia a pergunta a outro modelo se a resposta for recusada.
 
@@ -51,7 +51,7 @@ A linguagem preferida (por exemplo, TypeScript) vira o padrão das soluções de
 
 **Salvar** (ou Ctrl+S) grava todas as abas de uma vez. Fechar com alterações pendentes pede confirmação antes de descartar. O contexto completo aceita até 10.000 caracteres; o contador fica no rodapé.
 
-O perfil é salvo pelo backend em `~/.local/share/interviewai/profile.json` (ou `$XDG_DATA_HOME/interviewai/profile.json`); no Windows, em `%APPDATA%\InterviewAI\profile.json`. O arquivo fica fora dos dados do Electron e do armazenamento do navegador, então continua disponível ao reiniciar o app, iniciar uma **Nova Sessão**, limpar os dados do app, trocar entre desenvolvimento e o pacote (AppImage ou Windows) ou reinstalar. A variável `INTERVIEWAI_PROFILE_PATH` troca o local. Um contexto salvo por versões anteriores no armazenamento local é migrado automaticamente para as notas na primeira abertura.
+O perfil é salvo pelo backend em `~/.local/share/sidenote/profile.json` (ou `$XDG_DATA_HOME/sidenote/profile.json`); no Windows, em `%APPDATA%\Sidenote\profile.json`. O arquivo fica fora dos dados do Electron e do armazenamento do navegador, então continua disponível ao reiniciar o app, iniciar uma **Nova Sessão**, limpar os dados do app, trocar entre desenvolvimento e o pacote (AppImage ou Windows) ou reinstalar. A variável `SIDENOTE_PROFILE_PATH` troca o local. Um contexto salvo por versões anteriores no armazenamento local é migrado automaticamente para as notas na primeira abertura.
 
 O contexto acompanha os pedidos de **Diga isso**, tanto automáticos quanto manuais. Mensagens digitadas e do microfone seguem o fluxo direto do agente e recebem apenas a linguagem preferida.
 
@@ -95,7 +95,7 @@ Em **Menu → Reconhecimento de voz** você escolhe quem transforma o áudio em 
 | Whisper small / base | CPU | 486 / 148 MB | Sim, detectado pelo Whisper |
 | Vosk | CPU | 32 MB (pt) + 41 MB (en) | Não; veja abaixo |
 
-Cada cartão resume o modelo (os números ficam em **Detalhes**) e mostra o que falta para usá-lo. Quando falta o pacote Python, o botão **Instalar** o instala no Python do app (no Linux, num venv em `~/.local/share/interviewai/venv`); se falhar, o cartão mostra o erro e o comando para rodar à mão. O `whisper-server` (só para o Whisper large-v3-turbo) você compila; o modelo você baixa ali mesmo, com progresso, cancelamento e opção de apagar. O botão **Usar** aparece quando não falta nada. A velocidade e a qualidade medidas neste projeto estão em [Áudio e latência](response-latency.md#reconhecimento-local); rode o mesmo teste com as suas gravações para comparar no seu computador.
+Cada cartão resume o modelo (os números ficam em **Detalhes**) e mostra o que falta para usá-lo. Quando falta o pacote Python, o botão **Instalar** o instala no Python do app (no Linux, num venv em `~/.local/share/sidenote/venv`); se falhar, o cartão mostra o erro e o comando para rodar à mão. O `whisper-server` (só para o Whisper large-v3-turbo) você compila; o modelo você baixa ali mesmo, com progresso, cancelamento e opção de apagar. O botão **Usar** aparece quando não falta nada. A velocidade e a qualidade medidas neste projeto estão em [Áudio e latência](response-latency.md#reconhecimento-local); rode o mesmo teste com as suas gravações para comparar no seu computador.
 
 O modelo é carregado quando a captura começa (de menos de 1 s a alguns segundos, uma vez por execução) e fica na memória enquanto o app estiver aberto. Um motor local reconhece um pedido por vez: enquanto ele trabalha, o app não acumula trechos, só manda o áudio mais recente quando ele termina. Por isso, numa máquina lenta, o texto parcial atualiza com menos frequência, mas a fala completa sempre é transcrita.
 
@@ -111,7 +111,7 @@ Com **Atualizar automaticamente** ligado, o resumo é refeito em segundo plano d
 
 Em ⚙ escolha o **Modelo do resumo**: o mesmo da conversa ou um modelo dedicado de qualquer provedor disponível. Um modelo rápido (Flash, Haiku, Luna) basta.
 
-O botão de pasta salva o resumo e a transcrição completa em Markdown na pasta `sessions` ao lado do perfil (`~/.local/share/interviewai/sessions` no Linux). O botão de livro salva na pasta `InterviewAI` da vault do Obsidian conectada, onde o arquivo passa a ser indexado com as outras notas. Com **Salvar sessão ao iniciar uma nova** ligado, **Nova sessão** também salva a sessão anterior em Markdown em `sessions`, com o título escolhido pelo modelo no nome do arquivo. O resumo final e o [histórico](#histórico-de-reuniões) são gerados de qualquer forma.
+O botão de pasta salva o resumo e a transcrição completa em Markdown na pasta `sessions` ao lado do perfil (`~/.local/share/sidenote/sessions` no Linux). O botão de livro salva na pasta `Sidenote` da vault do Obsidian conectada, onde o arquivo passa a ser indexado com as outras notas. Com **Salvar sessão ao iniciar uma nova** ligado, **Nova sessão** também salva a sessão anterior em Markdown em `sessions`, com o título escolhido pelo modelo no nome do arquivo. O resumo final e o [histórico](#histórico-de-reuniões) são gerados de qualquer forma.
 
 ## Histórico de reuniões
 
@@ -119,7 +119,7 @@ A aba **Histórico** (ícone de relógio) guarda cada reunião encerrada. Uma re
 
 A busca procura no título, no resumo e na transcrição, sem diferenciar maiúsculas nem acentos; com várias palavras, todas precisam aparecer. Títulos que batem vêm primeiro, e cada resultado mostra o trecho encontrado. Ao abrir uma reunião você vê o resumo e a transcrição completa, pode copiar o resumo, apagar a reunião ou, se o resumo falhou, **Gerar resumo e título** de novo.
 
-Cada reunião é um arquivo JSON na pasta `history` ao lado do perfil (`~/.local/share/interviewai/history` no Linux). Reuniões com menos de duas falas não são guardadas.
+Cada reunião é um arquivo JSON na pasta `history` ao lado do perfil (`~/.local/share/sidenote/history` no Linux). Reuniões com menos de duas falas não são guardadas.
 
 ## Modo compacto
 
@@ -167,7 +167,7 @@ Dos arquivos da vault do Obsidian, só os trechos encontrados para cada pergunta
 
 O histórico de reuniões fica só neste computador. A transcrição de cada reunião encerrada vai ao provedor do resumo uma vez, para gerar o resumo final e o título.
 
-Capturas de tela são enviadas ao provedor somente quando você usa Ctrl+Alt+S; não há captura contínua. Com o Antigravity, que recebe apenas texto no fluxo do agente, a imagem é gravada como arquivo temporário em `interviewai-screenshots` na pasta temporária do sistema e removida após 1 hora. Quem tiver acesso a essa pasta na máquina pode ler a captura durante esse período. Por isso, evite capturar telas com dados sensíveis que não devam ir ao provedor.
+Capturas de tela são enviadas ao provedor somente quando você usa Ctrl+Alt+S; não há captura contínua. Com o Antigravity, que recebe apenas texto no fluxo do agente, a imagem é gravada como arquivo temporário em `sidenote-screenshots` na pasta temporária do sistema e removida após 1 hora. Quem tiver acesso a essa pasta na máquina pode ler a captura durante esse período. Por isso, evite capturar telas com dados sensíveis que não devam ir ao provedor.
 
 Os CLIs usam a autenticação já configurada na máquina. O fluxo de mensagens diretas pode executar ferramentas do agente; a instrução para responder sem ferramentas pertence ao prompt do copiloto, não é um isolamento de segurança.
 

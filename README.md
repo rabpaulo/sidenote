@@ -1,32 +1,33 @@
-# InterviewAI
+# Sidenote
 
-Copiloto desktop para entrevistas e reuniões, com transcrição de áudio e sugestões de resposta em uma janela flutuante. Roda no Linux e no Windows.
+Copiloto desktop para conversas em tempo real. Ele ouve a chamada, transcreve enquanto as pessoas falam, sugere o que responder numa janela flutuante e, no fim, guarda um resumo com decisões e próximos passos. Serve para reuniões, 1:1s, aulas, chamadas de vendas e entrevistas. Roda no Linux e no Windows.
 
 - Captura do áudio do PC (Linux e Windows) e gravação pelo microfone. No Linux, dá para ouvir só o aplicativo da reunião em vez do desktop inteiro.
-- Transcrição durante a fala; respostas automáticas após sua consolidação.
+- Transcrição durante a fala e sugestões automáticas; com Antigravity ou API key, elas começam antes de a pergunta terminar.
 - **Transcrição local e privada**, se quiser: além do reconhecimento gratuito do Google, quatro modelos rodam no próprio computador (Parakeet, Whisper large-v3-turbo na placa de vídeo, Whisper small/base e Vosk), baixados pelo app. O áudio da reunião não sai da máquina.
-- **Importe seu currículo** (PDF, DOCX, TXT ou MD) arrastando o arquivo: a IA preenche perfil, tecnologias e experiências.
-- **Contexto da vaga e da empresa**: produtos, stack e requisitos, importados da descrição da vaga ou escritos à mão, para respostas ligadas à entrevista daquele dia.
-- Sugestões em tom profissional e conversacional, com contexto pessoal editável.
-- Ctrl+Alt+S envia uma captura da tela (por exemplo, um exercício mostrado no PC) diretamente ao agente.
+- **Resumo da sessão** em Markdown (visão geral, tópicos, pontos de atenção, decisões e próximos passos), salvo numa pasta ou na sua vault do Obsidian.
 - **Histórico de reuniões** com busca: cada reunião encerrada fica com resumo, transcrição e um título escolhido pelo modelo, datada pela hora em que terminou.
+- **Modos de conversa**: geral, vendas e entrevistas (código, system design, comportamental, RH), cada um com seu jeito de responder.
+- **Contexto pessoal**: perfil, experiências e notas que personalizam as sugestões. Arraste um currículo ou um documento (PDF, DOCX, TXT ou MD) e a IA preenche os campos.
+- **Notas do Obsidian**: trechos relevantes da sua vault aparecem enquanto a pessoa fala e entram no contexto da resposta.
+- Ctrl+Alt+S envia uma captura da tela (um slide, um código, um erro) diretamente ao agente.
 - Modo compacto (Alt+C): janela pequena com só a última resposta, os medidores e o menu.
 - Integração com os CLIs autenticados do Antigravity, do Codex, do Claude Code e do OpenCode.
 - **Chaves de API** próprias para OpenAI, Anthropic, Google Gemini, OpenRouter, Groq, DeepSeek, Mistral e xAI, com os modelos listados pela sua conta.
 
 <p align="center">
-  <img src="docs/screenshots/transcricao.png" width="400" alt="Transcrição do áudio do PC com uma sugestão de resposta que usa o currículo e o contexto da empresa">
+  <img src="docs/screenshots/transcricao.png" width="400" alt="Transcrição do áudio do PC com uma sugestão de resposta que usa o contexto pessoal">
 </p>
 
-| Currículo importado | Experiências | Vaga e empresa |
+| Contexto pessoal | Experiências | Contexto da empresa |
 | :---: | :---: | :---: |
-| <img src="docs/screenshots/meu-contexto.png" width="260" alt="Aba Perfil preenchida a partir de um currículo em PDF arrastado para o app"> | <img src="docs/screenshots/experiencias.png" width="260" alt="Experiências extraídas do currículo"> | <img src="docs/screenshots/vaga.png" width="260" alt="Aba Vaga com o contexto da empresa e dos produtos"> |
+| <img src="docs/screenshots/meu-contexto.png" width="260" alt="Aba Perfil preenchida a partir de um documento arrastado para o app"> | <img src="docs/screenshots/experiencias.png" width="260" alt="Experiências extraídas do documento"> | <img src="docs/screenshots/vaga.png" width="260" alt="Aba com o contexto da empresa e dos produtos"> |
 
 | Menu | Modelo de IA |
 | :---: | :---: |
 | <img src="docs/screenshots/menu.png" width="260" alt="Menu com modelo, modo, idioma, captura e nova sessão"> | <img src="docs/screenshots/modelo.png" width="260" alt="Seleção de provedor e modelo"> |
 
-<sub>Capturas com dados fictícios de demonstração. O perfil e a vaga foram preenchidos pela importação de um currículo e de uma vaga fictícios.</sub>
+<sub>Capturas com dados fictícios de demonstração.</sub>
 
 ## Requisitos
 
@@ -34,7 +35,7 @@ Copiloto desktop para entrevistas e reuniões, com transcrição de áudio e sug
 - Node.js **22.12+** e npm.
 - Python 3 com `SpeechRecognition`. O `ffmpeg` é necessário no Linux e opcional no Windows.
 - Opcional, para transcrever sem internet: o pacote Python do motor local escolhido (`sherpa-onnx`, `faster-whisper` ou `vosk`) ou o `whisper-server` do whisper.cpp. O app mostra o comando de instalação em **Menu → Reconhecimento de voz**; veja o [guia de desenvolvimento](docs/development.md#reconhecimento-de-voz-local).
-- Pelo menos um dos CLIs (`agy`, `codex` ou `claude`) instalado e autenticado.
+- Uma chave de API de um dos provedores suportados ou um dos CLIs (`agy`, `codex`, `claude` ou `opencode`) instalado e autenticado.
 - `xrandr` (opcional, Linux/X11) para escolher o monitor da captura de tela pelo nome.
 - Internet para as respostas do provedor e para o reconhecimento pelo Google.
 
@@ -71,9 +72,9 @@ Para instalar as dependências de áudio e entender os modos de execução, cons
 
 ## Usar
 
-1. No menu (☰) da barra inferior, escolha o modelo e o modo (tipo de entrevista).
-2. Abra **Meu contexto**, no ícone de pessoa da barra inferior. Na aba **Perfil**, arraste seu currículo para **Importar currículo** (ou clique para escolher o arquivo); a IA preenche os campos e as experiências. Revise e ajuste.
-3. Na aba **Vaga**, arraste a descrição da vaga ou preencha empresa, vaga e **Sobre a empresa e os produtos** (por exemplo: “faz produtos de IA generativa e uma plataforma de GPUs”). Salve. O perfil fica em `~/.local/share/interviewai/profile.json` (Linux) ou `%APPDATA%\InterviewAI\profile.json` (Windows) e persiste entre execuções.
+1. No menu (☰) da barra inferior, escolha o modelo e o modo da conversa (geral, vendas ou um tipo de entrevista).
+2. Opcional: abra **Meu contexto**, no ícone de pessoa da barra inferior, e preencha o que a IA deve saber sobre você. Na aba **Perfil**, arraste um currículo para **Importar currículo**; a IA preenche os campos e as experiências. Revise e ajuste.
+3. Se a conversa for com uma empresa (cliente, parceiro ou processo seletivo), preencha a aba **Vaga** com empresa e **Sobre a empresa e os produtos** (por exemplo: “faz produtos de IA generativa e uma plataforma de GPUs”), ou arraste um documento sobre ela. Salve. O perfil fica em `~/.local/share/sidenote/profile.json` (Linux) ou `%APPDATA%\Sidenote\profile.json` (Windows) e persiste entre execuções.
 4. Confira a captura nos medidores de áudio. No Linux, o seletor abaixo de **PC CALL** permite ouvir só o aplicativo da reunião em vez do desktop inteiro. No modo automático, as falas do PC geram sugestões (com Antigravity ou API key, já durante a fala); use **Diga isso** em uma fala da transcrição ou Ctrl+D para solicitar uma manualmente.
 5. Para enviar uma mensagem de voz ao agente, use o microfone ou segure **Espaço** com o app em foco.
 6. Ao terminar, **Nova sessão** (Alt+N) move a reunião para a aba **Histórico**, com título escolhido pelo modelo, data e hora do fim, resumo e busca.
@@ -90,7 +91,7 @@ Numa máquina Windows:
 npm run build:win
 ```
 
-São gerados em `release/` o instalador `InterviewAI-1.0.0-setup.exe` e o executável portátil `InterviewAI-1.0.0-portable.exe`. O Python, a biblioteca `SpeechRecognition` e o CLI do provedor precisam estar instalados na máquina. O app não é assinado; o SmartScreen pode pedir confirmação na primeira execução.
+São gerados em `release/` o instalador `Sidenote-1.0.0-setup.exe` e o executável portátil `Sidenote-1.0.0-portable.exe`. O Python, a biblioteca `SpeechRecognition` e o CLI do provedor precisam estar instalados na máquina. O app não é assinado; o SmartScreen pode pedir confirmação na primeira execução.
 
 ## Gerar AppImage
 
@@ -105,8 +106,8 @@ npm run build:appimage
 O arquivo executável será gerado no diretório `release/`:
 
 ```bash
-chmod +x "release/InterviewAI-1.0.0.AppImage"
-./release/InterviewAI-1.0.0.AppImage
+chmod +x "release/Sidenote-1.0.0.AppImage"
+./release/Sidenote-1.0.0.AppImage
 ```
 
 ## Documentação
@@ -121,3 +122,7 @@ npm run build
 ```
 
 Os testes usam serviços simulados. O uso normal envia áudio ao serviço de reconhecimento do Google (a menos que um motor local esteja em uso) e texto ao provedor selecionado; as respostas seguem os limites da conta autenticada.
+
+## Licença
+
+[MIT](LICENSE)

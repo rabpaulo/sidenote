@@ -5,7 +5,7 @@ import { defaultProfilePath } from './profile-store.js';
 import { TOKEN_FILE } from './backend-auth.js';
 
 // The running backend writes the token of its run next to the profile.
-const token = process.env.INTERVIEWAI_TOKEN || fs.readFileSync(path.join(path.dirname(defaultProfilePath()), TOKEN_FILE), 'utf8').trim();
+const token = process.env.SIDENOTE_TOKEN || fs.readFileSync(path.join(path.dirname(defaultProfilePath()), TOKEN_FILE), 'utf8').trim();
 const ws = new WebSocket(`ws://127.0.0.1:3001?token=${encodeURIComponent(token)}`);
 
 console.log('[Test Client] Connecting to ws://127.0.0.1:3001...');

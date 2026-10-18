@@ -10,7 +10,7 @@ const CHUNK_BYTES = 1600; // 50 ms of PCM16 mono at 16 kHz
  * 'renderer' (Windows/macOS: Electron captures the system loopback and streams PCM16 over the WebSocket).
  */
 export function defaultAudioSource(env = process.env, platform = process.platform) {
-  if (env.INTERVIEWAI_AUDIO_SOURCE === 'parec' || env.INTERVIEWAI_AUDIO_SOURCE === 'renderer') return env.INTERVIEWAI_AUDIO_SOURCE;
+  if (env.SIDENOTE_AUDIO_SOURCE === 'parec' || env.SIDENOTE_AUDIO_SOURCE === 'renderer') return env.SIDENOTE_AUDIO_SOURCE;
   return platform === 'linux' ? 'parec' : 'renderer';
 }
 

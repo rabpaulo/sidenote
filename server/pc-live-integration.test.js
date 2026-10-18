@@ -10,11 +10,11 @@ import WebSocket from 'ws';
 
 // The backend only answers requests with the token of its run.
 const TOKEN = 'test-token';
-const fetch = (url, init = {}) => globalThis.fetch(url, { ...init, headers: { ...init.headers, 'X-InterviewAI-Token': TOKEN } });
+const fetch = (url, init = {}) => globalThis.fetch(url, { ...init, headers: { ...init.headers, 'X-Sidenote-Token': TOKEN } });
 
 for (const automatic of [true, false]) {
 test(`backend preserves complete PC speech in ${automatic ? 'automatic' : 'manual'} mode`, { timeout: 10000 }, async (t) => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'interviewai-pc-live-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'sidenote-pc-live-'));
   const executable = (name, code) => {
     fs.writeFileSync(path.join(dir, name), '#!/usr/bin/env node\n' + code);
     fs.chmodSync(path.join(dir, name), 0o755);
@@ -31,8 +31,8 @@ test(`backend preserves complete PC speech in ${automatic ? 'automatic' : 'manua
   const cli = fileURLToPath(new URL('./fixtures/agy-session.cjs', import.meta.url));
   const child = spawn(process.execPath, [fileURLToPath(new URL('./index.js', import.meta.url))], {
     cwd: process.cwd(), stdio: ['ignore', 'pipe', 'pipe'],
-    env: { ...process.env, PORT: String(port), INTERVIEWAI_TOKEN: TOKEN, PATH: `${dir}:${process.env.PATH}`, AGY_BIN: cli, CODEX_BIN: cli,
-      INTERVIEWAI_PROFILE_PATH: path.join(dir, 'profile.json') },
+    env: { ...process.env, PORT: String(port), SIDENOTE_TOKEN: TOKEN, PATH: `${dir}:${process.env.PATH}`, AGY_BIN: cli, CODEX_BIN: cli,
+      SIDENOTE_PROFILE_PATH: path.join(dir, 'profile.json') },
   });
   let socket;
   t.after(async () => {

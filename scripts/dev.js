@@ -12,7 +12,7 @@ export async function startDev({
   launchDesktop = (url) => spawn(electron, ['.', '--managed-renderer'], {
     cwd: projectRoot,
     stdio: 'inherit',
-    env: { ...process.env, INTERVIEWAI_DEV_URL: url },
+    env: { ...process.env, SIDENOTE_DEV_URL: url },
   }),
 } = {}) {
   const renderer = await createServer({ root: projectRoot, ...viteOptions });

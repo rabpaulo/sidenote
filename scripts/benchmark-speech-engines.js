@@ -11,7 +11,7 @@
 //     --chunks 1,3,5,7                (segundos)
 //     --json resultado.json           (grava os números e os textos)
 //
-// Models come from the app's folder (or INTERVIEWAI_MODELS_DIR); Python from
+// Models come from the app's folder (or SIDENOTE_MODELS_DIR); Python from
 // PYTHON_BIN or the app's venv; whisper-server from WHISPER_SERVER_BIN or the PATH.
 import fs from 'node:fs';
 import os from 'node:os';
@@ -112,10 +112,10 @@ const median = (values) => {
 };
 
 const dataDir = path.dirname(defaultProfilePath());
-const models = createModelStore({ dir: process.env.INTERVIEWAI_MODELS_DIR || path.join(dataDir, 'models') });
+const models = createModelStore({ dir: process.env.SIDENOTE_MODELS_DIR || path.join(dataDir, 'models') });
 
 async function run(name) {
-  const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'interviewai-bench-'));
+  const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'sidenote-bench-'));
   const settings = createSpeechSettings({ dataDir: scratch, models });
   settings.save(ENGINES[name]);
   fs.rmSync(scratch, { recursive: true, force: true });

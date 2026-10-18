@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { PROVIDERS } from '../config/models.js';
 
-const STORAGE_KEY = 'interviewai_summary_settings_v1';
+const STORAGE_KEY = 'sidenote_summary_settings_v1';
 // No provider means the summary uses the conversation's model.
 const DEFAULTS = { auto: true, provider: null, model: null, saveOnReset: true };
 

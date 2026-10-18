@@ -76,7 +76,7 @@ test('keeps quieter speech after a loud onset and returns to idle after a click'
 });
 
 test('does not let an old parec process mark a newer capture as stopped', async () => {
-  const fakeBinDir = fs.mkdtempSync(path.join(os.tmpdir(), 'interviewai-fake-audio-'));
+  const fakeBinDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sidenote-fake-audio-'));
   const fakeParec = path.join(fakeBinDir, 'parec');
   const originalPath = process.env.PATH;
   fs.writeFileSync(fakeParec, '#!/usr/bin/env node\nsetInterval(() => {}, 1000);\n');
@@ -101,7 +101,7 @@ test('does not let an old parec process mark a newer capture as stopped', async 
 test('Windows captures in the renderer and the engine segments the PCM it pushes', async () => {
   assert.equal(defaultAudioSource({}, 'win32'), 'renderer');
   assert.equal(defaultAudioSource({}, 'linux'), 'parec');
-  assert.equal(defaultAudioSource({ INTERVIEWAI_AUDIO_SOURCE: 'renderer' }, 'linux'), 'renderer');
+  assert.equal(defaultAudioSource({ SIDENOTE_AUDIO_SOURCE: 'renderer' }, 'linux'), 'renderer');
   assert.equal(SystemAudioEngine.listAudioSinks('renderer').defaultSink, 'loopback');
 
   const engine = new SystemAudioEngine({ source: 'renderer' });

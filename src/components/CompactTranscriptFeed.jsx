@@ -182,7 +182,7 @@ export function CompactTranscriptFeed({
             <div className="w-10 h-10 rounded-full bg-white/[0.04] border border-white/[0.08] flex items-center justify-center mb-2.5 text-blue-300">
               <Mic size={17} />
             </div>
-            <h4 className="text-zinc-200 font-semibold text-xs mb-1">InterviewAI está escutando</h4>
+            <h4 className="text-zinc-200 font-semibold text-xs mb-1">Sidenote está escutando</h4>
             <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-white/[0.04] border border-white/[0.06] text-[10px] text-zinc-400 font-mono">
               <kbd className="px-1 py-0.5 rounded bg-white/10 text-zinc-200">ESPAÇO</kbd> para falar •{' '}
               <kbd className="px-1 py-0.5 rounded bg-white/10 text-zinc-200">Alt+Space</kbd> microfone

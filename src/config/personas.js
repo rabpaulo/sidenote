@@ -1,7 +1,7 @@
 export const PERSONA_CATEGORIES = [
-  { id: 'interview', name: 'Entrevistas' },
-  { id: 'business', name: 'Negócios' },
   { id: 'general', name: 'Geral' },
+  { id: 'business', name: 'Negócios' },
+  { id: 'interview', name: 'Entrevistas' },
 ];
 
 export const AVAILABLE_PERSONAS = [
@@ -50,9 +50,9 @@ export const AVAILABLE_PERSONAS = [
   {
     id: 'general',
     category: 'general',
-    shortName: 'Reunião Geral',
+    shortName: 'Conversa geral',
     iconName: 'MessageSquare',
-    description: 'Conversa livre, 1:1s e alinhamentos.',
+    description: 'Reuniões, 1:1s, aulas e conversas livres.',
   },
 ];
 

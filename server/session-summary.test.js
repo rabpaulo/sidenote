@@ -175,16 +175,16 @@ test('markdown has the summary and the full transcript, and files never overwrit
     { role: 'user', text: 'Resposta', at: Date.UTC(2026, 9, 16, 12, 1, 30) },
   ];
   const markdown = sessionMarkdown({ entries, startedAt: entries[0].at, summary: '## Visão geral\nOk', model: 'gpt-6-luna' });
-  assert.match(markdown, /^---\ndata: 2026-10-16T12:00:00.000Z\nfim: 2026-10-16T12:01:30.000Z\nduracao: 01:30\norigem: InterviewAI\nmodelo_resumo: gpt-6-luna\n---/);
+  assert.match(markdown, /^---\ndata: 2026-10-16T12:00:00.000Z\nfim: 2026-10-16T12:01:30.000Z\nduracao: 01:30\norigem: Sidenote\nmodelo_resumo: gpt-6-luna\n---/);
   assert.ok(markdown.includes('## Visão geral\nOk'));
   assert.ok(markdown.includes('**[01:30] Você**\nResposta'));
   assert.ok(sessionMarkdown({ entries, startedAt: entries[0].at }).includes('_Resumo não gerado._'));
 
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'interviewai-sessions-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'sidenote-sessions-'));
   try {
     const first = await saveSessionMarkdown(path.join(dir, 'novo'), markdown, entries[0].at);
     const second = await saveSessionMarkdown(path.join(dir, 'novo'), 'outra', entries[0].at);
-    assert.match(path.basename(first), /^2026-10-16 \d{4} Sessão InterviewAI\.md$/);
+    assert.match(path.basename(first), /^2026-10-16 \d{4} Sessão Sidenote\.md$/);
     assert.match(path.basename(second), / \(2\)\.md$/);
     assert.equal(fs.readFileSync(first, 'utf8'), markdown);
     const titled = await saveSessionMarkdown(path.join(dir, 'novo'), 'x', entries[0].at, 'Entrevista: backend/Node?');

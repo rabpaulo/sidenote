@@ -12,7 +12,7 @@ import { buildAgentPrompt } from './agent-prompt.js';
 
 // The backend only answers requests with the token of its run.
 const TOKEN = 'test-token';
-const fetch = (url, init = {}) => globalThis.fetch(url, { ...init, headers: { ...init.headers, 'X-InterviewAI-Token': TOKEN } });
+const fetch = (url, init = {}) => globalThis.fetch(url, { ...init, headers: { ...init.headers, 'X-Sidenote-Token': TOKEN } });
 
 const MODELS = { antigravity: 'gemini-3.8-flash', codex: 'gpt-6-luna', claude: 'claude-sonnet-5-5' };
 
@@ -22,10 +22,10 @@ for (const provider of Object.keys(MODELS)) {
     await new Promise((resolve) => probe.listen(0, '127.0.0.1', resolve));
     const port = probe.address().port;
     await new Promise((resolve) => probe.close(resolve));
-    const profileDir = fs.mkdtempSync(path.join(os.tmpdir(), 'interviewai-profile-'));
+    const profileDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sidenote-profile-'));
     const profilePath = path.join(profileDir, 'profile.json');
     const child = spawn(process.execPath, [fileURLToPath(new URL('./index.js', import.meta.url))], {
-      stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, PORT: String(port), INTERVIEWAI_TOKEN: TOKEN, INTERVIEWAI_PROFILE_PATH: profilePath,
+      stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, PORT: String(port), SIDENOTE_TOKEN: TOKEN, SIDENOTE_PROFILE_PATH: profilePath,
         AGY_BIN: fileURLToPath(new URL('./fixtures/agy-session.cjs', import.meta.url)),
         CODEX_BIN: fileURLToPath(new URL('./fixtures/codex-session.cjs', import.meta.url)),
         CLAUDE_BIN: fileURLToPath(new URL('./fixtures/claude-session.cjs', import.meta.url)),

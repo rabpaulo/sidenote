@@ -198,7 +198,7 @@ export function SummaryPanel({
             onClick={() => onExport('vault')}
             disabled={!hasLines || !vaultConnected}
             className="p-1.5 rounded-lg border border-white/10 text-zinc-300 hover:bg-white/10 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-            title={vaultConnected ? 'Salvar na vault do Obsidian (pasta InterviewAI)' : 'Conecte uma vault do Obsidian para salvar nela'}
+            title={vaultConnected ? 'Salvar na vault do Obsidian (pasta Sidenote)' : 'Conecte uma vault do Obsidian para salvar nela'}
             aria-label="Salvar na vault do Obsidian"
           >
             <BookOpen size={13} />

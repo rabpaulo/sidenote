@@ -6,8 +6,8 @@ import os from 'node:os';
 import path from 'node:path';
 
 // The key store is read at import, so it points at a temporary file first.
-const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'interviewai-keys-'));
-process.env.INTERVIEWAI_KEYS_PATH = path.join(dir, 'api-keys.json');
+const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'sidenote-keys-'));
+process.env.SIDENOTE_KEYS_PATH = path.join(dir, 'api-keys.json');
 delete process.env.OPENAI_API_KEY;
 const { API_PROVIDERS, chatModels } = await import('../shared/api-providers.js');
 const { createProviderKeys, providerKeys } = await import('./provider-keys.js');

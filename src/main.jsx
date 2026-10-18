@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import './legacy-storage.js';
 import App from './App.jsx';
 import './index.css';
 
@@ -33,7 +34,7 @@ class ErrorBoundary extends React.Component {
           justifyContent: 'center'
         }}>
           <h2 style={{ color: '#ef4444', marginBottom: '8px', fontSize: '14px', fontWeight: 'bold' }}>
-            Erro ao inicializar Copilot Desktop
+            Erro ao iniciar o Sidenote
           </h2>
           <pre style={{
             background: 'rgba(255, 255, 255, 0.05)',

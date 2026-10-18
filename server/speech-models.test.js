@@ -9,7 +9,7 @@ import { createSpeechSettings, installSteps, pipCommand } from './speech-setting
 import { resolvePython } from './cli-process.js';
 
 function scratch(t) {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'interviewai-speech-test-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'sidenote-speech-test-'));
   t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
   return dir;
 }
@@ -96,8 +96,8 @@ test('an archive is extracted with Python and its single top folder flattened', 
 });
 
 test('the pip command targets the Python the app uses, or creates the app venv when pip is refused', () => {
-  assert.equal(pipCommand({ python: '/home/u/.local/share/interviewai/venv/bin/python', venv: true }, ['sherpa-onnx'], '/d'),
-    '/home/u/.local/share/interviewai/venv/bin/python -m pip install sherpa-onnx');
+  assert.equal(pipCommand({ python: '/home/u/.local/share/sidenote/venv/bin/python', venv: true }, ['sherpa-onnx'], '/d'),
+    '/home/u/.local/share/sidenote/venv/bin/python -m pip install sherpa-onnx');
   assert.equal(pipCommand({ python: 'C:\\Program Files\\Python312\\python.exe', venv: false, externallyManaged: false }, ['vosk'], '/d'),
     '"C:\\Program Files\\Python312\\python.exe" -m pip install vosk');
   const created = pipCommand({ python: '/usr/bin/python3', venv: false, externallyManaged: true }, ['faster-whisper'], '/data');

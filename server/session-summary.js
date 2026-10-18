@@ -59,7 +59,7 @@ ${kept.join('\n')}
 Reescreva o resumo completo, integrando as falas novas ao resumo anterior.`;
   }
 
-  return `Você resume uma reunião ou entrevista para a pessoa que usa o InterviewAI${final ? '. A sessão terminou' : '. A sessão pode ainda estar em andamento'}.
+  return `Você resume uma reunião ou entrevista para a pessoa que usa o Sidenote${final ? '. A sessão terminou' : '. A sessão pode ainda estar em andamento'}.
 Na transcrição, cada linha tem [tempo desde o início] papel: fala.
 - Interlocutor: a outra pessoa da chamada (áudio do computador, transcrito automaticamente; pode ter erros).
 - Você: o usuário do app (microfone ou texto digitado).
@@ -273,12 +273,12 @@ export function sessionMarkdown({ entries, startedAt, summary = null, model = nu
   // Named by when the meeting ended.
   const { human } = formatDate(end);
   const front = ['---', ...(title ? [`titulo: ${JSON.stringify(title)}`] : []), `data: ${new Date(start).toISOString()}`,
-    `fim: ${new Date(end).toISOString()}`, `duracao: ${clock(end - start)}`, 'origem: InterviewAI',
+    `fim: ${new Date(end).toISOString()}`, `duracao: ${clock(end - start)}`, 'origem: Sidenote',
     ...(model ? [`modelo_resumo: ${model}`] : []), '---'];
   const transcript = entries.map((entry) => `**[${clock(entry.at - start)}] ${ROLE_LABELS[entry.role]}**\n${entry.text}`);
   return `${front.join('\n')}
 
-# ${title || 'Sessão InterviewAI'} · ${human}
+# ${title || 'Sessão Sidenote'} · ${human}
 
 ${summary?.trim() || '_Resumo não gerado._'}
 
@@ -291,10 +291,10 @@ ${transcript.join('\n\n') || '_Sem falas registradas._'}
 // Characters that are not allowed in file names on Windows (and so in an Obsidian vault).
 const fileSafe = (title) => title.replace(/[\\/:*?"<>|\x00-\x1f]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 80);
 
-// Writes `<dir>/<date> <title or "Sessão InterviewAI">.md`, never overwriting an earlier file.
+// Writes `<dir>/<date> <title or "Sessão Sidenote">.md`, never overwriting an earlier file.
 export async function saveSessionMarkdown(dir, markdown, endedAt = Date.now(), title = null) {
   await mkdir(dir, { recursive: true });
-  const base = `${formatDate(endedAt).file} ${(title && fileSafe(title)) || 'Sessão InterviewAI'}`;
+  const base = `${formatDate(endedAt).file} ${(title && fileSafe(title)) || 'Sessão Sidenote'}`;
   for (let attempt = 1; attempt < 100; attempt++) {
     const file = path.join(dir, `${base}${attempt > 1 ? ` (${attempt})` : ''}.md`);
     try {

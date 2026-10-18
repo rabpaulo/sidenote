@@ -1,6 +1,6 @@
 # Áudio e latência
 
-Este documento descreve o fluxo atual. Com Antigravity ou um provedor por API key, o modo automático responde à fala enquanto ela acontece, como o Perssua: uma prévia aparece antes de a pergunta terminar e é substituída conforme o texto cresce. Codex, Claude Code e OpenCode respondem somente à transcrição consolidada.
+Este documento descreve o fluxo atual. Com Antigravity ou um provedor por API key, o modo automático responde à fala enquanto ela acontece: uma prévia aparece antes de a pergunta terminar e é substituída conforme o texto cresce. Codex, Claude Code e OpenCode respondem somente à transcrição consolidada.
 
 ## Da captura à resposta
 
@@ -39,7 +39,7 @@ Gravações de teste (voz sintética do Google, uma fala de 13,5 s em português
 | Final após o fim da fala, 6 s / 13,5 s | 1,9 s / 0,9 s | 1,0 a 1,1 s / 1,2 a 1,4 s |
 | Transcrição final | com erros de junção ("Camisaria", "sonhos", "cons consistência", frase repetida) | igual ao reconhecimento do áudio inteiro |
 
-A voz sintética tem menos pausas que a fala real; numa entrevista, os trechos tendem a ser fechados mais cedo. Cada segundo de fala gera cerca de um pedido ao serviço gratuito, contra um a cada 3 s antes. É um serviço não oficial; se ele passar a recusar pedidos, as falas terminam com erro de reconhecimento.
+A voz sintética tem menos pausas que a fala real; numa conversa real, os trechos tendem a ser fechados mais cedo. Cada segundo de fala gera cerca de um pedido ao serviço gratuito, contra um a cada 3 s antes. É um serviço não oficial; se ele passar a recusar pedidos, as falas terminam com erro de reconhecimento.
 
 Para medir com uma gravação (qualquer formato que o ffmpeg leia):
 
@@ -86,11 +86,11 @@ O copiloto mantém uma geração automática por vez. Se o modelo ficar para tr�
 
 Antigravity, Codex e Claude Code preparam e reutilizam sessões de processo. A preparação não envia uma pergunta. Cancelar uma resposta ou um erro durante a geração encerra o processo; o app inicia o substituto em seguida, com a mesma conversa, para que a próxima pergunta não espere o CLI iniciar. Reset e mudança de configuração preparam uma nova sessão.
 
-Os CLIs rodam numa pasta vazia (`interviewai-agent` no diretório temporário do sistema), fora do projeto, para não carregar repositório, AGENTS.md ou CLAUDE.md. O Claude Code roda sem ferramentas, servidores MCP, plugins e skills, e o Claude Code e o Codex usam um system prompt curto no lugar do prompt de agente de código. O Antigravity desativa a expansão de comandos e skills; ele mantém as ferramentas, pois abre as capturas de tela como arquivos.
+Os CLIs rodam numa pasta vazia (`sidenote-agent` no diretório temporário do sistema), fora do projeto, para não carregar repositório, AGENTS.md ou CLAUDE.md. O Claude Code roda sem ferramentas, servidores MCP, plugins e skills, e o Claude Code e o Codex usam um system prompt curto no lugar do prompt de agente de código. O Antigravity desativa a expansão de comandos e skills; ele mantém as ferramentas, pois abre as capturas de tela como arquivos.
 
 ## Prévias durante a fala
 
-No Perssua, a sugestão já está na tela quando o interlocutor termina a pergunta: a geração começa com a transcrição parcial e é refeita conforme a fala continua. O app segue o mesmo modelo quando cancelar uma geração é barato:
+O objetivo é que a sugestão já esteja na tela quando o interlocutor termina a pergunta: a geração começa com a transcrição parcial e é refeita conforme a fala continua, sempre que cancelar uma geração é barato:
 
 - Cada parcial maior inicia uma prévia com o mesmo prompt da resposta final e cancela a prévia anterior da mesma fala. O texto antigo continua visível até a nova chegar.
 - Se a transcrição consolidada for igual ao texto da prévia, a prévia vira a resposta, sem nova geração. Isso é comum: o parcial gerado após 300 ms de pausa costuma ser o texto final.

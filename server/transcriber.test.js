@@ -27,7 +27,7 @@ process.stdin.on('data', (data) => {
 }
 
 function scratch(t) {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'interviewai-transcriber-test-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'sidenote-transcriber-test-'));
   t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
   return dir;
 }

@@ -32,7 +32,7 @@ npm start
 
 O `ffmpeg` é opcional no Windows: o app envia ao reconhecimento áudio WAV já em 16 kHz, e o `ffmpeg` só é usado para outros formatos. O backend procura o Python como `PYTHON_BIN`, `python`, `py -3` ou `python3`, ignorando o atalho da Microsoft Store.
 
-No Windows, o backend não acessa o dispositivo de áudio: quando a captura do PC é ligada, a janela pede ao Electron o áudio do desktop (`chromeMediaSource: 'desktop'`), reduz para PCM 16 kHz mono num AudioWorklet e envia pacotes binários de 50 ms pelo WebSocket. O backend aplica a mesma detecção de fala e transcrição do Linux. Para testar esse caminho em outro sistema, defina `INTERVIEWAI_AUDIO_SOURCE=renderer` (o Electron só fornece o loopback no Windows).
+No Windows, o backend não acessa o dispositivo de áudio: quando a captura do PC é ligada, a janela pede ao Electron o áudio do desktop (`chromeMediaSource: 'desktop'`), reduz para PCM 16 kHz mono num AudioWorklet e envia pacotes binários de 50 ms pelo WebSocket. O backend aplica a mesma detecção de fala e transcrição do Linux. Para testar esse caminho em outro sistema, defina `SIDENOTE_AUDIO_SOURCE=renderer` (o Electron só fornece o loopback no Windows).
 
 Os CLIs instalados pelo npm no Windows são atalhos `.cmd`; o app os encontra pelo `PATH` (com `PATHEXT`) e os executa por meio do `cross-spawn`. Ao fechar, o Electron encerra a árvore de processos do backend com `taskkill`, incluindo os CLIs.
 
@@ -40,11 +40,11 @@ Os CLIs instalados pelo npm no Windows são atalhos `.cmd`; o app os encontra pe
 
 O Google continua sendo o padrão e só precisa do `SpeechRecognition`. Os motores locais (veja [o guia de uso](usage.md#reconhecimento-de-voz)) precisam de um pacote Python cada, e o Whisper large-v3-turbo, do `whisper-server` do whisper.cpp. Os modelos são baixados pelo próprio app, em **Menu → Reconhecimento de voz**, para `models/` ao lado do perfil.
 
-O backend usa, nesta ordem, o Python de `PYTHON_BIN`, o do ambiente virtual do app (`~/.local/share/interviewai/venv` no Linux, `%APPDATA%\InterviewAI\venv` no Windows) e o do sistema. Em distribuições que bloqueiam o `pip` no Python do sistema (Arch, Debian 12+, Ubuntu 23.04+), crie o ambiente do app com os pacotes que for usar:
+O backend usa, nesta ordem, o Python de `PYTHON_BIN`, o do ambiente virtual do app (`~/.local/share/sidenote/venv` no Linux, `%APPDATA%\Sidenote\venv` no Windows) e o do sistema. Em distribuições que bloqueiam o `pip` no Python do sistema (Arch, Debian 12+, Ubuntu 23.04+), crie o ambiente do app com os pacotes que for usar:
 
 ```bash
-python3 -m venv ~/.local/share/interviewai/venv
-~/.local/share/interviewai/venv/bin/pip install SpeechRecognition sherpa-onnx faster-whisper vosk
+python3 -m venv ~/.local/share/sidenote/venv
+~/.local/share/sidenote/venv/bin/pip install SpeechRecognition sherpa-onnx faster-whisper vosk
 ```
 
 A janela de reconhecimento mostra o comando exato para o Python que o app está usando, só com o que falta. No Linux, os quatro pacotes foram instalados e testados com Python 3.14; no Windows, a instalação não foi testada.
@@ -56,13 +56,13 @@ git clone --depth 1 https://github.com/ggml-org/whisper.cpp ~/.cache/whisper.cpp
 cd ~/.cache/whisper.cpp
 cmake -B build -DGGML_VULKAN=1 -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release
 cmake --build build -j --target whisper-server
-mkdir -p ~/.local/share/interviewai/bin
-cp build/bin/whisper-server ~/.local/share/interviewai/bin/
+mkdir -p ~/.local/share/sidenote/bin
+cp build/bin/whisper-server ~/.local/share/sidenote/bin/
 ```
 
 Com `BUILD_SHARED_LIBS=OFF` o executável não depende das bibliotecas da pasta de compilação. O app procura o `whisper-server` em `WHISPER_SERVER_BIN`, em `bin/` ao lado do perfil e no `PATH`. Ele inicia o servidor numa porta livre de `127.0.0.1`, com o modelo carregado uma vez; se a GPU falhar ao iniciar, tenta de novo com `-ng` (só CPU). Sem Vulkan, a compilação com `-DGGML_VULKAN=0` gera um servidor só de CPU, bem mais lento com esse modelo.
 
-No Windows, baixe `whisper-bin-x64.zip` (CPU) da [página de releases](https://github.com/ggml-org/whisper.cpp/releases) e copie `whisper-server.exe` e as DLLs que vêm junto para `%APPDATA%\InterviewAI\bin\`. Para usar a GPU no Windows é preciso compilar com Vulkan (Vulkan SDK e Visual Studio); isso não foi testado neste projeto.
+No Windows, baixe `whisper-bin-x64.zip` (CPU) da [página de releases](https://github.com/ggml-org/whisper.cpp/releases) e copie `whisper-server.exe` e as DLLs que vêm junto para `%APPDATA%\Sidenote\bin\`. Para usar a GPU no Windows é preciso compilar com Vulkan (Vulkan SDK e Visual Studio); isso não foi testado neste projeto.
 
 ### Verificar
 
@@ -96,7 +96,7 @@ npm run build:appimage
 ./scripts/build-appimage.sh
 ```
 
-Para o Windows, execute `npm run build:win` numa máquina Windows. Ele gera `release/InterviewAI-1.0.0-setup.exe` (instalador, permite escolher a pasta) e `release/InterviewAI-1.0.0-portable.exe` (sem instalação). No Linux, `npx electron-builder --win portable --x64` também gera o portátil; o instalador NSIS precisa do Wine com suporte a 32 bits para montar o desinstalador.
+Para o Windows, execute `npm run build:win` numa máquina Windows. Ele gera `release/Sidenote-1.0.0-setup.exe` (instalador, permite escolher a pasta) e `release/Sidenote-1.0.0-portable.exe` (sem instalação). No Linux, `npx electron-builder --win portable --x64` também gera o portátil; o instalador NSIS precisa do Wine com suporte a 32 bits para montar o desinstalador.
 
 Os pacotes não incluem o Python nem os CLIs: instale-os na máquina de destino como descrito acima. O app não é assinado digitalmente, então o Windows SmartScreen pode pedir confirmação na primeira execução.
 
@@ -115,14 +115,14 @@ Mudanças no backend exigem reiniciar seu processo. Fechar o Electron encerra o 
 | CLAUDE_BIN | Caminho do executável Claude Code. Sem ela, procura `claude` no `PATH`, em `~/.local/bin` e em `/usr/bin`. |
 | PYTHON_BIN | Interpretador Python usado pelo transcritor; sem ela, o do ambiente virtual do app (`venv` ao lado do perfil), se existir, e depois `python3`/`python` (Linux) ou `python`/`py -3` (Windows). |
 | WHISPER_SERVER_BIN | Caminho do `whisper-server` do whisper.cpp, para o motor Whisper large-v3-turbo; sem ela, `bin/whisper-server` ao lado do perfil e depois o `PATH`. |
-| INTERVIEWAI_MODELS_DIR | Pasta dos modelos de reconhecimento baixados; padrão `models` ao lado do perfil. |
-| INTERVIEWAI_AUDIO_SOURCE | `parec` (padrão no Linux) ou `renderer` (padrão no Windows): origem do áudio do PC. |
+| SIDENOTE_MODELS_DIR | Pasta dos modelos de reconhecimento baixados; padrão `models` ao lado do perfil. |
+| SIDENOTE_AUDIO_SOURCE | `parec` (padrão no Linux) ou `renderer` (padrão no Windows): origem do áudio do PC. |
 | PORT | Porta ao iniciar server/index.js diretamente; o launcher desktop fixa 3001. |
-| INTERVIEWAI_NOTES_CONFIG | Arquivo onde fica a pasta da vault do Obsidian; padrão `notes.json` ao lado do perfil. |
-| INTERVIEWAI_HISTORY_DIR | Pasta do histórico de reuniões; padrão `history` ao lado do perfil. |
-| INTERVIEWAI_DEV_URL | URL do renderer; preenchida pelo script de desenvolvimento. O backend aceita pedidos dessa origem. |
-| INTERVIEWAI_TOKEN | Token exigido pelo backend. O Electron gera um novo a cada execução e o passa ao backend que inicia; sem ela, o backend gera o próprio. |
-| INTERVIEWAI_ALLOWED_ORIGINS | Origens extras, separadas por vírgula, que o navegador pode usar para chamar o backend (além de `http://127.0.0.1:3001`, `http://localhost:3001` e `INTERVIEWAI_DEV_URL`). |
+| SIDENOTE_NOTES_CONFIG | Arquivo onde fica a pasta da vault do Obsidian; padrão `notes.json` ao lado do perfil. |
+| SIDENOTE_HISTORY_DIR | Pasta do histórico de reuniões; padrão `history` ao lado do perfil. |
+| SIDENOTE_DEV_URL | URL do renderer; preenchida pelo script de desenvolvimento. O backend aceita pedidos dessa origem. |
+| SIDENOTE_TOKEN | Token exigido pelo backend. O Electron gera um novo a cada execução e o passa ao backend que inicia; sem ela, o backend gera o próprio. |
+| SIDENOTE_ALLOWED_ORIGINS | Origens extras, separadas por vírgula, que o navegador pode usar para chamar o backend (além de `http://127.0.0.1:3001`, `http://localhost:3001` e `SIDENOTE_DEV_URL`). |
 | LATENCY_PROVIDER, LATENCY_MODEL, LATENCY_RUNS | Configuração do script de medição de latência. |
 
 ```bash
@@ -176,9 +176,9 @@ O backend não carrega `.env` automaticamente. Exporte as variáveis no shell ou
 | server/notes-vault.js | Conexão da vault: leitura dos `.md`, observação de alterações (`fs.watch`), persistência da pasta e envio dos resultados por fala (`notes_hits`). |
 | src/components/NotesCard.jsx e NotesVaultModal.jsx | Card dos trechos no feed e tela de configuração da vault. |
 | shared/candidate-profile.js | Perfil estruturado: normalização, limites e montagem do texto enviado ao modelo. |
-| server/profile-store.js | Persistência do perfil em `~/.local/share/interviewai/profile.json` ou `%APPDATA%\InterviewAI\profile.json` (gravação atômica). |
+| server/profile-store.js | Persistência do perfil em `~/.local/share/sidenote/profile.json` ou `%APPDATA%\Sidenote\profile.json` (gravação atômica). |
 
-`POST /api/profile/import?kind=cv|job` recebe o arquivo no corpo (até 10 MB, nome no cabeçalho `X-File-Name`), organiza o texto com `runIsolatedAgent` (um processo do CLI só para esse pedido, sem afetar a sessão aquecida nem a conversa) e devolve `{ fields, warning? }`; nada é gravado até o usuário salvar. `GET /api/profile` e `PUT /api/profile` leem e gravam o perfil; o backend o carrega na inicialização e é a única fonte do contexto. `INTERVIEWAI_PROFILE_PATH` troca o arquivo (os testes usam um temporário). `GET /api/notes` devolve o estado da vault; `PUT /api/notes` (`{ path }`) conecta e indexa; `POST /api/notes/reindex` refaz o índice; `DELETE /api/notes` desconecta; `GET /api/notes/search?q=` mostra o que uma pergunta encontra. `GET /api/candidate-context/file` lê o `contexto.md` fixo do projeto, sem aceitar um caminho do cliente; a importação só altera o perfil quando o usuário salva.
+`POST /api/profile/import?kind=cv|job` recebe o arquivo no corpo (até 10 MB, nome no cabeçalho `X-File-Name`), organiza o texto com `runIsolatedAgent` (um processo do CLI só para esse pedido, sem afetar a sessão aquecida nem a conversa) e devolve `{ fields, warning? }`; nada é gravado até o usuário salvar. `GET /api/profile` e `PUT /api/profile` leem e gravam o perfil; o backend o carrega na inicialização e é a única fonte do contexto. `SIDENOTE_PROFILE_PATH` troca o arquivo (os testes usam um temporário). `GET /api/notes` devolve o estado da vault; `PUT /api/notes` (`{ path }`) conecta e indexa; `POST /api/notes/reindex` refaz o índice; `DELETE /api/notes` desconecta; `GET /api/notes/search?q=` mostra o que uma pergunta encontra. `GET /api/candidate-context/file` lê o `contexto.md` fixo do projeto, sem aceitar um caminho do cliente; a importação só altera o perfil quando o usuário salva.
 
 `GET /api/history?q=` lista as reuniões (mais recentes primeiro, ou por relevância com busca); `GET /api/history/:id` devolve uma reunião com a transcrição; `POST /api/history/:id/summarize` gera de novo o resumo e o título; `DELETE /api/history/:id` apaga. Mudanças são avisadas pelo WebSocket com `history_changed`. Ao encerrar uma sessão, o backend reaproveita o resumo atual se ele cobre todas as falas; senão roda o resumo final com `runIsolatedAgent`, no modelo configurado para o resumo. A reunião em andamento é gravada em `draft.json` 2 s após cada fala e, no SIGTERM, na hora; na inicialização seguinte ela entra no histórico como pendente e é resumida 15 s depois de o servidor subir. `GET /api/audio-apps` lista os streams tocando (`{ supported, streams: [{ id, stream, name, media, window, playing, level, siblings }] }`; `supported: false` fora do `parec`). A captura de um deles é pedida com `start_pc_capture` e `options.app = { id, name, stream, media, fresh }`; `fresh` marca uma escolha feita na lista recém-listada. Sem ele (a escolha salva, ao abrir o app ou religar a captura), o índice só vale se o `media.name` próprio também bater, porque o PipeWire reaproveita índices. Os streams que tocavam ao lado do escolhido nunca o substituem quando ele termina (`pickStream` em `server/audio-apps.js`). O `pc_capture_status` traz `app.waiting` enquanto nada é gravado e `app.ambiguous` quando não dá para saber qual stream é o da chamada: nesse caso o backend não grava nenhum até o usuário escolher.
 
@@ -190,8 +190,8 @@ O processo `transcribe.py --serve --config '<json>'` escreve `{ "event": "ready"
 
 O backend escuta apenas em `127.0.0.1` e só atende a janela do app:
 
-- Todo pedido em `/api` precisa do cabeçalho `X-InterviewAI-Token`, e o WebSocket, de `?token=`. A exceção é `GET /api/health`, que só responde `{ status: 'online' }` e serve para o Electron saber que o backend subiu.
-- O Electron gera o token a cada execução (`INTERVIEWAI_TOKEN`) e o entrega à página pelo preload (`interviewaiDesktop.backendToken()`), apenas para páginas do próprio app. A janela não navega para outros sites: links abrem no navegador padrão.
+- Todo pedido em `/api` precisa do cabeçalho `X-Sidenote-Token`, e o WebSocket, de `?token=`. A exceção é `GET /api/health`, que só responde `{ status: 'online' }` e serve para o Electron saber que o backend subiu.
+- O Electron gera o token a cada execução (`SIDENOTE_TOKEN`) e o entrega à página pelo preload (`sidenoteDesktop.backendToken()`), apenas para páginas do próprio app. A janela não navega para outros sites: links abrem no navegador padrão.
 - O backend grava o token em `backend-token` ao lado do perfil, com permissão `0600`, depois de conseguir a porta. É assim que um Electron que reaproveita um backend iniciado à mão (`node server/index.js`) obtém o token. Scripts locais como `server/test-client.js` também o leem dali.
 - Pedidos com `Origin` de outro site recebem 403 antes de qualquer rota, e o CORS só libera as origens do app. Pedidos sem `Origin` (processos locais) passam a depender só do token.
 

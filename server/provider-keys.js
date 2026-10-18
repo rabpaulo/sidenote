@@ -7,7 +7,7 @@ import { defaultProfilePath } from './profile-store.js';
 // The client never receives a saved key back, only whether one exists and its last
 // characters. A key in the environment (OPENAI_API_KEY...) is used when none is saved.
 export function defaultKeysPath(env = process.env) {
-  return env.INTERVIEWAI_KEYS_PATH || path.join(path.dirname(defaultProfilePath(env)), 'api-keys.json');
+  return env.SIDENOTE_KEYS_PATH || path.join(path.dirname(defaultProfilePath(env)), 'api-keys.json');
 }
 
 const MAX_KEY_LENGTH = 400;

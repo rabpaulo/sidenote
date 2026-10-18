@@ -10,7 +10,7 @@ import WebSocket from 'ws';
 
 // The backend only answers requests with the token of its run.
 const TOKEN = 'test-token';
-const fetch = (url, init = {}) => globalThis.fetch(url, { ...init, headers: { ...init.headers, 'X-InterviewAI-Token': TOKEN } });
+const fetch = (url, init = {}) => globalThis.fetch(url, { ...init, headers: { ...init.headers, 'X-Sidenote-Token': TOKEN } });
 
 // The fixture CLI echoes its prompt, so the summary text shows exactly what the model received.
 test('summaries use the whole transcript in a separate process, export and survive a new session', { timeout: 15000 }, async (t) => {
@@ -18,11 +18,11 @@ test('summaries use the whole transcript in a separate process, export and survi
   await new Promise((resolve) => probe.listen(0, '127.0.0.1', resolve));
   const port = probe.address().port;
   await new Promise((resolve) => probe.close(resolve));
-  const profileDir = fs.mkdtempSync(path.join(os.tmpdir(), 'interviewai-summary-'));
+  const profileDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sidenote-summary-'));
   const child = spawn(process.execPath, [fileURLToPath(new URL('./index.js', import.meta.url))], {
     stdio: ['ignore', 'pipe', 'pipe'],
-    env: { ...process.env, PORT: String(port), INTERVIEWAI_TOKEN: TOKEN, INTERVIEWAI_PROFILE_PATH: path.join(profileDir, 'profile.json'),
-      INTERVIEWAI_NOTES_CONFIG: path.join(profileDir, 'notes.json'),
+    env: { ...process.env, PORT: String(port), SIDENOTE_TOKEN: TOKEN, SIDENOTE_PROFILE_PATH: path.join(profileDir, 'profile.json'),
+      SIDENOTE_NOTES_CONFIG: path.join(profileDir, 'notes.json'),
       AGY_BIN: fileURLToPath(new URL('./fixtures/agy-session.cjs', import.meta.url)) },
   });
   let socket;

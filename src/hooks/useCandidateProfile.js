@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { EMPTY_PROFILE, isProfileEmpty, normalizeProfile } from '../../shared/candidate-profile.js';
 import { apiFetch } from '../backend.js';
 
-const LEGACY_KEY = 'perssua_agent_settings_v1';
+const LEGACY_KEY = 'sidenote_agent_settings_v1';
 
 // Older versions kept a free-text context in localStorage; it is moved once into the profile file.
 function readLegacyContext() {

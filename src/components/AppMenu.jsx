@@ -63,7 +63,7 @@ export function AppMenu({
   };
 
   useEffect(() => {
-    if (isOpen) window.interviewaiDesktop?.getCompositor?.().then(setCompositor, () => {});
+    if (isOpen) window.sidenoteDesktop?.getCompositor?.().then(setCompositor, () => {});
   }, [isOpen]);
 
   useEffect(() => {
@@ -83,19 +83,19 @@ export function AppMenu({
   }, [isOpen]);
 
   useEffect(() => {
-    window.interviewaiDesktop?.getAlwaysOnTop?.().then((pinned) => setIsPinned(!!pinned));
+    window.sidenoteDesktop?.getAlwaysOnTop?.().then((pinned) => setIsPinned(!!pinned));
   }, []);
 
   // Monitors are listed each time the menu opens, since they can be plugged in or out.
   useEffect(() => {
     if (!isOpen) return;
-    window.interviewaiDesktop?.getScreenshotSettings?.().then(setScreenshot).catch(() => setScreenshot(null));
+    window.sidenoteDesktop?.getScreenshotSettings?.().then(setScreenshot).catch(() => setScreenshot(null));
   }, [isOpen]);
 
   const cycleScreenshotMonitor = async () => {
     const options = [CURSOR_MONITOR, ...screenshot.monitors.map((monitor) => monitor.name)];
     const next = options[(options.indexOf(screenshot.monitor) + 1) % options.length];
-    const monitor = await window.interviewaiDesktop.setScreenshotMonitor(next);
+    const monitor = await window.sidenoteDesktop.setScreenshotMonitor(next);
     setScreenshot((current) => ({ ...current, monitor }));
   };
 
@@ -106,8 +106,8 @@ export function AppMenu({
   };
 
   const handleTogglePin = async () => {
-    if (window.interviewaiDesktop?.toggleAlwaysOnTop) {
-      setIsPinned(!!(await window.interviewaiDesktop.toggleAlwaysOnTop()));
+    if (window.sidenoteDesktop?.toggleAlwaysOnTop) {
+      setIsPinned(!!(await window.sidenoteDesktop.toggleAlwaysOnTop()));
     } else {
       setIsPinned(!isPinned);
     }
@@ -283,11 +283,11 @@ export function AppMenu({
               <div className="app-menu-divider" />
 
               <div className="flex gap-1">
-                <button type="button" role="menuitem" onClick={runAndClose(() => window.interviewaiDesktop?.minimize?.())} className="app-menu-item flex-1">
+                <button type="button" role="menuitem" onClick={runAndClose(() => window.sidenoteDesktop?.minimize?.())} className="app-menu-item flex-1">
                   <Minus size={14} className="text-zinc-400 shrink-0" />
                   <span className="text-zinc-100">Minimizar</span>
                 </button>
-                <button type="button" role="menuitem" onClick={() => window.interviewaiDesktop?.close?.()} className="app-menu-item app-menu-item--danger flex-1">
+                <button type="button" role="menuitem" onClick={() => window.sidenoteDesktop?.close?.()} className="app-menu-item app-menu-item--danger flex-1">
                   <X size={14} className="shrink-0" />
                   <span>Fechar</span>
                 </button>

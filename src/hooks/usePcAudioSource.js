@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { apiFetch } from '../backend.js';
 
-const STORAGE_KEY = 'interviewai_pc_app_v1';
+const STORAGE_KEY = 'sidenote_pc_app_v1';
 
 function load() {
   try {

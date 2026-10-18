@@ -6,5 +6,5 @@ test('OpenCode models are provider/model and its own models keep the default age
   assert.deepEqual(parseOpencodeModel('openrouter/meta/llama-4'), { providerID: 'openrouter', modelID: 'meta/llama-4' });
   assert.equal(parseOpencodeModel('sem-barra'), null);
   assert.equal(opencodeAgentFor('opencode/big-pickle'), 'build');
-  assert.equal(opencodeAgentFor('verboo/glm-5.2'), 'interviewai');
+  assert.equal(opencodeAgentFor('verboo/glm-5.2'), 'sidenote');
 });

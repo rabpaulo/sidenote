@@ -25,7 +25,7 @@ export function NotesVaultModal({ isOpen, onClose, vault }) {
   if (!isOpen) return null;
 
   const pickFolder = async () => {
-    const picked = await window.interviewaiDesktop?.pickDirectory?.('Escolha a pasta da vault do Obsidian');
+    const picked = await window.sidenoteDesktop?.pickDirectory?.('Escolha a pasta da vault do Obsidian');
     if (picked) {
       setPath(picked);
       connect(picked);
@@ -37,7 +37,7 @@ export function NotesVaultModal({ isOpen, onClose, vault }) {
     if (path.trim()) connect(path.trim());
   };
 
-  const canPick = !!window.interviewaiDesktop?.pickDirectory;
+  const canPick = !!window.sidenoteDesktop?.pickDirectory;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">

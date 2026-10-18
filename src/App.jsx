@@ -32,7 +32,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('transcription'); // transcription | session | summary | history
   const [language, setLanguage] = useState(() => {
     try {
-      return localStorage.getItem('interviewai_language_v1') || AUTO_LANGUAGE;
+      return localStorage.getItem('sidenote_language_v1') || AUTO_LANGUAGE;
     } catch {
       return AUTO_LANGUAGE;
     }
@@ -48,7 +48,7 @@ export default function App() {
   const [sessionToast, setSessionToast] = useState(null);
   const [isCompact, setIsCompact] = useState(() => {
     try {
-      return localStorage.getItem('interviewai_compact_v1') === '1';
+      return localStorage.getItem('sidenote_compact_v1') === '1';
     } catch {
       return false;
     }
@@ -158,15 +158,15 @@ export default function App() {
   useEffect(() => {
     syncLanguage(language);
     try {
-      localStorage.setItem('interviewai_language_v1', language);
+      localStorage.setItem('sidenote_language_v1', language);
     } catch {}
   }, [syncLanguage, language]);
 
   useEffect(() => {
     try {
-      localStorage.setItem('interviewai_compact_v1', isCompact ? '1' : '0');
+      localStorage.setItem('sidenote_compact_v1', isCompact ? '1' : '0');
     } catch {}
-    window.interviewaiDesktop?.setMode?.(isCompact ? 'compact' : 'normal');
+    window.sidenoteDesktop?.setMode?.(isCompact ? 'compact' : 'normal');
   }, [isCompact]);
 
   // Callback when a final voice message is recognized
@@ -300,8 +300,8 @@ export default function App() {
 
   // Electron Desktop shortcuts & IPC synchronization
   useEffect(() => {
-    if (window.interviewaiDesktop?.onShortcut) {
-      const cleanup = window.interviewaiDesktop.onShortcut((action) => {
+    if (window.sidenoteDesktop?.onShortcut) {
+      const cleanup = window.sidenoteDesktop.onShortcut((action) => {
         console.log('[Desktop IPC] Shortcut received:', action);
         if (action === 'ask_copilot') {
           triggerCopilot(null, {
@@ -339,8 +339,8 @@ export default function App() {
 
   // Ctrl+Alt+S: the main process captures the screen and the image goes straight to the agent.
   useEffect(() => {
-    if (!window.interviewaiDesktop?.onScreenshot) return undefined;
-    return window.interviewaiDesktop.onScreenshot(({ image, error }) => {
+    if (!window.sidenoteDesktop?.onScreenshot) return undefined;
+    return window.sidenoteDesktop.onScreenshot(({ image, error }) => {
       if (error || !image) {
         setSessionToast(`Falha na captura de tela: ${error || 'imagem vazia'}`);
         setTimeout(() => setSessionToast(null), 4000);
@@ -525,7 +525,7 @@ export default function App() {
           </div>
         )}
 
-        {/* InterviewAI Tabs (Transcrição • Sessão • Resumo); also the window drag handle,
+        {/* Sidenote Tabs (Transcrição • Sessão • Resumo); also the window drag handle,
             released while a modal is open because drag regions swallow clicks under overlays. */}
         {!isCompact && (
           <CompactTabs

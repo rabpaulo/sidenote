@@ -81,7 +81,7 @@ async function streamOpenAi({ provider, model, reasoningEffort, messages, images
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${apiKey(provider)}`,
-      ...(provider === 'openrouter' ? { 'X-Title': 'InterviewAI' } : {}),
+      ...(provider === 'openrouter' ? { 'X-Title': 'Sidenote' } : {}),
     },
     body: JSON.stringify(body),
   });

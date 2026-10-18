@@ -57,7 +57,7 @@ export function useAgentSocket() {
   const [selectedModel, setSelectedModel] = useState('gemini-3.8-flash');
   const [selectedPersona, setSelectedPersona] = useState(() => {
     try {
-      return localStorage.getItem('perssua_persona_v1') || 'general';
+      return localStorage.getItem('sidenote_persona_v1') || 'general';
     } catch {
       return 'general';
     }
@@ -107,7 +107,7 @@ export function useAgentSocket() {
       if (languageRef.current) ws.send(JSON.stringify({ type: 'set_language', language: languageRef.current }));
       if (summarySettingsRef.current) ws.send(JSON.stringify({ type: 'summary_settings', settings: summarySettingsRef.current }));
       try {
-        const savedPersona = localStorage.getItem('perssua_persona_v1');
+        const savedPersona = localStorage.getItem('sidenote_persona_v1');
         if (savedPersona) {
           ws.send(JSON.stringify({ type: 'set_persona', persona: savedPersona }));
         }
@@ -794,7 +794,7 @@ export function useAgentSocket() {
   const changePersona = useCallback((persona) => {
     setSelectedPersona(persona);
     try {
-      localStorage.setItem('perssua_persona_v1', persona);
+      localStorage.setItem('sidenote_persona_v1', persona);
     } catch {}
     if (socketRef.current?.readyState === WebSocket.OPEN) {
       socketRef.current.send(JSON.stringify({ type: 'set_persona', persona }));

@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { PROVIDERS } from '../config/models.js';
 
-const STORAGE_KEY = 'perssua_agent_settings_v1';
+const STORAGE_KEY = 'sidenote_agent_settings_v1';
 const byProvider = (value) => Object.fromEntries(Object.keys(PROVIDERS).map((id) => [id, value(id)]));
 
 export function useAgentSettings() {

@@ -82,7 +82,7 @@ test('a completed handle cannot cancel a later turn on the warm process', { time
 
 test('spawn failures produce one error and no successful completion', { timeout: 3000 }, async (t) => {
   fixture(t);
-  process.env.AGY_BIN = '/tmp/nonexistent-interviewai-test-binary';
+  process.env.AGY_BIN = '/tmp/nonexistent-sidenote-test-binary';
   let errors = 0;
   let completions = 0;
   await new Promise((resolve) => bridge.runAgyAgent({

@@ -13,11 +13,11 @@ let backendToken = null;
 
 // Same folder as the backend's profile (server/profile-store.js), where it writes its token.
 function backendDataDir(env = process.env) {
-  if (env.INTERVIEWAI_PROFILE_PATH) return path.dirname(env.INTERVIEWAI_PROFILE_PATH);
+  if (env.SIDENOTE_PROFILE_PATH) return path.dirname(env.SIDENOTE_PROFILE_PATH);
   if (process.platform === 'win32') {
-    return path.join(env.APPDATA || path.join(os.homedir(), 'AppData', 'Roaming'), 'InterviewAI');
+    return path.join(env.APPDATA || path.join(os.homedir(), 'AppData', 'Roaming'), 'Sidenote');
   }
-  return path.join(env.XDG_DATA_HOME || path.join(os.homedir(), '.local', 'share'), 'interviewai');
+  return path.join(env.XDG_DATA_HOME || path.join(os.homedir(), '.local', 'share'), 'sidenote');
 }
 
 function readBackendToken() {
@@ -44,7 +44,7 @@ const useCssOpacity = process.platform === 'linux';
 let compositorAtWindow = null;
 let compositorWatch = null;
 const managedByDevScript = process.argv.includes('--managed-backend');
-const devRendererUrl = process.env.INTERVIEWAI_DEV_URL || 'http://localhost:5173';
+const devRendererUrl = process.env.SIDENOTE_DEV_URL || 'http://localhost:5173';
 const managedRenderer = process.argv.includes('--managed-renderer') || managedByDevScript;
 
 // The app's own pages; nothing else may load in the window or read the token.
@@ -58,17 +58,24 @@ function isAppUrl(url) {
 }
 
 // Windows groups taskbar entries and notifications by this id; it must match electron-builder's appId.
-if (process.platform === 'win32') app.setAppUserModelId('com.interviewai.copilot');
+if (process.platform === 'win32') app.setAppUserModelId('io.github.rabpaulo.sidenote');
 
-// Carry saved settings over from the app's previous name (one-time copy).
-const legacyUserData = path.join(app.getPath('appData'), 'perssua-code-copilot');
-if (!fs.existsSync(app.getPath('userData')) && fs.existsSync(legacyUserData)) {
+// The app was called InterviewAI: its folders move once to the current name. The backend
+// folder goes first; on Windows it is also Electron's userData, which then already exists.
+function moveLegacyFolder(from, to) {
+  if (fs.existsSync(to) || !fs.existsSync(from)) return;
   try {
-    fs.cpSync(legacyUserData, app.getPath('userData'), { recursive: true });
+    fs.renameSync(from, to);
   } catch (error) {
-    console.warn('[Electron] Could not migrate legacy user data:', error.message);
+    console.warn(`[Electron] Could not move ${from} to ${to}:`, error.message);
   }
 }
+if (!process.env.SIDENOTE_PROFILE_PATH) {
+  const dataDir = backendDataDir();
+  moveLegacyFolder(path.join(path.dirname(dataDir), process.platform === 'win32' ? 'InterviewAI' : 'interviewai'), dataDir);
+}
+// userData is named after package.json: "sidenote" in development, "Sidenote" when packaged.
+moveLegacyFolder(path.join(app.getPath('appData'), app.getName() === 'Sidenote' ? 'InterviewAI' : 'interviewai'), app.getPath('userData'));
 
 function ensureServerRunning() {
   const isBackendRunning = () => new Promise((resolve) => {
@@ -118,7 +125,7 @@ function ensureServerRunning() {
       cwd: path.join(__dirname, '..'),
       stdio: 'inherit',
       windowsHide: true,
-      env: { ...process.env, PORT: '3001', ELECTRON_RUN_AS_NODE: '1', INTERVIEWAI_TOKEN: backendToken },
+      env: { ...process.env, PORT: '3001', ELECTRON_RUN_AS_NODE: '1', SIDENOTE_TOKEN: backendToken },
     });
 
     await waitForBackend();
@@ -147,7 +154,7 @@ function createWindow(bounds = null) {
     minWidth: minSize[0],
     minHeight: minSize[1],
     backgroundColor: useCssOpacity ? '#00000000' : '#0c0c11',
-    title: 'InterviewAI',
+    title: 'Sidenote',
     icon: fs.existsSync(iconPath) ? iconPath : undefined,
     autoHideMenuBar: true,
     frame: false, // frameless for sleek floating widget with custom draggable header
@@ -186,7 +193,7 @@ function createWindow(bounds = null) {
     else if (input.key === '0' || input.code === 'Numpad0') action = 'text_zoom_reset';
     if (!action) return;
     event.preventDefault();
-    mainWindow.webContents.send('interviewai:shortcut', action);
+    mainWindow.webContents.send('sidenote:shortcut', action);
   });
 
   // Log renderer console messages to terminal
@@ -264,15 +271,15 @@ function setupShortcuts() {
   // Global Shortcut: Alt+Space -> Toggle mic recording
   globalShortcut.register('Alt+Space', () => {
     if (mainWindow && !mainWindow.isDestroyed()) {
-      mainWindow.webContents.send('interviewai:shortcut', 'toggle_mic');
+      mainWindow.webContents.send('sidenote:shortcut', 'toggle_mic');
     }
   });
 
-  // Global Shortcut: CommandOrControl+D -> Analyze / Ask Copilot (InterviewAI keybinding)
+  // Global Shortcut: CommandOrControl+D -> Analyze / Ask Copilot (Sidenote keybinding)
   try {
     globalShortcut.register('CommandOrControl+D', () => {
       if (mainWindow && !mainWindow.isDestroyed()) {
-        mainWindow.webContents.send('interviewai:shortcut', 'ask_copilot');
+        mainWindow.webContents.send('sidenote:shortcut', 'ask_copilot');
       }
     });
   } catch (err) {
@@ -322,14 +329,14 @@ function setupShortcuts() {
   // Global Shortcut: Ctrl+Alt+P -> Toggle PC audio listening
   globalShortcut.register('Control+Alt+P', () => {
     if (mainWindow && !mainWindow.isDestroyed()) {
-      mainWindow.webContents.send('interviewai:shortcut', 'toggle_pc_audio');
+      mainWindow.webContents.send('sidenote:shortcut', 'toggle_pc_audio');
     }
   });
 
   // Global Shortcut: Ctrl+Alt+M -> Toggle mic recording
   globalShortcut.register('Control+Alt+M', () => {
     if (mainWindow && !mainWindow.isDestroyed()) {
-      mainWindow.webContents.send('interviewai:shortcut', 'toggle_mic');
+      mainWindow.webContents.send('sidenote:shortcut', 'toggle_mic');
     }
   });
 
@@ -341,7 +348,7 @@ function setupShortcuts() {
   // Global Shortcut: Ctrl+Alt+N -> Nova Sessão
   globalShortcut.register('Control+Alt+N', () => {
     if (mainWindow && !mainWindow.isDestroyed()) {
-      mainWindow.webContents.send('interviewai:shortcut', 'new_session');
+      mainWindow.webContents.send('sidenote:shortcut', 'new_session');
     }
   });
 }
@@ -481,10 +488,10 @@ async function sendScreenshot() {
   isCapturingScreen = true;
   try {
     const image = await captureScreen();
-    mainWindow.webContents.send('interviewai:screenshot', { image });
+    mainWindow.webContents.send('sidenote:screenshot', { image });
   } catch (error) {
     console.error('[Electron] Screenshot failed:', error);
-    mainWindow?.webContents.send('interviewai:screenshot', { error: error.message });
+    mainWindow?.webContents.send('sidenote:screenshot', { error: error.message });
   } finally {
     isCapturingScreen = false;
   }
@@ -522,25 +529,25 @@ function setWindowMode(mode) {
   }
 }
 
-ipcMain.handle('interviewai:toggle-always-on-top', () => {
+ipcMain.handle('sidenote:toggle-always-on-top', () => {
   if (!mainWindow) return false;
   isAlwaysOnTop = !isAlwaysOnTop;
   mainWindow.setAlwaysOnTop(isAlwaysOnTop, isAlwaysOnTop ? 'screen-saver' : 'normal');
   return isAlwaysOnTop;
 });
 
-ipcMain.handle('interviewai:get-always-on-top', () => {
+ipcMain.handle('sidenote:get-always-on-top', () => {
   if (!mainWindow) return false;
   return mainWindow.isAlwaysOnTop();
 });
 
-ipcMain.handle('interviewai:get-screenshot-settings', async () => ({
+ipcMain.handle('sidenote:get-screenshot-settings', async () => ({
   monitor: screenshotMonitor,
   monitors: await listMonitors(),
   shortcut: SCREENSHOT_SHORTCUT,
 }));
 
-ipcMain.handle('interviewai:set-screenshot-monitor', (_event, monitor) => {
+ipcMain.handle('sidenote:set-screenshot-monitor', (_event, monitor) => {
   if (typeof monitor !== 'string' || !monitor || monitor.length > 64) return screenshotMonitor;
   screenshotMonitor = monitor;
   try {
@@ -552,7 +559,7 @@ ipcMain.handle('interviewai:set-screenshot-monitor', (_event, monitor) => {
 });
 
 // Folder picker for the Obsidian vault; resolves to null when cancelled.
-ipcMain.handle('interviewai:pick-directory', async (_event, title) => {
+ipcMain.handle('sidenote:pick-directory', async (_event, title) => {
   const options = { title: typeof title === 'string' ? title.slice(0, 120) : undefined, properties: ['openDirectory'] };
   const result = mainWindow && !mainWindow.isDestroyed()
     ? await dialog.showOpenDialog(mainWindow, options)
@@ -560,29 +567,29 @@ ipcMain.handle('interviewai:pick-directory', async (_event, title) => {
   return result.canceled ? null : result.filePaths[0] || null;
 });
 
-ipcMain.on('interviewai:set-mode', (_event, mode) => {
+ipcMain.on('sidenote:set-mode', (_event, mode) => {
   setWindowMode(mode);
 });
 
 // False while transparency waits for a compositor (X11 without one); true or null otherwise.
-ipcMain.handle('interviewai:get-compositor', () => compositorAtWindow);
+ipcMain.handle('sidenote:get-compositor', () => compositorAtWindow);
 
-ipcMain.on('interviewai:set-opacity', (_event, value) => {
+ipcMain.on('sidenote:set-opacity', (_event, value) => {
   if (!mainWindow || mainWindow.isDestroyed() || useCssOpacity) return;
   const opacity = Number(value);
   if (Number.isFinite(opacity)) mainWindow.setOpacity(Math.min(1, Math.max(0.3, opacity)));
 });
 
 // Read synchronously by the preload script, before the page makes its first request.
-ipcMain.on('interviewai:backend-token', (event) => {
+ipcMain.on('sidenote:backend-token', (event) => {
   event.returnValue = isAppUrl(event.senderFrame?.url) ? backendToken : null;
 });
 
-ipcMain.on('interviewai:minimize', () => {
+ipcMain.on('sidenote:minimize', () => {
   if (mainWindow) mainWindow.minimize();
 });
 
-ipcMain.on('interviewai:close', () => {
+ipcMain.on('sidenote:close', () => {
   if (mainWindow) mainWindow.close();
 });
 

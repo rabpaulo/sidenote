@@ -12,13 +12,13 @@ import { readSse } from './sse.js';
 // `opencode models` lists them, so every provider configured in OpenCode works,
 // plus the ones whose API key was saved in this app.
 const START_TIMEOUT_MS = 30000;
-const AGENT = 'interviewai';
+const AGENT = 'sidenote';
 // OpenCode's own models (opencode/…, the free tier included) only answer requests
 // from OpenCode's default agent, so they keep it; every other provider gets a
 // text-only agent with the copilot's short system prompt and no tools.
 const DEFAULT_AGENT = 'build';
 const CONFIG = {
-  agent: { [AGENT]: { mode: 'primary', description: 'InterviewAI copilot', prompt: AGENT_SYSTEM_PROMPT, tools: { '*': false } } },
+  agent: { [AGENT]: { mode: 'primary', description: 'Sidenote copilot', prompt: AGENT_SYSTEM_PROMPT, tools: { '*': false } } },
 };
 
 let server = null;
@@ -128,7 +128,7 @@ async function getSession({ conversationId, model, isolated = false }, reusePrep
   await target.ready;
   if (!isolated && warmSession && warmSession.server === target && !warmSession.active && warmSession.model === model
     && (conversationId ? warmSession.id === conversationId : (reusePrepared || warmSession.prepared))) return warmSession;
-  const id = conversationId || (await request(target, 'POST', '/session', { title: 'InterviewAI' }))?.id;
+  const id = conversationId || (await request(target, 'POST', '/session', { title: 'Sidenote' }))?.id;
   if (!id) throw new Error('O OpenCode não retornou o ID da sessão');
   const session = { id, model, server: target, prepared: true, active: null };
   if (!isolated) {

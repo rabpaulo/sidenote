@@ -2,22 +2,22 @@
 
 :root {
   color-scheme: dark;
-  --interviewai-bg: #050506;
-  --interviewai-surface: #0b0b0d;
-  --interviewai-surface-raised: #111113;
-  --interviewai-line: rgba(255, 255, 255, 0.09);
-  --interviewai-muted: #8c8c93;
-  --interviewai-blue: #2684ff;
+  --sidenote-bg: #050506;
+  --sidenote-surface: #0b0b0d;
+  --sidenote-surface-raised: #111113;
+  --sidenote-line: rgba(255, 255, 255, 0.09);
+  --sidenote-muted: #8c8c93;
+  --sidenote-blue: #2684ff;
 }
 
 @layer base {
   html {
-    background: var(--interviewai-bg);
+    background: var(--sidenote-bg);
   }
 
   body {
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-    background-color: var(--interviewai-bg);
+    background-color: var(--sidenote-bg);
     color: #f4f4f5;
     font-feature-settings: "ss01" on;
     text-rendering: optimizeLegibility;
@@ -30,7 +30,7 @@
 
 .app-shell,
 .app-frame {
-  background: var(--interviewai-bg);
+  background: var(--sidenote-bg);
 }
 
 /* Linux desktop: the window is transparent and the app fades itself. */
@@ -55,7 +55,7 @@ html.app-solid-text .app-shell {
 }
 
 html.app-solid-text .app-frame {
-  background: color-mix(in srgb, var(--interviewai-bg) var(--app-glass), transparent);
+  background: color-mix(in srgb, var(--sidenote-bg) var(--app-glass), transparent);
 }
 
 html.app-solid-text .app-tabs,
@@ -131,7 +131,7 @@ html.app-solid-text .app-context-editor {
 .app-menu-divider {
   height: 1px;
   margin: 4px 6px;
-  background: var(--interviewai-line);
+  background: var(--sidenote-line);
 }
 
 .app-menu-switch {
@@ -157,7 +157,7 @@ html.app-solid-text .app-context-editor {
 }
 
 .app-menu-switch--on {
-  background: var(--interviewai-blue);
+  background: var(--sidenote-blue);
 }
 
 .app-menu-switch--on::after {
@@ -165,7 +165,7 @@ html.app-solid-text .app-context-editor {
 }
 
 .app-opacity-slider {
-  accent-color: var(--interviewai-blue);
+  accent-color: var(--sidenote-blue);
 }
 
 .app-shell {
@@ -187,7 +187,7 @@ html.app-solid-text .app-context-editor {
 
 .app-shell button:focus-visible,
 .app-shell input:focus-visible {
-  outline: 2px solid var(--interviewai-blue);
+  outline: 2px solid var(--sidenote-blue);
   outline-offset: 2px;
 }
 
@@ -202,7 +202,7 @@ html.app-solid-text .app-context-editor {
 
 .app-tabs {
   background: #070708;
-  border-bottom: 1px solid var(--interviewai-line);
+  border-bottom: 1px solid var(--sidenote-line);
 }
 
 .app-tab-active {
@@ -227,9 +227,9 @@ html.app-solid-text .app-context-editor {
   gap: 8px;
   flex-shrink: 0;
   padding: 7px 16px;
-  border-top: 1px solid var(--interviewai-line);
-  background: var(--interviewai-surface);
-  color: var(--interviewai-muted);
+  border-top: 1px solid var(--sidenote-line);
+  background: var(--sidenote-surface);
+  color: var(--sidenote-muted);
   font-size: 10px;
 }
 
@@ -269,12 +269,12 @@ html.app-solid-text .app-context-editor {
 
 .transcript-entry--answer,
 .transcript-entry--assistant {
-  border-left: 2px solid var(--interviewai-blue);
+  border-left: 2px solid var(--sidenote-blue);
 }
 
 .app-audio-panel {
   background: #070708;
-  border-top: 1px solid var(--interviewai-line);
+  border-top: 1px solid var(--sidenote-line);
 }
 
 .audio-level-track {
@@ -292,7 +292,7 @@ html.app-solid-text .app-context-editor {
 
 .app-bottom-bar {
   background: rgba(5, 5, 6, 0.97);
-  border-top: 1px solid var(--interviewai-line);
+  border-top: 1px solid var(--sidenote-line);
 }
 
 .app-primary-button:hover {
@@ -306,7 +306,7 @@ html.app-solid-text .app-context-editor {
 
 /* Meu contexto: full-window sheet with tabbed sections. */
 .app-context-editor {
-  background: var(--interviewai-bg);
+  background: var(--sidenote-bg);
   animation: app-sheet-in 160ms ease-out;
 }
 
@@ -315,7 +315,7 @@ html.app-solid-text .app-context-editor {
 }
 
 .app-context-tabs {
-  border-bottom: 1px solid var(--interviewai-line);
+  border-bottom: 1px solid var(--sidenote-line);
   overflow-x: auto;
   scrollbar-width: none;
 }
@@ -328,7 +328,7 @@ html.app-solid-text .app-context-editor {
   flex-shrink: 0;
   padding: 9px 10px;
   font-size: 12px;
-  color: var(--interviewai-muted);
+  color: var(--sidenote-muted);
   cursor: pointer;
 }
 
@@ -348,14 +348,14 @@ html.app-solid-text .app-context-editor {
   bottom: -1px;
   height: 2px;
   border-radius: 2px;
-  background: var(--interviewai-blue);
+  background: var(--sidenote-blue);
 }
 
 .app-context-tab__dot {
   width: 5px;
   height: 5px;
   border-radius: 999px;
-  background: var(--interviewai-blue);
+  background: var(--sidenote-blue);
 }
 
 .app-context-tab__count {
@@ -372,8 +372,8 @@ html.app-solid-text .app-context-editor {
 .app-context-card {
   padding: 10px 12px;
   border-radius: 12px;
-  background: var(--interviewai-surface-raised);
-  border: 1px solid var(--interviewai-line);
+  background: var(--sidenote-surface-raised);
+  border: 1px solid var(--sidenote-line);
 }
 
 .app-dropzone {
@@ -384,7 +384,7 @@ html.app-solid-text .app-context-editor {
   padding: 10px 12px;
   border-radius: 12px;
   border: 1px dashed rgba(255, 255, 255, 0.16);
-  background: var(--interviewai-surface-raised);
+  background: var(--sidenote-surface-raised);
   text-align: left;
   cursor: pointer;
   transition: border-color 150ms ease-out, background-color 150ms ease-out;
@@ -413,8 +413,8 @@ html.app-solid-text .app-context-editor {
 }
 
 .app-context-footer {
-  border-top: 1px solid var(--interviewai-line);
-  background: var(--interviewai-surface);
+  border-top: 1px solid var(--sidenote-line);
+  background: var(--sidenote-surface);
 }
 
 .app-field {
@@ -701,7 +701,7 @@ html.app-solid-text .app-context-editor {
 }
 
 /* Subtle glow animations */
-@keyframes interviewaiPulse {
+@keyframes sidenotePulse {
   0%, 100% {
     opacity: 1;
     transform: scale(1);
@@ -712,8 +712,8 @@ html.app-solid-text .app-context-editor {
   }
 }
 
-.animate-interviewai-pulse {
-  animation: interviewaiPulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+.animate-sidenote-pulse {
+  animation: sidenotePulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 /* Let CodeBlock's container provide the background for highlighted code. */
@@ -780,7 +780,7 @@ html.app-solid-text .app-context-editor {
 
 .agent-markdown hr {
   border: 0;
-  border-top: 1px solid var(--interviewai-line);
+  border-top: 1px solid var(--sidenote-line);
   margin: 1em 0;
 }
 
@@ -809,7 +809,7 @@ html.app-solid-text .app-context-editor {
 }
 
 .agent-markdown :is(th, td) {
-  border: 1px solid var(--interviewai-line);
+  border: 1px solid var(--sidenote-line);
   padding: 0.35em 0.6em;
   text-align: left;
 }
@@ -897,7 +897,7 @@ html.app-solid-text .app-context-editor {
   flex-shrink: 0;
   border-radius: 999px;
   background: #22d3ee;
-  animation: interviewaiPulse 1.2s ease-in-out infinite;
+  animation: sidenotePulse 1.2s ease-in-out infinite;
 }
 
 .code-frame__copy {

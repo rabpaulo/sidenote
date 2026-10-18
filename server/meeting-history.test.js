@@ -9,7 +9,7 @@ const tick = (ms = 0) => new Promise((resolve) => setTimeout(resolve, ms));
 const quiet = { log() {}, warn() {}, error() {} };
 
 function tempDir() {
-  return fs.mkdtempSync(path.join(os.tmpdir(), 'interviewai-history-'));
+  return fs.mkdtempSync(path.join(os.tmpdir(), 'sidenote-history-'));
 }
 
 const meeting = (lines, start = 1000) => lines.map(([role, text], i) => ({ role, text, at: start + i * 1000 }));

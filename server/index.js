@@ -14,7 +14,7 @@ import { createSpeechSettings } from './speech-settings.js';
 import { wirePcTranscription } from './pc-transcription.js';
 import { createLiveCopilot } from './live-copilot.js';
 import { readCandidateContext } from './candidate-context.js';
-import { createProfileStore, defaultProfilePath } from './profile-store.js';
+import { createProfileStore, defaultProfilePath, migrateLegacyDataDir } from './profile-store.js';
 import { createNotesVault, createNotesLookup, publicHit } from './notes-vault.js';
 import { agentWorkspace, cliAvailable, resolveCliBin } from './cli-process.js';
 import { composeCandidateContext, MAX_CONTEXT_CHARS } from '../shared/candidate-profile.js';
@@ -38,14 +38,17 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const distPath = path.resolve(__dirname, '../dist');
 
+// Before anything reads or writes the data folder.
+migrateLegacyDataDir();
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 // Only reachable from this machine, and only by the app's window (see backend-auth.js).
 const HOST = '127.0.0.1';
 const auth = createBackendAuth({
-  token: process.env.INTERVIEWAI_TOKEN,
+  token: process.env.SIDENOTE_TOKEN,
   port: PORT,
-  extraOrigins: [process.env.INTERVIEWAI_DEV_URL, ...(process.env.INTERVIEWAI_ALLOWED_ORIGINS || '').split(',')],
+  extraOrigins: [process.env.SIDENOTE_DEV_URL, ...(process.env.SIDENOTE_ALLOWED_ORIGINS || '').split(',')],
 });
 
 app.use(auth.rejectForeignOrigins);
@@ -106,7 +109,7 @@ let summarySettings = { auto: true, provider: null, model: null, saveOnReset: tr
 // Speech recognition: Google, or a local engine whose model is downloaded next to the profile.
 const dataDir = path.dirname(profileStore.file);
 const speechModels = createModelStore({
-  dir: process.env.INTERVIEWAI_MODELS_DIR || path.join(dataDir, 'models'),
+  dir: process.env.SIDENOTE_MODELS_DIR || path.join(dataDir, 'models'),
   python: () => speechSettings.python(),
   onChange: () => broadcastSpeech(),
 });
@@ -134,7 +137,7 @@ const transcribeAudioBuffer = transcriber.transcribe;
 const warmTranscriber = transcriber.warm;
 
 const meetingHistory = createMeetingHistory({
-  dir: process.env.INTERVIEWAI_HISTORY_DIR || path.join(path.dirname(profileStore.file), 'history'),
+  dir: process.env.SIDENOTE_HISTORY_DIR || path.join(path.dirname(profileStore.file), 'history'),
   onChange: () => broadcast({ type: 'history_changed' }),
 });
 // Meetings left open when the app closed, or whose summary a restart interrupted.
@@ -145,7 +148,7 @@ let pendingMeetings = [];
 // Local Obsidian vault search. It runs on partial transcripts, so by the time an
 // utterance is final its notes are already on screen and ready for the prompt.
 const notesVault = createNotesVault({
-  configFile: process.env.INTERVIEWAI_NOTES_CONFIG || path.join(path.dirname(defaultProfilePath()), 'notes.json'),
+  configFile: process.env.SIDENOTE_NOTES_CONFIG || path.join(path.dirname(defaultProfilePath()), 'notes.json'),
 });
 notesVault.load();
 const notesLookup = createNotesLookup({
@@ -890,7 +893,7 @@ app.post('/api/summary/export', async (req, res) => {
     return res.status(400).json({ error: 'Conecte uma vault do Obsidian para salvar nela.' });
   }
   const { text, model, title } = summaryService.state;
-  const dir = target === 'vault' ? path.join(vault.path, 'InterviewAI') : sessionsDir();
+  const dir = target === 'vault' ? path.join(vault.path, 'Sidenote') : sessionsDir();
   try {
     const file = await saveSessionMarkdown(dir,
       sessionMarkdown({ entries, startedAt: sessionTranscript.startedAt, summary: text, model, title }), entries.at(-1).at, title);
@@ -1304,8 +1307,8 @@ server.listen(PORT, HOST, () => {
   } catch (error) {
     console.warn(`[Server] Could not write the token file: ${error.message}`);
   }
-  console.log(`[InterviewAI Server] Running on http://${HOST}:${PORT}`);
-  console.log(`[InterviewAI Server] WebSocket ready on ws://${HOST}:${PORT}`);
+  console.log(`[Sidenote Server] Running on http://${HOST}:${PORT}`);
+  console.log(`[Sidenote Server] WebSocket ready on ws://${HOST}:${PORT}`);
   prepareSelectedSession();
   providerAvailability.refresh();
   // After the provider check, so a logged-out CLI is reported instead of failing.

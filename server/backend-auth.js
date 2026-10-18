@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 
-export const TOKEN_HEADER = 'x-interviewai-token';
+export const TOKEN_HEADER = 'x-sidenote-token';
 export const TOKEN_FILE = 'backend-token';
 
 const digest = (value) => crypto.createHash('sha256').update(String(value)).digest();
@@ -19,7 +19,7 @@ function originOf(url) {
  * Only the app's own window may use the backend: every API request and the
  * WebSocket must carry the token of this run, and browsers may only call it from
  * the app's origins. Electron generates the token and passes it in
- * INTERVIEWAI_TOKEN; a backend started by hand makes its own. Requests without an
+ * SIDENOTE_TOKEN; a backend started by hand makes its own. Requests without an
  * Origin come from local processes (Electron's main process, tests, scripts),
  * which still need the token.
  */

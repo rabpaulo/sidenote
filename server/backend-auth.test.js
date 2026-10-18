@@ -30,11 +30,11 @@ test('the backend listens on loopback and refuses requests without the token or 
   await new Promise((resolve) => probe.listen(0, '127.0.0.1', resolve));
   const port = probe.address().port;
   await new Promise((resolve) => probe.close(resolve));
-  const profileDir = fs.mkdtempSync(path.join(os.tmpdir(), 'interviewai-auth-'));
+  const profileDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sidenote-auth-'));
   const child = spawn(process.execPath, [fileURLToPath(new URL('./index.js', import.meta.url))], {
     stdio: ['ignore', 'pipe', 'pipe'],
-    env: { ...process.env, PORT: String(port), INTERVIEWAI_TOKEN: 'token-do-teste',
-      INTERVIEWAI_PROFILE_PATH: path.join(profileDir, 'profile.json'), INTERVIEWAI_NOTES_CONFIG: path.join(profileDir, 'notes.json'),
+    env: { ...process.env, PORT: String(port), SIDENOTE_TOKEN: 'token-do-teste',
+      SIDENOTE_PROFILE_PATH: path.join(profileDir, 'profile.json'), SIDENOTE_NOTES_CONFIG: path.join(profileDir, 'notes.json'),
       AGY_BIN: fileURLToPath(new URL('./fixtures/agy-session.cjs', import.meta.url)) },
   });
   t.after(async () => {
@@ -51,11 +51,11 @@ test('the backend listens on loopback and refuses requests without the token or 
     child.on('exit', (code) => reject(new Error(`Backend exited: ${code}`)));
   });
   const url = `http://127.0.0.1:${port}`;
-  const authorized = { 'X-InterviewAI-Token': 'token-do-teste' };
+  const authorized = { 'X-Sidenote-Token': 'token-do-teste' };
 
   assert.equal((await fetch(`${url}/api/health`)).status, 200);
   assert.equal((await fetch(`${url}/api/history`)).status, 401);
-  assert.equal((await fetch(`${url}/api/history`, { headers: { 'X-InterviewAI-Token': 'outro' } })).status, 401);
+  assert.equal((await fetch(`${url}/api/history`, { headers: { 'X-Sidenote-Token': 'outro' } })).status, 401);
   assert.equal((await fetch(`${url}/api/history/x`, { method: 'DELETE' })).status, 401);
   assert.equal((await fetch(`${url}/api/audio-apps`)).status, 401);
   assert.equal((await fetch(`${url}/api/history`, { headers: authorized })).status, 200);
@@ -94,15 +94,15 @@ test('a backend that cannot get the port exits without taking over the running m
   const busy = net.createServer();
   await new Promise((resolve) => busy.listen(0, '127.0.0.1', resolve));
   t.after(() => busy.close());
-  const profileDir = fs.mkdtempSync(path.join(os.tmpdir(), 'interviewai-busy-'));
+  const profileDir = fs.mkdtempSync(path.join(os.tmpdir(), 'sidenote-busy-'));
   t.after(() => fs.rmSync(profileDir, { recursive: true, force: true }));
   const draft = path.join(profileDir, 'history', 'draft.json');
   fs.mkdirSync(path.dirname(draft), { recursive: true });
   fs.writeFileSync(draft, JSON.stringify({ startedAt: 1, entries: [{ role: 'user', text: 'a', at: 1 }, { role: 'user', text: 'b', at: 2 }] }));
   const child = spawn(process.execPath, [fileURLToPath(new URL('./index.js', import.meta.url))], {
     stdio: ['ignore', 'ignore', 'pipe'],
-    env: { ...process.env, PORT: String(busy.address().port), INTERVIEWAI_TOKEN: 'x',
-      INTERVIEWAI_PROFILE_PATH: path.join(profileDir, 'profile.json'), INTERVIEWAI_NOTES_CONFIG: path.join(profileDir, 'notes.json'),
+    env: { ...process.env, PORT: String(busy.address().port), SIDENOTE_TOKEN: 'x',
+      SIDENOTE_PROFILE_PATH: path.join(profileDir, 'profile.json'), SIDENOTE_NOTES_CONFIG: path.join(profileDir, 'notes.json'),
       AGY_BIN: fileURLToPath(new URL('./fixtures/agy-session.cjs', import.meta.url)) },
   });
   let stderr = '';

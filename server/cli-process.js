@@ -52,7 +52,7 @@ const ENV_NAMES = { agy: 'AGY_BIN', codex: 'CODEX_BIN', claude: 'CLAUDE_BIN', op
  * repository, AGENTS.md or CLAUDE.md to load or index before answering.
  */
 export function agentWorkspace() {
-  const dir = path.join(os.tmpdir(), 'interviewai-agent');
+  const dir = path.join(os.tmpdir(), 'sidenote-agent');
   fs.mkdirSync(dir, { recursive: true });
   return dir;
 }

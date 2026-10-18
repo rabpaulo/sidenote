@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
-const STORAGE_KEY = 'perssua_window_opacity_v1';
-const SOLID_TEXT_KEY = 'perssua_window_solid_text_v1';
+const STORAGE_KEY = 'sidenote_window_opacity_v1';
+const SOLID_TEXT_KEY = 'sidenote_window_solid_text_v1';
 export const MIN_OPACITY = 0.3;
 export const MAX_OPACITY = 1;
 
@@ -30,7 +30,7 @@ export function useWindowOpacity() {
   // transparent (CSS-faded) window, so it is only offered where that exists.
   const [solidText, setSolidTextState] = useState(() => readStorage(SOLID_TEXT_KEY) !== 'false');
 
-  const desktop = window.interviewaiDesktop;
+  const desktop = window.sidenoteDesktop;
   const canSolidText = !!desktop?.usesCssOpacity;
 
   useEffect(() => {

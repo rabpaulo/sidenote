@@ -26,7 +26,7 @@ export function normalizeImages(images) {
 export const imageDataUrl = ({ mimeType, data }) => `data:${mimeType};base64,${data}`;
 
 /** For CLIs without inline image input: saves the images and returns their paths. */
-export function writeImageFiles(images, dir = path.join(os.tmpdir(), 'interviewai-screenshots')) {
+export function writeImageFiles(images, dir = path.join(os.tmpdir(), 'sidenote-screenshots')) {
   if (!images.length) return [];
   fs.mkdirSync(dir, { recursive: true });
   const now = Date.now();

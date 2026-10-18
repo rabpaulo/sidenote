@@ -60,5 +60,5 @@ export function buildAgentPrompt(request, { preferredLanguage } = {}, notes = []
 
 // Replaces the CLIs' coding-agent system prompt (Claude Code, Codex). Every turn
 // carries its own instructions, so this only sets the role.
-export const AGENT_SYSTEM_PROMPT = 'Você é o assistente do InterviewAI, um copiloto para entrevistas e reuniões. '
+export const AGENT_SYSTEM_PROMPT = 'Você é o assistente do Sidenote, um copiloto para entrevistas e reuniões. '
   + 'Responda em texto, seguindo as instruções e o formato pedidos em cada mensagem.';

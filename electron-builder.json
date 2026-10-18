@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
-  "appId": "com.interviewai.copilot",
-  "productName": "InterviewAI",
+  "appId": "io.github.rabpaulo.sidenote",
+  "productName": "Sidenote",
   "directories": {
     "output": "release",
     "buildResources": "build"
@@ -25,10 +25,10 @@
         "arch": ["x64"]
       }
     ],
-    "category": "Development",
+    "category": "Utility",
     "icon": "build/icon.png",
-    "synopsis": "InterviewAI Meeting & Voice Copilot",
-    "description": "InterviewAI Meeting & Voice Copilot tailored for coding agents (Antigravity)",
+    "synopsis": "Copiloto de conversas em tempo real",
+    "description": "Transcreve reuniões e conversas, sugere respostas e resume o que foi dito.",
     "syncDesktopName": true
   },
   "win": {
@@ -50,7 +50,7 @@
     "perMachine": false,
     "allowToChangeInstallationDirectory": true,
     "createDesktopShortcut": true,
-    "shortcutName": "InterviewAI"
+    "shortcutName": "Sidenote"
   },
   "portable": {
     "artifactName": "${productName}-${version}-portable.${ext}"

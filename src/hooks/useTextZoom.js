@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-const STORAGE_KEY = 'interviewai_text_zoom_v1';
+const STORAGE_KEY = 'sidenote_text_zoom_v1';
 export const MIN_TEXT_ZOOM = 0.7;
 export const MAX_TEXT_ZOOM = 2;
 const STEP = 0.1;
@@ -52,7 +52,7 @@ export function useTextZoom() {
     };
     window.addEventListener('keydown', handleKeyDown);
     // Electron intercepts these keys before the page to disable its whole-page zoom and forwards them here.
-    const cleanup = window.interviewaiDesktop?.onShortcut?.((action) => apply(action.match(/^text_zoom_(in|out|reset)$/)?.[1]));
+    const cleanup = window.sidenoteDesktop?.onShortcut?.((action) => apply(action.match(/^text_zoom_(in|out|reset)$/)?.[1]));
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       cleanup?.();

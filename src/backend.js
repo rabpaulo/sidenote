@@ -1,12 +1,12 @@
 // The backend answers only requests that carry the token of this run, which the
 // Electron preload hands to the page (see server/backend-auth.js).
-const TOKEN_HEADER = 'X-InterviewAI-Token';
+const TOKEN_HEADER = 'X-Sidenote-Token';
 let cachedToken = null;
 
 export function backendToken() {
   if (!cachedToken) {
     try {
-      cachedToken = globalThis.window?.interviewaiDesktop?.backendToken?.() || null;
+      cachedToken = globalThis.window?.sidenoteDesktop?.backendToken?.() || null;
     } catch {
       cachedToken = null;
     }

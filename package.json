@@ -1,9 +1,10 @@
 {
-  "name": "interviewai",
+  "name": "sidenote",
   "version": "1.0.0",
-  "description": "InterviewAI Meeting & Voice Copilot clone tailored for coding agents (Antigravity)",
-  "author": "InterviewAI",
-  "desktopName": "interviewai.desktop",
+  "description": "Sidenote: copiloto de conversas em tempo real, com transcrição, sugestões de resposta e resumo",
+  "author": "Paulo Rabelo",
+  "license": "MIT",
+  "desktopName": "sidenote.desktop",
   "type": "module",
   "main": "electron/main.cjs",
   "scripts": {
