@@ -29,6 +29,10 @@ Copiloto desktop para conversas em tempo real. Ele ouve a chamada, transcreve en
 
 <sub>Capturas com dados fictícios de demonstração.</sub>
 
+## Baixar
+
+O instalador e o executável portátil para Windows estão na [página de releases](https://github.com/rabpaulo/sidenote/releases/latest). Para rodar a partir do código (Linux ou Windows), siga as seções abaixo.
+
 ## Requisitos
 
 - **Linux** com PipeWire/PulseAudio (`pactl` e `parec`) para capturar o áudio do PC, ou **Windows 10/11** (o áudio do sistema é capturado pelo próprio app).
@@ -42,8 +46,8 @@ Copiloto desktop para conversas em tempo real. Ele ouve a chamada, transcreve en
 ## Executar
 
 ```bash
-git clone git@github.com:rabpaulo/Interview-AI.git
-cd Interview-AI
+git clone https://github.com/rabpaulo/sidenote.git
+cd sidenote
 npm ci
 npm start
 ```
