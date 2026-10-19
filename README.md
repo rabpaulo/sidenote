@@ -16,18 +16,18 @@ Copiloto desktop para conversas em tempo real. Ele ouve a chamada, transcreve en
 - **Chaves de API** próprias para OpenAI, Anthropic, Google Gemini, OpenRouter, Groq, DeepSeek, Mistral e xAI, com os modelos listados pela sua conta.
 
 <p align="center">
-  <img src="docs/screenshots/transcricao.png" width="400" alt="Transcrição do áudio do PC com uma sugestão de resposta que usa o contexto pessoal">
+  <img src="docs/screenshots/transcricao.png" width="400" alt="Pergunta de uma colega na reunião, o trecho da nota do Obsidian que responde e a sugestão de resposta com os números">
 </p>
 
-| Contexto pessoal | Experiências | Contexto da empresa |
+| Resumo da reunião | Histórico com busca | Notas do Obsidian |
 | :---: | :---: | :---: |
-| <img src="docs/screenshots/meu-contexto.png" width="260" alt="Aba Perfil preenchida a partir de um documento arrastado para o app"> | <img src="docs/screenshots/experiencias.png" width="260" alt="Experiências extraídas do documento"> | <img src="docs/screenshots/vaga.png" width="260" alt="Aba com o contexto da empresa e dos produtos"> |
+| <img src="docs/screenshots/resumo.png" width="260" alt="Resumo gerado no fim da reunião com visão geral e tópicos"> | <img src="docs/screenshots/historico.png" width="260" alt="Histórico de reuniões filtrado por uma busca na transcrição"> | <img src="docs/screenshots/notas.png" width="260" alt="Vault do Obsidian conectada, com uma pergunta de teste e o trecho encontrado"> |
 
-| Menu | Modelo de IA |
-| :---: | :---: |
-| <img src="docs/screenshots/menu.png" width="260" alt="Menu com modelo, modo, idioma, captura e nova sessão"> | <img src="docs/screenshots/modelo.png" width="260" alt="Seleção de provedor e modelo"> |
+| Contexto pessoal | Experiências | Menu | Modelo de IA |
+| :---: | :---: | :---: | :---: |
+| <img src="docs/screenshots/meu-contexto.png" width="200" alt="Aba Perfil do contexto pessoal"> | <img src="docs/screenshots/experiencias.png" width="200" alt="Experiências usadas nas respostas"> | <img src="docs/screenshots/menu.png" width="200" alt="Menu com modelo, modo, reconhecimento de voz, notas e nova sessão"> | <img src="docs/screenshots/modelo.png" width="200" alt="Seleção de provedor e modelo"> |
 
-<sub>Capturas com dados fictícios de demonstração.</sub>
+<sub>Capturas de uma reunião simulada: as falas foram geradas por TTS e tocadas como se fossem o áudio do Meet; empresa, pessoas, números e a vault são fictícios. A transcrição, as notas, as sugestões e o resumo saíram do app de verdade.</sub>
 
 ## Baixar
 
