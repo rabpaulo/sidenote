@@ -30,11 +30,16 @@ const MAX_LOCAL_FAILURES = 3;
  * model paths). When it changes, the old worker finishes what it was given and
  * exits. When a local engine cannot load or keeps failing, requests go to Google
  * instead, and `onEvent` reports it once, until the configuration changes.
+ *
+ * A local model holds hundreds of MB, so with `idleMs` the workers exit after that
+ * long without requests, unless `keepWarm()` says they are about to be needed.
  */
 export function createTranscriber({ python = () => resolvePython(), script = scriptPath, nodeScript = nodeWorkerPath,
-  spawnImpl = spawn, config = () => GOOGLE, onEvent = () => {}, loadTimeoutMs = 180000 } = {}) {
+  spawnImpl = spawn, config = () => GOOGLE, onEvent = () => {}, loadTimeoutMs = 180000,
+  idleMs = 0, keepWarm = () => false } = {}) {
   const workers = new Map();
   let nextId = 0;
+  let idleTimer = null;
   let disabled = null; // { key, error }: a local configuration that is not used anymore
   let failures = 0;
   let warned = null;
@@ -117,7 +122,31 @@ export function createTranscriber({ python = () => resolvePython(), script = scr
     }
   }
 
+  // Workers finish what they were given and exit, freeing their models.
+  function release() {
+    clearTimeout(idleTimer);
+    idleTimer = null;
+    if (!workers.size) return;
+    for (const state of workers.values()) {
+      try { state.child.stdin.end(); } catch {}
+    }
+    workers.clear();
+    onEvent({ type: 'released' });
+  }
+
+  function touch() {
+    if (!idleMs) return;
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(() => {
+      const busy = [...workers.values()].some((state) => state.pending.size);
+      if (busy || keepWarm()) touch();
+      else release();
+    }, idleMs);
+    idleTimer.unref?.();
+  }
+
   function workerFor(workerConfig) {
+    touch();
     const key = keyOf(workerConfig);
     prune(key);
     if (!workers.has(key)) workers.set(key, start(workerConfig, key));
@@ -252,7 +281,9 @@ export function createTranscriber({ python = () => resolvePython(), script = scr
         error: fallback ? disabled.error : state?.failed?.error || null,
       };
     },
+    release,
     close() {
+      clearTimeout(idleTimer);
       for (const state of workers.values()) killProcessTree(state.child);
       workers.clear();
     },

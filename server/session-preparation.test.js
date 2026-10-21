@@ -86,16 +86,13 @@ for (const provider of Object.keys(MODELS)) {
     const { status: ignoredStatus, ...expectedBody } = expectedFile;
     assert.deepEqual(await contextFile.json(), expectedBody, 'only the fixed project file can be read');
     const ack = await waitFor((e) => e.type === 'connection_ack');
-    const startup = ack.agentSession.status === 'ready' ? ack.agentSession : await waitFor(ready);
-    assert.equal(startup.provider, 'antigravity');
-    assert.equal(events.some((e) => e.type === 'agent_stream' || e.type === 'copilot_started'), false);
+    // The window's saved settings decide what starts, so no process is started twice.
+    assert.equal(ack.agentSession.status, 'starting');
     const settings = { provider, model: MODELS[provider], reasoningEffort: 'medium', fastMode: true };
-    let prepared = startup;
-    if (provider !== 'antigravity') {
-      const since = events.length;
-      socket.send(JSON.stringify({ type: 'sync_settings', ...settings }));
-      prepared = await waitFor((e) => ready(e) && e.provider === provider, since);
-    }
+    socket.send(JSON.stringify({ type: 'sync_settings', ...settings }));
+    let prepared = await waitFor((e) => ready(e) && e.provider === provider);
+    assert.equal(events.some((e) => ready(e) && e.provider !== provider), false);
+    assert.equal(events.some((e) => e.type === 'agent_stream' || e.type === 'copilot_started'), false);
     await post('/api/settings', settings);
     let status = await (await fetch(`${url}/api/status`)).json();
     assert.equal(status.agentSession.pid, prepared.pid, 'settings sent over HTTP and WS must share preparation');

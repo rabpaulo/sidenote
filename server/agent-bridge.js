@@ -10,8 +10,10 @@ export { runCodexAgent, closeCodexSession } from './codex-session.js';
 export { runClaudeAgent, closeClaudeSession } from './claude-session.js';
 
 let warmAgySession = null;
-// Started processes waiting for a one-shot turn (see takeAgySession).
+// Started processes waiting for a one-shot turn (see takeAgySession). Each one holds
+// about 230 MB, so the second is kept only while live answers can overlap (PC capture).
 const AGY_POOL_SIZE = 2;
+const AGY_IDLE_POOL_SIZE = 1;
 let agyPool = [];
 
 function disposeAgySession(session) {
@@ -140,13 +142,15 @@ function getAgySession({ conversationId, model = 'gemini-3.8-flash', reasoningEf
 
 function fillAgyPool(options) {
   const key = agySessionKey(options);
+  const size = options.live ? AGY_POOL_SIZE : AGY_IDLE_POOL_SIZE;
   agyPool = agyPool.filter((session) => {
     if (session.disposed) return false;
     if (session.key === key) return true;
     disposeAgySession(session);
     return false;
   });
-  while (agyPool.length < AGY_POOL_SIZE) agyPool.push(getAgySession({ ...options, conversationId: null, isolated: true }));
+  while (agyPool.length > size) disposeAgySession(agyPool.pop());
+  while (agyPool.length < size) agyPool.push(getAgySession({ ...options, conversationId: null, isolated: true }));
 }
 
 // A one-shot turn runs outside the conversation in an already started process, so

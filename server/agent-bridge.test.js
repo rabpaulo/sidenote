@@ -256,12 +256,12 @@ test('isolated runs use their own process and leave the warm session untouched',
 test('one-shot turns use pre-started processes and leave the conversation untouched', { timeout: 3000 }, async (t) => {
   fixture(t);
   const conversation = await turn({ prompt: 'conversa' });
-  bridge.prepareOneShotSessions({ provider: 'antigravity' });
+  bridge.prepareOneShotSessions({ provider: 'antigravity', live: true });
   await new Promise((resolve) => setTimeout(resolve, 300));
   const started = Date.now();
-  const cancelled = bridge.runAgyAgent({ prompt: '__wait__', oneShot: true, onMessage() {}, onError() {}, onClose() {} });
+  const cancelled = bridge.runAgyAgent({ prompt: '__wait__', oneShot: true, live: true, onMessage() {}, onError() {}, onClose() {} });
   cancelled.kill();
-  const next = await turn({ prompt: 'rápida', oneShot: true });
+  const next = await turn({ prompt: 'rápida', oneShot: true, live: true });
   assert.ok(Date.now() - started < 140, 'the next one-shot turn must not wait for a cold start');
   assert.equal(next.result.response, 'rápida');
   assert.notEqual(next.handle.pid, cancelled.pid);

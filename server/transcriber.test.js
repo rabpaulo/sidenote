@@ -6,7 +6,7 @@ import path from 'node:path';
 import { createTranscriber } from './transcriber.js';
 
 // A stand-in for `transcribe.py --serve`, written in Node so the test needs no Python.
-function fakeWorker(dir, body) {
+function fakeWorker(dir, body, options = {}) {
   const script = path.join(dir, 'worker.cjs');
   fs.writeFileSync(script, `
 const fs = require('node:fs');
@@ -23,7 +23,7 @@ process.stdin.on('data', (data) => {
     (${body})(request, (result) => process.stdout.write(JSON.stringify({ id: request.id, ...result }) + '\\n'));
   }
 });`);
-  return createTranscriber({ python: () => ({ command: process.execPath, args: [] }), script });
+  return createTranscriber({ python: () => ({ command: process.execPath, args: [] }), script, ...options });
 }
 
 function scratch(t) {
@@ -183,4 +183,22 @@ test('changing the engine lets the old worker finish and starts the new one', as
   const second = transcriber.transcribe(Buffer.alloc(44), 'pt-BR');
   assert.deepEqual(await first, { text: 'parakeet:pt-BR', language: 'pt-BR' });
   assert.deepEqual(await second, { text: 'vosk:pt-BR', language: 'pt-BR' });
+});
+
+test('an idle worker exits to free its model, unless it should stay warm', async (t) => {
+  const dir = scratch(t);
+  let warm = true;
+  const events = [];
+  const transcriber = fakeWorker(dir, '(request, reply) => reply({ text: "ok" })', {
+    idleMs: 30, keepWarm: () => warm, onEvent: (event) => events.push(event.type),
+  });
+  t.after(() => transcriber.close());
+  assert.equal((await transcriber.transcribe(Buffer.from('a'), 'pt-BR')).text, 'ok');
+  await new Promise((resolve) => setTimeout(resolve, 90));
+  assert.deepEqual(events, []);
+  warm = false;
+  await new Promise((resolve) => setTimeout(resolve, 90));
+  assert.deepEqual(events, ['released']);
+  assert.equal((await transcriber.transcribe(Buffer.from('b'), 'pt-BR')).text, 'ok');
+  assert.equal(read(dir, 'starts'), 'xx');
 });

@@ -129,6 +129,9 @@ speechSettings.refreshProbe();
 const transcriber = createTranscriber({
   python: () => speechSettings.python(),
   config: () => speechSettings.workerConfig(),
+  // The model is loaded again (a few seconds) when capture or dictation needs it.
+  idleMs: 2 * 60 * 1000,
+  keepWarm: () => systemAudioEngine.isCapturing,
   onEvent: (event) => {
     if (event.type === 'fallback') broadcast({ ...event, type: 'speech_fallback' });
     broadcastSpeech();
@@ -236,10 +239,16 @@ function blockedReason(provider, model) {
   return unavailableReason(providerAvailability.state(), provider, model, name);
 }
 
+function oneShotOptions() {
+  return { provider: selectedProvider, model: selectedModel, reasoningEffort: selectedReasoningEffort,
+    fastMode: selectedFastMode, cwd: agentWorkspace(), live: systemAudioEngine.isCapturing };
+}
+
 // Session preparation is independent of response generation and never sends a prompt.
 let preparationGeneration = 0;
 let preparationKey = null;
 let agentSession = { status: 'starting', provider: selectedProvider };
+let initialPreparation = null;
 function prepareSelectedSession() {
   if (activeAgentProcess) return;
   const provider = selectedProvider;
@@ -258,8 +267,7 @@ function prepareSelectedSession() {
   const generation = ++preparationGeneration;
   agentSession = { status: 'starting', provider };
   broadcast({ type: 'agent_session', ...agentSession });
-  const options = { provider, model: selectedModel, reasoningEffort: selectedReasoningEffort,
-    fastMode: selectedFastMode, cwd: agentWorkspace() };
+  const options = oneShotOptions();
   prepareOneShotSessions(options);
   prepareAgentSession({ ...options, conversationId: activeConversationIds[provider] })
     .then(({ conversationId, pid }) => {
@@ -278,6 +286,7 @@ function prepareSelectedSession() {
 }
 
 function syncAgentSettings({ provider, model, reasoningEffort, fastMode }) {
+  clearTimeout(initialPreparation);
   const changed = (provider && provider !== selectedProvider) || (model && model !== selectedModel)
     || (reasoningEffort && reasoningEffort !== selectedReasoningEffort)
     || (fastMode !== undefined && !!fastMode !== selectedFastMode);
@@ -326,13 +335,15 @@ function resetAgentSession(provider) {
 }
 
 // Wire up Linux System Audio loopback engine
+// Every level message re-renders the window, so it is sent only when the meter moves.
 let lastLevelBroadcast = 0;
+let lastLevel = -1;
 systemAudioEngine.on('level', ({ level, rms }) => {
   const now = Date.now();
-  if (now - lastLevelBroadcast >= 45) {
-    lastLevelBroadcast = now;
-    broadcast({ type: 'pc_audio_level', level, rms });
-  }
+  if (level === lastLevel || now - lastLevelBroadcast < 100) return;
+  lastLevelBroadcast = now;
+  lastLevel = level;
+  broadcast({ type: 'pc_audio_level', level, rms });
 });
 
 const liveCopilot = createLiveCopilot({
@@ -520,8 +531,11 @@ const pcTranscription = wirePcTranscription(systemAudioEngine, {
 });
 
 systemAudioEngine.on('status', (status) => {
+  lastLevel = -1;
   // The recognizer process is ready before the first utterance.
   if (status.isCapturing) warmTranscriber();
+  // Live answers during capture use the spare processes; outside it one is enough.
+  if (preparationKey) prepareOneShotSessions(oneShotOptions());
   broadcast({ type: 'pc_capture_status', ...status });
 });
 
@@ -586,6 +600,7 @@ function triggerCopilotForText(transcript, overrideOptions = {}) {
     fastMode,
     conversationId: convId,
     oneShot,
+    live: systemAudioEngine.isCapturing,
     // A preview uses the complete prompt: when the final transcript matches it, it is the answer.
     candidateContext,
     recentTurns: conversationMemory.beforeQuestion(transcript),
@@ -1626,7 +1641,10 @@ server.listen(PORT, HOST, () => {
   }
   console.log(`[Sidenote Server] Running on http://${HOST}:${PORT}`);
   console.log(`[Sidenote Server] WebSocket ready on ws://${HOST}:${PORT}`);
-  prepareSelectedSession();
+  // The window sends its saved model settings as soon as it connects; preparing before
+  // that would start the CLI processes twice when they differ from the defaults.
+  initialPreparation = setTimeout(prepareSelectedSession, 10000);
+  initialPreparation.unref();
   providerAvailability.refresh();
   // After the provider check, so a logged-out CLI is reported instead of failing.
   if (pendingMeetings.length) setTimeout(summarizePendingMeetings, 15000).unref();

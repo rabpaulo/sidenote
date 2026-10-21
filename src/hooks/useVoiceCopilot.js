@@ -3,6 +3,8 @@ import { recordingToWav, startMicrophoneTranscription } from '../audio/microphon
 import { AUTO_LANGUAGE, createUtteranceLanguage } from '../../shared/language.js';
 import { apiFetch } from '../backend.js';
 
+const VISUALIZER_FRAME_MS = 50;
+
 function stopRecognitionAndWait(recognition, timeoutMs = 800) {
   if (!recognition) return Promise.resolve();
 
@@ -137,13 +139,19 @@ export function useVoiceCopilot({
   // Web Audio visualizer animation loop
   const startVisualizer = useCallback(() => {
     let active = true;
-
+    let dataArray = null;
+    let lastFrame = 0;
     const updateVisualizer = () => {
       if (!active || !isListeningRef.current) return;
+      animationFrameRef.current = requestAnimationFrame(updateVisualizer);
+      // Each update re-renders the window: 20 per second is smooth enough for the meters.
+      const now = Date.now();
+      if (now - lastFrame < VISUALIZER_FRAME_MS) return;
+      lastFrame = now;
 
       if (analyserRef.current) {
         const bufferLength = analyserRef.current.frequencyBinCount;
-        const dataArray = new Uint8Array(bufferLength);
+        if (dataArray?.length !== bufferLength) dataArray = new Uint8Array(bufferLength);
         analyserRef.current.getByteFrequencyData(dataArray);
 
         let sum = 0;
@@ -174,8 +182,6 @@ export function useVoiceCopilot({
         setFrequencyBars(bars);
         setAudioLevel(40);
       }
-
-      animationFrameRef.current = requestAnimationFrame(updateVisualizer);
     };
 
     updateVisualizer();

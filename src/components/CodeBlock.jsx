@@ -128,8 +128,10 @@ const MARKDOWN_COMPONENTS = {
 
 /**
  * Renders an agent reply: markdown prose, highlighted code and tabbed code groups.
+ * Memoized: the window re-renders on every audio level update, and parsing markdown
+ * for every reply on screen each time costs far more than the update itself.
  */
-export function FormattedAgentResponse({ text }) {
+export const FormattedAgentResponse = React.memo(function FormattedAgentResponse({ text }) {
   const blocks = useMemo(() => parseAgentResponse(text || ''), [text]);
   if (!text) return null;
 
@@ -146,4 +148,4 @@ export function FormattedAgentResponse({ text }) {
       })}
     </div>
   );
-}
+});
