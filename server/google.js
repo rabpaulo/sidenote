@@ -6,8 +6,10 @@ import { defaultProfilePath } from './profile-store.js';
 
 // Google account connection (Calendar and Docs) with OAuth for installed apps: the
 // user's browser signs in and Google redirects to a one-time server on 127.0.0.1,
-// with PKCE so the code is useless to anyone else. The OAuth client is the user's own
-// ("Desktop app" in Google Cloud); its secret is not confidential for this client type.
+// with PKCE so the code is useless to anyone else. The OAuth client ("Desktop app" in
+// Google Cloud) ships with the app in google-client.json, kept out of git and written at
+// build time; a user may bring their own instead. Its secret is not confidential for
+// this client type.
 // Tokens live next to the profile, readable only by the user, and never reach the window.
 
 export const GOOGLE_SCOPES = [
@@ -22,6 +24,18 @@ export const TOKEN_URL = 'https://oauth2.googleapis.com/token';
 const REVOKE_URL = 'https://oauth2.googleapis.com/revoke';
 const CONNECT_TIMEOUT_MS = 5 * 60 * 1000;
 const CLIENT_ID = /^[\w.-]+\.apps\.googleusercontent\.com$/;
+
+const BUNDLED_CLIENT_FILE = new URL('./google-client.json', import.meta.url);
+
+/** The client that ships with the app, or null in a checkout without one. */
+export function readBundledClient(file = BUNDLED_CLIENT_FILE) {
+  try {
+    const { clientId, clientSecret } = JSON.parse(fs.readFileSync(file, 'utf8')) || {};
+    return CLIENT_ID.test(clientId || '') ? { clientId, clientSecret: clientSecret || '' } : null;
+  } catch {
+    return null;
+  }
+}
 
 export function defaultGooglePath(env = process.env) {
   return env.SIDENOTE_GOOGLE_PATH || path.join(path.dirname(defaultProfilePath(env)), 'google.json');
@@ -66,8 +80,8 @@ const PAGE = (title, text) => `<!doctype html><html lang="pt-BR"><meta charset="
  * `fetchImpl` and `tokenUrl` are replaceable for tests. `onChange` receives the
  * public status after a connection, a disconnection or a failed attempt.
  */
-export function createGoogle({ file = defaultGooglePath(), env = process.env, fetchImpl = (...args) => fetch(...args),
-  tokenUrl = TOKEN_URL, onChange = () => {}, log = console } = {}) {
+export function createGoogle({ file = defaultGooglePath(), env = process.env, bundled = readBundledClient(),
+  fetchImpl = (...args) => fetch(...args), tokenUrl = TOKEN_URL, onChange = () => {}, log = console } = {}) {
   let saved = {};
   try {
     saved = JSON.parse(fs.readFileSync(file, 'utf8')) || {};
@@ -90,6 +104,7 @@ export function createGoogle({ file = defaultGooglePath(), env = process.env, fe
       return { clientId: env.SIDENOTE_GOOGLE_CLIENT_ID, clientSecret: env.SIDENOTE_GOOGLE_CLIENT_SECRET || '', source: 'env' };
     }
     if (saved.clientId) return { clientId: saved.clientId, clientSecret: saved.clientSecret || '', source: 'saved' };
+    if (bundled) return { ...bundled, source: 'bundled' };
     return null;
   }
 
@@ -100,6 +115,7 @@ export function createGoogle({ file = defaultGooglePath(), env = process.env, fe
       configured: Boolean(current),
       clientSource: current?.source || null,
       clientHint: current ? `${current.clientId.slice(0, 12)}…` : null,
+      bundledClient: Boolean(bundled),
       connected: Boolean(tokens?.refresh_token),
       email: saved.email || null,
       connecting: Boolean(pending),
@@ -116,7 +132,8 @@ export function createGoogle({ file = defaultGooglePath(), env = process.env, fe
     const secret = typeof clientSecret === 'string' ? clientSecret.trim() : '';
     if (/\s/.test(secret) || secret.length > 200) throw new GoogleError('O Client secret não parece válido.');
     // Tokens belong to the client that issued them.
-    if (saved.clientId && saved.clientId !== id) {
+    const previous = client()?.clientId;
+    if (previous && previous !== id) {
       delete saved.tokens;
       delete saved.email;
     }

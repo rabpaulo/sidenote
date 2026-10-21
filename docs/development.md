@@ -242,3 +242,16 @@ O script `scripts/measure-response-latency.js` é diferente da suíte offline: c
 O `.gitignore` exclui `contexto.md`, `.env`, dependências, build, logs, ambientes virtuais, caches Python e relatórios de testes. Exemplos `.env.example` podem ser versionados, mas não são carregados automaticamente.
 
 O backend é voltado ao uso local: escuta só em `127.0.0.1` e exige o token de cada execução ([Acesso ao backend](#acesso-ao-backend)). Outros processos do mesmo usuário podem ler o arquivo do token, como podem ler o resto dos dados do app. Não trate esse backend como um serviço pronto para hospedagem pública. O bridge do Antigravity inicia o CLI com `--dangerously-skip-permissions`; considere esse comportamento ao executar mensagens diretas no agente.
+
+## Cliente OAuth do Google
+
+O app distribuído traz o cliente OAuth do Sidenote em `server/google-client.json`, fora do git. Antes de gerar um pacote, crie o arquivo com o Client ID e o Client secret do projeto do Sidenote no Google Cloud (cliente do tipo **App para computador**):
+
+```json
+{ "clientId": "…apps.googleusercontent.com", "clientSecret": "GOCSPX-…" }
+```
+
+O `electron-builder` empacota o arquivo junto com o resto de `server/`. Sem ele, o app pede um cliente próprio em **Menu → Google**. `SIDENOTE_GOOGLE_CLIENT_ID` e `SIDENOTE_GOOGLE_CLIENT_SECRET` têm prioridade sobre os dois.
+
+O projeto precisa das APIs **Google Calendar**, **Google Docs** e **Google Drive** ativas e da tela de consentimento publicada **Em produção**. Em **Teste**, só entram os usuários cadastrados e o login expira em 7 dias. Os escopos de agenda e Docs são sensíveis: até o Google verificar o app, o login mostra o aviso de app não verificado e aceita no máximo 100 usuários.
+

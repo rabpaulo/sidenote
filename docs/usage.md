@@ -94,11 +94,15 @@ São indexados até 5.000 arquivos de até 512 KB. Notas, anexos e imagens não 
 
 ## Google Agenda e Docs
 
-**Menu → Google** conecta sua conta Google. A conexão usa um cliente OAuth seu, criado uma vez no Google Cloud:
+**Menu → Google** conecta sua conta Google: clique em **Conectar conta Google**, entre na conta e autorize. Enquanto o Google não termina a verificação do app, o login mostra o aviso "O Google não verificou este app"; clique em **Avançado** e depois em **Acessar Sidenote**.
+
+Se preferir usar um cliente OAuth seu, clique em **Usar meu próprio cliente OAuth** e crie o cliente uma vez no Google Cloud:
 
 1. Em [console.cloud.google.com](https://console.cloud.google.com/apis/credentials), crie um projeto e ative as APIs **Google Calendar**, **Google Docs** e **Google Drive**.
 2. Em **Tela de consentimento OAuth**, escolha "Externo" e adicione seu e-mail como usuário de teste.
 3. Em **Credenciais → Criar credenciais → ID do cliente OAuth**, escolha **App para computador** e cole o Client ID e o Client secret no Sidenote.
+
+**Voltar ao cliente do Sidenote** desfaz a troca.
 
 **Conectar conta Google** abre o login no navegador; ao autorizar, a página diz para voltar ao app. O Sidenote pede só leitura dos eventos da agenda, leitura dos Docs e acesso aos arquivos que ele mesmo criar no Drive. As credenciais ficam em `google.json`, ao lado do perfil, legíveis só pelo seu usuário, e a interface nunca recebe os tokens. **Desconectar** apaga os tokens e revoga o acesso no Google. Também dá para passar o cliente por `SIDENOTE_GOOGLE_CLIENT_ID` e `SIDENOTE_GOOGLE_CLIENT_SECRET`.
 

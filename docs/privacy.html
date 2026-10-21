@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sidenote · Privacidade</title>
+<link rel="icon" href="favicon.svg">
+<style>
+  :root { color-scheme: light dark; --bg: #fafafa; --fg: #18181b; --muted: #52525b; --line: #e4e4e7; --link: #2563eb; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #0e0e14; --fg: #e4e4e7; --muted: #a1a1aa; --line: #27272a; --link: #93c5fd; } }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.6 system-ui, sans-serif; }
+  main { max-width: 720px; margin: 0 auto; padding: 48px 16px 64px; }
+  h1 { font-size: 28px; margin: 0 0 8px; }
+  h2 { font-size: 20px; margin: 32px 0 8px; }
+  p, li { color: var(--muted); }
+  a { color: var(--link); }
+  hr { border: 0; border-top: 1px solid var(--line); margin: 48px 0; }
+</style>
+</head>
+<body>
+<main>
+  <p><a href="./">← Sidenote</a> · <a href="#english">English</a></p>
+  <h1>Política de privacidade</h1>
+  <p>Atualizada em 21 de outubro de 2026.</p>
+
+  <p>O Sidenote é um aplicativo desktop de código aberto que roda no seu computador. Ele não tem servidor, não tem conta própria e não envia nada ao desenvolvedor. Esta página explica que dados o app acessa, onde eles ficam e com quem são compartilhados.</p>
+
+  <h2>Dados da conta Google</h2>
+  <p>Se você conectar uma conta Google, o Sidenote pede só estes acessos:</p>
+  <ul>
+    <li><b>Eventos da agenda, somente leitura</b> (<code>calendar.events.readonly</code>): lista os eventos de agora até amanhã para você escolher a reunião em andamento.</li>
+    <li><b>Google Docs, somente leitura</b> (<code>documents.readonly</code>): lê o texto de um documento cujo link você colar ou que esteja anexado ao evento escolhido.</li>
+    <li><b>Arquivos criados pelo app no Drive</b> (<code>drive.file</code>): cria um Google Docs com o resumo e a transcrição de uma reunião quando você pede. O app não vê os outros arquivos do seu Drive.</li>
+  </ul>
+  <p>O login acontece no seu navegador, direto com o Google. Os tokens de acesso ficam num arquivo no seu computador, legível só pelo seu usuário, e não saem dele a não ser nas chamadas às APIs do Google. <b>Desconectar</b>, no app, apaga os tokens e revoga o acesso; você também pode revogar em <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>.</p>
+
+  <h2>Como os dados são usados e compartilhados</h2>
+  <p>Os dados do Google são usados só para as funções acima, a seu pedido:</p>
+  <ul>
+    <li>O título, horário, organizador, participantes, descrição e Docs anexados do evento que você escolher, e o texto de um Docs que você importar, entram no contexto enviado ao <b>provedor de IA que você configurou</b> no app (por exemplo OpenAI, Anthropic, Google Gemini, um CLI instalado ou um modelo local pelo Ollama ou LM Studio). Esse envio vai do seu computador direto para o provedor, sob a sua conta e os termos dele. Com um modelo local, nada sai do computador.</li>
+    <li>Resumos e transcrições ficam em pastas locais (e na sua vault do Obsidian, se você conectar uma) e só vão ao Google Drive quando você cria o Docs.</li>
+  </ul>
+  <p>O Sidenote não vende, não aluga e não compartilha dados do Google com ninguém além do provedor de IA que você escolheu, não usa esses dados para publicidade e não os usa para treinar modelos de IA. O uso das informações recebidas das APIs do Google segue a <a href="https://developers.google.com/terms/api-services-user-data-policy">Política de Dados do Usuário dos Serviços de API do Google</a>, incluindo os requisitos de Uso Limitado.</p>
+
+  <h2>Áudio e outros dados</h2>
+  <p>O áudio da reunião é transcrito pelo motor escolhido no app: os motores locais não enviam o áudio para fora do computador; o reconhecimento online do Google envia o áudio a esse serviço. O texto da conversa, seu perfil e as notas relevantes vão ao provedor de IA escolhido para gerar as sugestões e o resumo. O app não tem telemetria nem coleta de uso.</p>
+
+  <h2>Apagar seus dados</h2>
+  <p>Todos os dados ficam na pasta de dados do app no seu computador (<code>~/.local/share/sidenote</code> no Linux, <code>%APPDATA%\Sidenote</code> no Windows). Apagar essa pasta e desconectar a conta Google remove tudo. Os documentos criados no Drive são seus e ficam no seu Drive.</p>
+
+  <h2>Contato</h2>
+  <p>Dúvidas: <a href="mailto:paulorabelo987@gmail.com">paulorabelo987@gmail.com</a> ou uma issue em <a href="https://github.com/rabpaulo/sidenote">github.com/rabpaulo/sidenote</a>.</p>
+
+  <hr>
+
+  <h1 id="english" lang="en">Privacy policy</h1>
+  <div lang="en">
+    <p>Last updated October 21, 2026.</p>
+    <p>Sidenote is an open-source desktop app that runs on your computer. It has no server and no accounts of its own, and it sends nothing to the developer.</p>
+
+    <h2>Google user data</h2>
+    <p>If you connect a Google account, Sidenote requests only:</p>
+    <ul>
+      <li><b>Calendar events, read-only</b> (<code>calendar.events.readonly</code>): lists events from now until tomorrow so you can pick the current meeting.</li>
+      <li><b>Google Docs, read-only</b> (<code>documents.readonly</code>): reads a document whose link you paste or that is attached to the chosen event.</li>
+      <li><b>Files created by the app in Drive</b> (<code>drive.file</code>): creates a Google Doc with a meeting's summary and transcript when you ask. The app cannot see your other Drive files.</li>
+    </ul>
+    <p>Sign-in happens in your browser, directly with Google. Access tokens are stored in a file on your computer readable only by your user, and are only sent to Google's APIs. <b>Disconnect</b> in the app deletes the tokens and revokes access; you can also revoke it at <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>.</p>
+
+    <h2>How data is used and shared</h2>
+    <p>Google data is used only for the features above, at your request. The details of the event you choose (title, time, organizer, attendees, description and attached Docs) and the text of a Doc you import are included in the context sent to <b>the AI provider you configured</b> in the app (for example OpenAI, Anthropic, Google Gemini, an installed CLI, or a local model through Ollama or LM Studio). This goes from your computer directly to that provider, under your account and its terms; with a local model nothing leaves your computer. Summaries and transcripts are stored in local folders and only go to Google Drive when you create the Doc.</p>
+    <p>Sidenote does not sell, rent or share Google user data with anyone other than the AI provider you chose, does not use it for advertising, and does not use it to train AI models. Sidenote's use and transfer of information received from Google APIs adheres to the <a href="https://developers.google.com/terms/api-services-user-data-policy">Google API Services User Data Policy</a>, including the Limited Use requirements.</p>
+
+    <h2>Audio and other data</h2>
+    <p>Meeting audio is transcribed by the engine chosen in the app: local engines keep the audio on your computer; Google's online speech recognition sends it to that service. The conversation text, your profile and relevant notes go to the chosen AI provider to generate suggestions and the summary. The app has no telemetry or usage tracking.</p>
+
+    <h2>Deleting your data</h2>
+    <p>All data lives in the app's data folder on your computer (<code>~/.local/share/sidenote</code> on Linux, <code>%APPDATA%\Sidenote</code> on Windows). Deleting that folder and disconnecting the Google account removes everything. Docs created in Drive belong to you and stay in your Drive.</p>
+
+    <h2>Contact</h2>
+    <p><a href="mailto:paulorabelo987@gmail.com">paulorabelo987@gmail.com</a> or an issue at <a href="https://github.com/rabpaulo/sidenote">github.com/rabpaulo/sidenote</a>.</p>
+  </div>
+</main>
+</body>
+</html>

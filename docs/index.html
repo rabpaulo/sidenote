@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sidenote</title>
+<meta name="description" content="Sidenote: copiloto desktop de conversas em tempo real, com transcrição, sugestões de resposta e resumo.">
+<link rel="icon" href="favicon.svg">
+<style>
+  :root { color-scheme: light dark; --bg: #fafafa; --fg: #18181b; --muted: #52525b; --line: #e4e4e7; --link: #2563eb; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #0e0e14; --fg: #e4e4e7; --muted: #a1a1aa; --line: #27272a; --link: #93c5fd; } }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.6 system-ui, sans-serif; }
+  main { max-width: 720px; margin: 0 auto; padding: 48px 16px 64px; }
+  h1 { font-size: 32px; margin: 0 0 8px; }
+  h2 { font-size: 20px; margin: 32px 0 8px; }
+  p, li { color: var(--muted); }
+  a { color: var(--link); }
+  img { max-width: 100%; border-radius: 12px; border: 1px solid var(--line); }
+  footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 14px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Sidenote</h1>
+  <p>Copiloto desktop para conversas em tempo real. Ele ouve a chamada, transcreve enquanto as pessoas falam, sugere o que responder numa janela flutuante e, no fim, guarda um resumo com decisões e próximos passos. Serve para reuniões, 1:1s, aulas, chamadas de vendas e entrevistas. Roda no Linux e no Windows, é gratuito e de código aberto (licença MIT).</p>
+  <p><a href="https://github.com/rabpaulo/sidenote/releases">Baixar</a> · <a href="https://github.com/rabpaulo/sidenote">Código no GitHub</a> · <a href="privacy.html">Política de privacidade</a></p>
+
+  <img src="screenshots/transcricao.png" width="400" alt="Pergunta de uma colega na reunião, o trecho da nota do Obsidian que responde e a sugestão de resposta">
+
+  <h2>Google Agenda e Docs</h2>
+  <p>Com a conta Google conectada, o Sidenote:</p>
+  <ul>
+    <li>lê os eventos da sua agenda de agora até amanhã, para você escolher a reunião em andamento e usar o título, os participantes, a descrição e os Google Docs anexados como contexto das sugestões e do resumo;</li>
+    <li>lê um Google Docs cujo link você colar, para preencher seu perfil ou a descrição de uma vaga;</li>
+    <li>cria no seu Google Drive um Google Docs com o resumo e a transcrição de uma reunião, quando você pede.</li>
+  </ul>
+  <p>Tudo acontece no seu computador: o Sidenote não tem servidor e o desenvolvedor não recebe seus dados. Os detalhes estão na <a href="privacy.html">política de privacidade</a>.</p>
+
+  <footer>Sidenote · <a href="mailto:paulorabelo987@gmail.com">paulorabelo987@gmail.com</a></footer>
+</main>
+</body>
+</html>

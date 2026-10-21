@@ -12,7 +12,7 @@ export function eventTimeLabel(event) {
   return `${day} · ${time(event.start)}${event.end ? `–${time(event.end)}` : ''}`;
 }
 
-function ClientForm({ google }) {
+function ClientForm({ google, onCancel }) {
   const [clientId, setClientId] = useState('');
   const [clientSecret, setClientSecret] = useState('');
   const submit = async (event) => {
@@ -20,11 +20,12 @@ function ClientForm({ google }) {
     if (await google.saveClient(clientId.trim(), clientSecret.trim())) {
       setClientId('');
       setClientSecret('');
+      onCancel?.();
     }
   };
   return (
     <form onSubmit={submit} className="rounded-xl border border-zinc-800/80 bg-zinc-900/30 p-3 space-y-2">
-      <h3 className="font-semibold text-zinc-100">1. Cliente OAuth do Google</h3>
+      <h3 className="font-semibold text-zinc-100">{onCancel ? 'Seu próprio cliente OAuth' : '1. Cliente OAuth do Google'}</h3>
       <ol className="list-decimal pl-4 space-y-0.5 text-[11px] text-zinc-400 leading-relaxed">
         <li>No Google Cloud, crie um projeto e ative as APIs <b>Google Calendar</b>, <b>Google Docs</b> e <b>Google Drive</b>.</li>
         <li>Em <b>Tela de consentimento OAuth</b>, escolha “Externo” e adicione seu e-mail como usuário de teste.</li>
@@ -51,9 +52,12 @@ function ClientForm({ google }) {
         aria-label="Client secret do Google"
         className="w-full rounded-lg border border-zinc-800 bg-black/40 px-2.5 py-1.5 font-mono text-[11px] text-zinc-100 outline-none focus:border-blue-500/60"
       />
-      <button type="submit" disabled={!clientId.trim() || google.busy === 'client'} className="px-3 py-1.5 rounded-lg bg-blue-500/20 border border-blue-500/30 text-blue-100 hover:bg-blue-500/30 disabled:opacity-40 cursor-pointer disabled:cursor-default">
-        Salvar cliente
-      </button>
+      <div className="flex items-center gap-3">
+        <button type="submit" disabled={!clientId.trim() || google.busy === 'client'} className="px-3 py-1.5 rounded-lg bg-blue-500/20 border border-blue-500/30 text-blue-100 hover:bg-blue-500/30 disabled:opacity-40 cursor-pointer disabled:cursor-default">
+          Salvar cliente
+        </button>
+        {onCancel && <button type="button" onClick={onCancel} className="text-[11px] text-zinc-400 underline hover:text-white cursor-pointer">Cancelar</button>}
+      </div>
     </form>
   );
 }
@@ -96,6 +100,7 @@ function EventList({ google }) {
 
 /** Google account: OAuth client, sign-in, calendar events for the meeting and Docs. */
 export function GoogleModal({ isOpen, onClose, google }) {
+  const [ownClient, setOwnClient] = useState(false);
   if (!isOpen) return null;
   const { status, error } = google;
 
@@ -130,12 +135,19 @@ export function GoogleModal({ isOpen, onClose, google }) {
             <p className="flex items-center gap-1.5 text-zinc-400"><Loader2 size={12} className="animate-spin" /> Carregando…</p>
           ) : !status.configured ? (
             <ClientForm google={google} />
+          ) : !status.connected && ownClient ? (
+            <ClientForm google={google} onCancel={() => setOwnClient(false)} />
           ) : !status.connected ? (
             <section className="rounded-xl border border-zinc-800/80 bg-zinc-900/30 p-3 space-y-2">
-              <h3 className="font-semibold text-zinc-100">2. Entrar com o Google</h3>
+              <h3 className="font-semibold text-zinc-100">{status.clientSource === 'bundled' ? 'Entrar com o Google' : '2. Entrar com o Google'}</h3>
               <p className="text-zinc-400 leading-relaxed">
                 O login abre no navegador. O Sidenote pede só leitura da agenda e dos Docs, e acesso aos arquivos que ele mesmo criar no Drive.
               </p>
+              {status.clientSource === 'bundled' && (
+                <p className="text-[11px] text-zinc-500 leading-relaxed">
+                  Se o Google avisar que o app não foi verificado, clique em <b className="text-zinc-300">Avançado</b> e depois em <b className="text-zinc-300">Acessar Sidenote</b>.
+                </p>
+              )}
               {status.connecting ? (
                 <div className="flex items-center gap-2 text-zinc-300">
                   <Loader2 size={12} className="animate-spin" /> Aguardando o login no navegador…
@@ -147,9 +159,17 @@ export function GoogleModal({ isOpen, onClose, google }) {
                 </button>
               )}
               <p className="text-[10px] text-zinc-600">
-                Cliente {status.clientHint}{status.clientSource === 'env' ? ' (variável de ambiente)' : ''}.{' '}
-                {status.clientSource === 'saved' && (
-                  <button type="button" onClick={google.removeClient} className="underline hover:text-zinc-300 cursor-pointer">Trocar cliente</button>
+                {status.clientSource === 'bundled' ? (
+                  <button type="button" onClick={() => setOwnClient(true)} className="underline hover:text-zinc-300 cursor-pointer">Usar meu próprio cliente OAuth</button>
+                ) : (
+                  <>
+                    Cliente {status.clientHint}{status.clientSource === 'env' ? ' (variável de ambiente)' : ''}.{' '}
+                    {status.clientSource === 'saved' && (
+                      <button type="button" onClick={google.removeClient} className="underline hover:text-zinc-300 cursor-pointer">
+                        {status.bundledClient ? 'Voltar ao cliente do Sidenote' : 'Trocar cliente'}
+                      </button>
+                    )}
+                  </>
                 )}
               </p>
             </section>

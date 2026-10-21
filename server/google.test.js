@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { authorizationUrl, createGoogle, GOOGLE_SCOPES, pkcePair } from './google.js';
+import { authorizationUrl, createGoogle, GOOGLE_SCOPES, pkcePair, readBundledClient } from './google.js';
 import {
   createDocument, documentText, htmlToText, listEvents, multipartBody, normalizeEvent, parseDocId, stripFrontMatter,
 } from './google-workspace.js';
@@ -47,6 +47,24 @@ test('the client id is validated and saved readable only by the user', () => {
   // The environment wins over the saved client.
   const fromEnv = createGoogle({ file, env: { SIDENOTE_GOOGLE_CLIENT_ID: 'env-1.apps.googleusercontent.com' }, log: {} });
   assert.equal(fromEnv.status().clientSource, 'env');
+});
+
+test('the client shipped with the app is used until the user brings their own', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'sidenote-google-'));
+  const shipped = path.join(dir, 'google-client.json');
+  fs.writeFileSync(shipped, JSON.stringify({ clientId: 'app-1.apps.googleusercontent.com', clientSecret: 'app-secret' }));
+  const bundled = readBundledClient(shipped);
+  assert.deepEqual(bundled, { clientId: 'app-1.apps.googleusercontent.com', clientSecret: 'app-secret' });
+  assert.equal(readBundledClient(path.join(dir, 'missing.json')), null);
+
+  const file = tempFile();
+  const google = createGoogle({ file, env: {}, bundled, log: {} });
+  assert.equal(google.status().configured, true);
+  assert.equal(google.status().clientSource, 'bundled');
+  google.setClient({ clientId: CLIENT_ID, clientSecret: 'secret' });
+  assert.equal(google.status().clientSource, 'saved');
+  google.removeClient();
+  assert.equal(google.status().clientSource, 'bundled');
 });
 
 test('the browser redirect is exchanged for tokens, then refreshed and revoked', async () => {
