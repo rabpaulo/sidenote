@@ -93,7 +93,7 @@ npm run build:appimage
 ./scripts/build-appimage.sh
 ```
 
-Para o Windows, execute `npm run build:win` numa máquina Windows. Ele gera `release/Sidenote-1.0.0-setup.exe` (instalador, permite escolher a pasta) e `release/Sidenote-1.0.0-portable.exe` (sem instalação). No Linux, `npx electron-builder --win portable --x64` também gera o portátil; o instalador NSIS precisa do Wine com suporte a 32 bits para montar o desinstalador.
+Para o Windows, execute `npm run build:win` numa máquina Windows. Ele gera `release/Sidenote-1.1.0-setup.exe` (instalador, permite escolher a pasta) e `release/Sidenote-1.1.0-portable.exe` (sem instalação). No Linux, `npx electron-builder --win portable --x64` também gera o portátil; o instalador NSIS precisa do Wine com suporte a 32 bits para montar o desinstalador.
 
 Os pacotes trazem o Parakeet, mas não o Python nem os CLIs: para usar os motores de voz opcionais ou um CLI, instale-os na máquina de destino como descrito acima. O `sherpa-onnx-node` instala só os binários do sistema em que o `npm ci` rodou, por isso o pacote do Windows precisa ser gerado no Windows. O app não é assinado digitalmente, então o Windows SmartScreen pode pedir confirmação na primeira execução.
 

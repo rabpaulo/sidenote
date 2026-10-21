@@ -96,7 +96,7 @@ async function checkCodex(bin) {
   });
   const timer = setTimeout(() => failAll(new Error('O Codex não respondeu à verificação.')), CHECK_TIMEOUT_MS);
   try {
-    await rpc('initialize', { clientInfo: { name: 'sidenote', title: 'Sidenote', version: '1.0.0' } });
+    await rpc('initialize', { clientInfo: { name: 'sidenote', title: 'Sidenote', version: '1.1.0' } });
     child.stdin.write(JSON.stringify({ method: 'initialized', params: {} }) + '\n');
     const { account } = await rpc('account/read', {});
     if (!account) return unavailable('Faça login no Codex com "codex login" para usar este provedor.');

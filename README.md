@@ -33,7 +33,7 @@ Copiloto desktop para reuniões. Ele ouve a chamada, transcreve enquanto as pess
 
 ## Baixar
 
-O instalador e o executável portátil para Windows estão na [página de releases](https://github.com/rabpaulo/sidenote/releases/latest). Para rodar a partir do código (Linux ou Windows), siga as seções abaixo.
+O Sidenote é distribuído como código: clone o repositório e rode ou compile na sua máquina (Linux ou Windows), seguindo as seções abaixo. As novidades de cada versão estão na [página de releases](https://github.com/rabpaulo/sidenote/releases/latest).
 
 ## Requisitos
 
@@ -92,7 +92,7 @@ Numa máquina Windows:
 npm run build:win
 ```
 
-São gerados em `release/` o instalador `Sidenote-1.0.0-setup.exe` e o executável portátil `Sidenote-1.0.0-portable.exe`. Basta uma API key ou um CLI autenticado na máquina; o Python só é necessário para os motores de voz opcionais. O app não é assinado; o SmartScreen pode pedir confirmação na primeira execução.
+São gerados em `release/` o instalador `Sidenote-1.1.0-setup.exe` e o executável portátil `Sidenote-1.1.0-portable.exe`. Basta uma API key ou um CLI autenticado na máquina; o Python só é necessário para os motores de voz opcionais. O app não é assinado; o SmartScreen pode pedir confirmação na primeira execução.
 
 ## Gerar AppImage
 
@@ -107,8 +107,8 @@ npm run build:appimage
 O arquivo executável será gerado no diretório `release/`:
 
 ```bash
-chmod +x "release/Sidenote-1.0.0.AppImage"
-./release/Sidenote-1.0.0.AppImage
+chmod +x "release/Sidenote-1.1.0.AppImage"
+./release/Sidenote-1.1.0.AppImage
 ```
 
 ## Documentação
