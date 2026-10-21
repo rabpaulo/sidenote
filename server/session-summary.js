@@ -40,7 +40,7 @@ function fitLines(lines, limit) {
  * `previous` ({ text, covered }) is used only when the full transcript no longer fits:
  * then the model updates that summary with the lines after `covered`.
  */
-export function buildSummaryPrompt({ entries, startedAt, previous = null, final = false, maxChars = MAX_TRANSCRIPT_PROMPT_CHARS }) {
+export function buildSummaryPrompt({ entries, startedAt, previous = null, final = false, context = '', maxChars = MAX_TRANSCRIPT_PROMPT_CHARS }) {
   const lines = transcriptLines(entries, startedAt);
   const full = lines.join('\n');
   let transcriptBlock;
@@ -65,7 +65,7 @@ Na transcrição, cada linha tem [tempo desde o início] papel: fala.
 - Você: o usuário do app (microfone ou texto digitado).
 - Sugestão da IA: resposta sugerida pelo copiloto. Não significa que foi dita; use só para entender o assunto.
 
-${transcriptBlock}
+${context ? `${context}\n\n` : ''}${transcriptBlock}
 
 Escreva em português do Brasil. A primeira linha é só o título, assim:
 Título: <3 a 8 palavras que identifiquem a reunião pelo assunto, sem data nem aspas>
@@ -183,7 +183,7 @@ export function createSummaryService({
     }
     const version = transcript.version;
     const spoken = transcript.spokenCount;
-    const prompt = buildSummaryPrompt({ entries, startedAt: transcript.startedAt, previous: basis() });
+    const prompt = buildSummaryPrompt({ entries, startedAt: transcript.startedAt, previous: basis(), context: settings.context || '' });
     const controller = new AbortController();
     const current = { controller };
     job = current;

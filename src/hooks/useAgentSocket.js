@@ -41,6 +41,11 @@ export function useAgentSocket() {
   const [pcCaptureApp, setPcCaptureApp] = useState(null);
   // Bumps when the backend saves, titles or deletes a meeting in the history.
   const [historyVersion, setHistoryVersion] = useState(0);
+  // Google account status and the calendar event chosen for this meeting (undefined until known).
+  const [googleStatus, setGoogleStatus] = useState(null);
+  const [meetingEvent, setMeetingEvent] = useState(undefined);
+  // Ollama downloads in progress, as the backend pushes them.
+  const [localPulls, setLocalPulls] = useState(null);
   // Speech recognition engine, packages and model downloads, as the backend pushes them.
   const [speechStatus, setSpeechStatus] = useState(null);
   // A local engine that failed and was replaced by Google: { engine, error, permanent }.
@@ -160,6 +165,8 @@ export function useAgentSocket() {
         }
         if (event.isProcessing !== undefined) setIsProcessing(event.isProcessing);
         if (event.summary) setSummary(event.summary);
+        if (event.google) setGoogleStatus(event.google);
+        if (event.meetingEvent !== undefined) setMeetingEvent(event.meetingEvent);
         if (event.selectedProvider) setSelectedProvider(event.selectedProvider);
         if (event.selectedModel) setSelectedModel(event.selectedModel);
         if (event.selectedPersona) setSelectedPersona(event.selectedPersona);
@@ -187,6 +194,18 @@ export function useAgentSocket() {
 
       case 'provider_availability':
         if (event.availability) setProviderAvailability(event.availability);
+        break;
+
+      case 'google_status':
+        if (event.status) setGoogleStatus(event.status);
+        break;
+
+      case 'meeting_event':
+        setMeetingEvent(event.event || null);
+        break;
+
+      case 'local_ai_pulls':
+        setLocalPulls(event.pulls || {});
         break;
 
       case 'agent_unavailable':
@@ -856,7 +875,7 @@ export function useAgentSocket() {
     }
   }, []);
 
-  // target: 'sessions' (the app's folder) or 'vault' (the connected Obsidian vault).
+  // target: 'sessions' (the app's folder), 'vault' (the connected Obsidian vault) or 'google' (a new Google Doc).
   const exportSummary = useCallback(async (target) => {
     try {
       const response = await apiFetch('/api/summary/export', {
@@ -866,7 +885,7 @@ export function useAgentSocket() {
       });
       const result = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(result.error || 'Não foi possível salvar o resumo.');
-      setSummaryNotice({ file: result.file });
+      setSummaryNotice({ file: result.file, url: result.url || null });
     } catch (error) {
       setSummaryNotice({ error: error.message });
     }
@@ -902,6 +921,9 @@ export function useAgentSocket() {
     pcCaptureApp,
     pcCaptureSource,
     historyVersion,
+    googleStatus,
+    meetingEvent,
+    localPulls,
     speechStatus,
     speechFallback,
     clearSpeechFallback: () => setSpeechFallback(null),

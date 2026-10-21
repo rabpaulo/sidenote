@@ -15,6 +15,10 @@ import { NotesVaultModal } from './components/NotesVaultModal.jsx';
 import { ApiKeysModal } from './components/ApiKeysModal.jsx';
 import { SpeechEngineModal, speechEngineName } from './components/SpeechEngineModal.jsx';
 import { WelcomeModal } from './components/WelcomeModal.jsx';
+import { LocalModelsModal } from './components/LocalModelsModal.jsx';
+import { GoogleModal } from './components/GoogleModal.jsx';
+import { MeetingEventBar } from './components/MeetingEventBar.jsx';
+import { useGoogle } from './hooks/useGoogle.js';
 import { welcomeNeeds } from './components/welcome.js';
 import { useSpeechEngines } from './hooks/useSpeechEngines.js';
 import { useVoiceCopilot } from './hooks/useVoiceCopilot.js';
@@ -46,6 +50,8 @@ export default function App() {
   const [isNotesOpen, setIsNotesOpen] = useState(false);
   const [isKeysOpen, setIsKeysOpen] = useState(false);
   const [isSpeechOpen, setIsSpeechOpen] = useState(false);
+  const [isLocalOpen, setIsLocalOpen] = useState(false);
+  const [isGoogleOpen, setIsGoogleOpen] = useState(false);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [sessionToast, setSessionToast] = useState(null);
   const [isCompact, setIsCompact] = useState(() => {
@@ -96,6 +102,9 @@ export default function App() {
     isPcCapturing,
     pcCaptureApp,
     historyVersion,
+    googleStatus,
+    meetingEvent,
+    localPulls,
     speechStatus,
     speechFallback,
     clearSpeechFallback,
@@ -114,6 +123,7 @@ export default function App() {
   } = useAgentSocket();
   const meetingHistory = useMeetingHistory(historyVersion);
   const speech = useSpeechEngines({ isOpen: isSpeechOpen, pushed: speechStatus });
+  const google = useGoogle({ pushedStatus: googleStatus, pushedEvent: meetingEvent });
 
   // A provider or model the account cannot use is replaced by the first usable one.
   const selectionReason = unavailableReason(providerAvailability, agentSettings.provider,
@@ -395,7 +405,8 @@ export default function App() {
   };
   const ambiguousStreams = isPcCapturing && pcCaptureApp?.ambiguous
     ? pcSource.streams.filter((entry) => entry.id === pcCaptureApp.id) : null;
-  const isWindowDraggable = !isModelModalOpen && !isPersonaModalOpen && !isContextOpen && !isNotesOpen && !isKeysOpen && !isSpeechOpen;
+  const isWindowDraggable = !isModelModalOpen && !isPersonaModalOpen && !isContextOpen && !isNotesOpen && !isKeysOpen && !isSpeechOpen
+    && !isLocalOpen && !isGoogleOpen;
   const menuProps = {
     language,
     setLanguage,
@@ -406,6 +417,9 @@ export default function App() {
     onOpenNotesModal: () => setIsNotesOpen(true),
     onOpenKeysModal: () => setIsKeysOpen(true),
     onOpenSpeechModal: () => setIsSpeechOpen(true),
+    onOpenLocalModal: () => setIsLocalOpen(true),
+    onOpenGoogleModal: () => setIsGoogleOpen(true),
+    googleStatus: google.status,
     speechLabel: speech.status ? speechEngineName(speech.status) : null,
     notesStatus: notesVault.status,
     onNewSession: handleNewSession,
@@ -561,9 +575,11 @@ export default function App() {
           />
         )}
 
+        {!isCompact && activeTab === 'transcription' && <MeetingEventBar google={google} onOpen={() => setIsGoogleOpen(true)} />}
+
         {/* Core Feed ("Mostra só o que deve mostrar") */}
         {!isCompact && activeTab === 'history' ? (
-          <HistoryPanel history={meetingHistory} vaultConnected={!!notesVault.status?.connected} />
+          <HistoryPanel history={meetingHistory} vaultConnected={!!notesVault.status?.connected} googleConnected={google.connected} />
         ) : !isCompact && activeTab === 'summary' ? (
           <SummaryPanel
             messages={messages}
@@ -575,6 +591,7 @@ export default function App() {
             notice={summaryNotice}
             onClearNotice={clearSummaryNotice}
             vaultConnected={!!notesVault.status?.connected}
+            googleConnected={google.connected}
             availability={providerAvailability}
           />
         ) : (
@@ -655,6 +672,7 @@ export default function App() {
         availability={providerAvailability}
         onRefreshAvailability={refreshProviders}
         onOpenKeys={() => setIsKeysOpen(true)}
+        onOpenLocal={() => setIsLocalOpen(true)}
       />
 
       <WelcomeModal
@@ -666,10 +684,13 @@ export default function App() {
         speech={speech}
         onRefreshProviders={refreshProviders}
         onOpenKeys={() => setIsKeysOpen(true)}
+        onOpenLocal={() => setIsLocalOpen(true)}
       />
 
       <ApiKeysModal isOpen={isKeysOpen} onClose={() => setIsKeysOpen(false)} availability={providerAvailability} />
       <SpeechEngineModal isOpen={isSpeechOpen} onClose={() => setIsSpeechOpen(false)} speech={speech} />
+      <LocalModelsModal isOpen={isLocalOpen} onClose={() => setIsLocalOpen(false)} pushedPulls={localPulls} agentSettings={agentSettings} />
+      <GoogleModal isOpen={isGoogleOpen} onClose={() => setIsGoogleOpen(false)} google={google} />
 
       {isContextOpen && (
         <CandidateContextEditor
@@ -679,6 +700,7 @@ export default function App() {
           loadError={candidateProfile.error}
           onRetry={candidateProfile.reload}
           onSave={candidateProfile.save}
+          googleConnected={google.connected}
           onClose={() => setIsContextOpen(false)}
         />
       )}

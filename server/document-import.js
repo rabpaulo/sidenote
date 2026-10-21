@@ -141,7 +141,14 @@ export function parseImportResponse(kind, raw) {
  */
 export async function importDocument({ kind, buffer, filename, runAgent }) {
   if (!IMPORT_KINDS[kind]) throw new ImportError('Tipo de importação inválido.');
-  const text = await extractDocumentText(buffer, filename);
+  return importText({ kind, text: await extractDocumentText(buffer, filename), runAgent });
+}
+
+/** The same import from text already extracted (a Google Docs document). */
+export async function importText({ kind, text: raw, runAgent }) {
+  if (!IMPORT_KINDS[kind]) throw new ImportError('Tipo de importação inválido.');
+  const text = cleanText(String(raw || ''));
+  if (text.length < 30) throw new ImportError('O documento não tem texto suficiente para importar.');
   try {
     const fields = parseImportResponse(kind, await runAgent(buildImportPrompt(kind, text)));
     if (!Object.keys(fields).length) throw new ImportError('O modelo não encontrou dados no documento.', 502);

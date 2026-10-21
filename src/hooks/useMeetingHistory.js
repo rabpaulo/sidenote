@@ -1,8 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import { apiFetch } from '../backend.js';
 
-async function requestHistory(path = '', method = 'GET') {
-  const response = await apiFetch(`/api/history${path}`, { method, cache: 'no-store' });
+async function requestHistory(path = '', method = 'GET', body) {
+  const response = await apiFetch(`/api/history${path}`, {
+    method, cache: 'no-store',
+    headers: body ? { 'Content-Type': 'application/json' } : undefined,
+    body: body ? JSON.stringify(body) : undefined,
+  });
   const result = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(result.error || 'Não foi possível acessar o histórico.');
   return result;
@@ -67,6 +71,19 @@ export function useMeetingHistory(version) {
     }
   }, []);
 
+  // Creates the meeting's Google Doc once; afterwards the same call opens it.
+  const saveToGoogleDocs = useCallback(async (id, { again = false } = {}) => {
+    setError('');
+    setNotice('');
+    try {
+      const { doc } = await requestHistory(`/${encodeURIComponent(id)}/google-doc`, 'POST', { again });
+      window.open(doc.url, '_blank', 'noopener');
+      setNotice('Salvo no Google Docs.');
+    } catch (failure) {
+      setError(failure.message);
+    }
+  }, []);
+
   const summarize = useCallback(async (id) => {
     try {
       await requestHistory(`/${encodeURIComponent(id)}/summarize`, 'POST');
@@ -77,6 +94,6 @@ export function useMeetingHistory(version) {
 
   return {
     query, setQuery, meetings, error, clearError: () => setError(''), notice, clearNotice: () => setNotice(''),
-    selectedId, select: setSelectedId, selected, remove, summarize, saveToVault,
+    selectedId, select: setSelectedId, selected, remove, summarize, saveToVault, saveToGoogleDocs,
   };
 }

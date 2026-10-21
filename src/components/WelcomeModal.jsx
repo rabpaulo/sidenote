@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { X, Sparkles, CircleCheck, RefreshCw, Loader2 } from 'lucide-react';
-import { PROVIDERS } from '../config/models.js';
+import { X, Sparkles, CircleCheck, RefreshCw, Loader2, HardDrive } from 'lucide-react';
+import { CLI_PROVIDER_IDS, PROVIDERS } from '../config/models.js';
 import { useProviderKeys } from '../hooks/useProviderKeys.js';
 import { KeyRow } from './ApiKeysModal.jsx';
 import { ModelRow, speechEngineName } from './SpeechEngineModal.jsx';
@@ -23,10 +23,11 @@ function Step({ number, title, done, children }) {
   );
 }
 
-function ProviderStep({ needed, availability, agentSettings, onRefresh, onOpenKeys }) {
+function ProviderStep({ needed, availability, agentSettings, onRefresh, onOpenKeys, onOpenLocal }) {
   const [choice, setChoice] = useState(FREE_PROVIDERS[0]);
   const { keys, busy, error, save, remove } = useProviderKeys(true);
   const current = PROVIDERS[agentSettings.provider];
+  const installedClis = CLI_PROVIDER_IDS.filter((id) => availability[id] && availability[id].installed !== false && availability[id].status === 'unavailable');
 
   if (!needed) {
     return (
@@ -76,11 +77,18 @@ function ProviderStep({ needed, availability, agentSettings, onRefresh, onOpenKe
         onRemove={remove}
       />
       <p className="text-[11px] text-zinc-500 leading-relaxed">
-        Já usa Codex, Claude Code, Antigravity ou OpenCode? Faça login no terminal e{' '}
+        {installedClis.length
+          ? <>Encontrei {installedClis.map((id) => PROVIDERS[id].shortName).join(', ')} neste computador, sem login. Faça login no terminal e{' '}</>
+          : <>Nenhum CLI de IA (Codex, Claude Code, Antigravity, OpenCode) foi encontrado. Se instalar um, faça login e{' '}</>}
         <button type="button" onClick={onRefresh} className="inline-flex items-center gap-1 underline hover:text-zinc-200 cursor-pointer">
           verifique de novo <RefreshCw size={10} />
         </button>.
       </p>
+      {onOpenLocal && (
+        <button type="button" onClick={onOpenLocal} className="flex items-center gap-1.5 text-[11px] text-teal-200 hover:text-teal-100 cursor-pointer">
+          <HardDrive size={11} /> Sem conta nenhuma: rodar um modelo local escolhido para o seu hardware
+        </button>
+      )}
     </Step>
   );
 }
@@ -127,7 +135,7 @@ function SpeechStep({ needed, speech }) {
 }
 
 /** First run: what the app needs before it can listen and answer, in two steps. */
-export function WelcomeModal({ isOpen, onClose, needs, availability, agentSettings, speech, onRefreshProviders, onOpenKeys }) {
+export function WelcomeModal({ isOpen, onClose, needs, availability, agentSettings, speech, onRefreshProviders, onOpenKeys, onOpenLocal }) {
   if (!isOpen) return null;
   const ready = !needs.provider && !needs.speech;
 
@@ -155,6 +163,7 @@ export function WelcomeModal({ isOpen, onClose, needs, availability, agentSettin
             agentSettings={agentSettings}
             onRefresh={onRefreshProviders}
             onOpenKeys={onOpenKeys}
+            onOpenLocal={onOpenLocal}
           />
           <SpeechStep needed={needs.speech} speech={speech} />
         </div>

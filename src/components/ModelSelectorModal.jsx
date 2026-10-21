@@ -1,7 +1,13 @@
 import React, { useState } from 'react';
-import { X, Sparkles, Bot, Asterisk, Zap, Check, RefreshCw, Terminal, Cpu, KeyRound, Search } from 'lucide-react';
-import { API_PROVIDER_LIST, CLI_PROVIDER_IDS, PROVIDERS } from '../config/models.js';
-import { providerModels, unavailableReason } from '../../shared/provider-availability.js';
+import { X, Sparkles, Bot, Asterisk, Zap, Check, RefreshCw, Terminal, Cpu, KeyRound, Search, HardDrive, ChevronDown, Loader2 } from 'lucide-react';
+import { PROVIDERS } from '../config/models.js';
+import { providerDetected, providerModels, unavailableReason } from '../../shared/provider-availability.js';
+
+const LOCAL_ACCENT = {
+  selected: 'border-teal-500/50 bg-teal-950/20 text-white', radio: 'border-teal-400 bg-teal-500 text-black',
+  active: 'border-teal-500/60 bg-gradient-to-br from-teal-950/30 via-zinc-900/60 to-zinc-900/40 shadow-lg shadow-teal-500/10',
+  iconClass: 'bg-teal-500/20 border-teal-500/30 text-teal-400', Icon: HardDrive,
+};
 
 const API_ACCENT = {
   selected: 'border-sky-500/50 bg-sky-950/20 text-white', radio: 'border-sky-400 bg-sky-500 text-black',
@@ -32,19 +38,31 @@ const ACCENTS = {
   },
 };
 
-const accentOf = (id) => ACCENTS[id] || API_ACCENT;
+const accentOf = (id) => ACCENTS[id] || (PROVIDERS[id]?.kind === 'local' ? LOCAL_ACCENT : API_ACCENT);
 // Long account lists get a search box.
 const SEARCH_THRESHOLD = 8;
 
-function ProviderButton({ id, provider, availability, setProvider, onOpenKeys }) {
+// What fixes an unavailable provider, when the app has a screen for it.
+function setupOf(entry, { onOpenKeys, onOpenLocal }) {
+  if (entry?.needsKey && onOpenKeys) return { label: 'Adicionar key', Icon: KeyRound, open: onOpenKeys };
+  if (entry?.setup === 'local' && onOpenLocal) {
+    const label = entry.installed === false ? 'Instalar' : entry.running === false ? 'Iniciar' : 'Baixar modelo';
+    return { label, Icon: HardDrive, open: onOpenLocal };
+  }
+  return null;
+}
+
+function ProviderButton({ id, provider, availability, setProvider, onOpenKeys, onOpenLocal }) {
   const reason = unavailableReason(availability, id);
-  // A provider that only lacks a key opens the key screen instead of staying disabled.
-  const needsKey = Boolean(reason && availability[id]?.needsKey && onOpenKeys);
+  // A provider that only lacks a key or a local model opens the screen that fixes it.
+  const setup = reason ? setupOf(availability[id], { onOpenKeys, onOpenLocal }) : null;
+  const needsKey = Boolean(setup);
+  const notInstalled = availability[id]?.installed === false;
   const { Icon, active, iconClass } = accentOf(id);
   return (
     <button
       type="button"
-      onClick={() => (needsKey ? onOpenKeys() : setProvider(id))}
+      onClick={() => (setup ? setup.open() : setProvider(id))}
       disabled={Boolean(reason) && !needsKey}
       title={reason || PROVIDERS[id].tagline}
       className={`p-2.5 rounded-2xl border text-left transition-all relative overflow-hidden flex items-center gap-2 ${
@@ -60,8 +78,8 @@ function ProviderButton({ id, provider, availability, setProvider, onOpenKeys })
       </div>
       <div className="min-w-0">
         <h3 className="text-[13px] leading-tight font-bold text-white break-words">{PROVIDERS[id].shortName}</h3>
-        {needsKey && <p className="text-[10px] text-zinc-400 truncate flex items-center gap-1"><KeyRound size={9} /> Adicionar key</p>}
-        {reason && !needsKey && <p className="text-[10px] text-rose-300 truncate">Indisponível</p>}
+        {setup && <p className="text-[10px] text-zinc-400 truncate flex items-center gap-1"><setup.Icon size={9} /> {setup.label}</p>}
+        {reason && !setup && <p className={`text-[10px] truncate ${notInstalled ? 'text-zinc-500' : 'text-rose-300'}`}>{notInstalled ? 'Não instalado' : 'Indisponível'}</p>}
         {availability[id]?.status === 'checking' && <p className="text-[10px] text-zinc-500">Verificando…</p>}
       </div>
       {provider === id && !reason && (
@@ -87,12 +105,20 @@ export function ModelSelectorModal({
   availability = {},
   onRefreshAvailability,
   onOpenKeys,
+  onOpenLocal,
 }) {
   const [query, setQuery] = useState('');
   const [customModel, setCustomModel] = useState('');
+  const [showOthers, setShowOthers] = useState(false);
   if (!isOpen) return null;
 
   const checking = Object.values(availability).some((entry) => entry?.status === 'checking');
+  // Only what this machine has (installed CLIs and runtimes, keys) is offered up front;
+  // the rest stays under "Outros provedores" with what each one needs.
+  const ids = Object.keys(PROVIDERS);
+  const found = ids.filter((id) => providerDetected(availability[id]) || id === provider);
+  const others = ids.filter((id) => !found.includes(id) && providerDetected(availability[id]) === false);
+  const buttonProps = { provider, availability, setProvider: (id) => chooseProvider(id), onOpenKeys, onOpenLocal };
 
   const currentProviderConfig = PROVIDERS[provider];
   const activeModelId = models[provider] || currentProviderConfig.defaultModel;
@@ -114,8 +140,8 @@ export function ModelSelectorModal({
     setModel(customModel.trim(), provider);
     setCustomModel('');
   };
-  // Every API provider without a key would add the same line; their buttons already say it.
-  const notices = Object.keys(PROVIDERS).filter((id) => !availability[id]?.needsKey);
+  // Only providers found here explain themselves; the others' buttons already say what they need.
+  const notices = found.filter((id) => !availability[id]?.needsKey && !availability[id]?.setup);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 overflow-y-auto">
@@ -159,24 +185,47 @@ export function ModelSelectorModal({
               )}
             </div>
 
+            <p className="mb-2.5 text-[11px] text-zinc-500 flex items-center gap-1.5">
+              {checking && <Loader2 size={11} className="animate-spin" />}
+              {checking ? 'Procurando CLIs, keys e modelos locais neste computador…' : 'Encontrados neste computador'}
+            </p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-              {CLI_PROVIDER_IDS.map((id) => (
-                <ProviderButton key={id} id={id} provider={provider} availability={availability} setProvider={chooseProvider} onOpenKeys={onOpenKeys} />
-              ))}
+              {found.map((id) => <ProviderButton key={id} id={id} {...buttonProps} />)}
             </div>
-            <div className="flex items-center justify-between mt-4 mb-2.5">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-zinc-500">Com API key</span>
-              {onOpenKeys && (
-                <button type="button" onClick={onOpenKeys} className="flex items-center gap-1 text-[11px] text-zinc-400 hover:text-white cursor-pointer">
-                  <KeyRound size={11} /> Gerenciar keys
-                </button>
-              )}
+            {!checking && !found.some((id) => !unavailableReason(availability, id)) && (
+              <p className="mt-2 text-[11px] text-amber-300/90">
+                Nenhum provedor pronto. Adicione uma API key, faça login num CLI ou baixe um modelo local.
+              </p>
+            )}
+            <div className="flex items-center justify-between gap-2 mt-4 mb-2.5">
+              <button
+                type="button"
+                onClick={() => setShowOthers((value) => !value)}
+                disabled={!others.length}
+                aria-expanded={showOthers}
+                className="flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-zinc-500 hover:text-zinc-200 disabled:opacity-40 cursor-pointer disabled:cursor-default"
+              >
+                <ChevronDown size={12} className={`transition-transform ${showOthers ? '' : '-rotate-90'}`} />
+                Outros provedores ({others.length})
+              </button>
+              <div className="flex items-center gap-3">
+                {onOpenLocal && (
+                  <button type="button" onClick={onOpenLocal} className="flex items-center gap-1 text-[11px] text-zinc-400 hover:text-white cursor-pointer">
+                    <HardDrive size={11} /> Modelos locais
+                  </button>
+                )}
+                {onOpenKeys && (
+                  <button type="button" onClick={onOpenKeys} className="flex items-center gap-1 text-[11px] text-zinc-400 hover:text-white cursor-pointer">
+                    <KeyRound size={11} /> Gerenciar keys
+                  </button>
+                )}
+              </div>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-              {API_PROVIDER_LIST.map(({ id }) => (
-                <ProviderButton key={id} id={id} provider={provider} availability={availability} setProvider={chooseProvider} onOpenKeys={onOpenKeys} />
-              ))}
-            </div>
+            {showOthers && others.length > 0 && (
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                {others.map((id) => <ProviderButton key={id} id={id} {...buttonProps} />)}
+              </div>
+            )}
             {notices.map((id) => {
               const reason = unavailableReason(availability, id);
               const unverified = availability[id]?.status === 'unknown' ? availability[id].reason : null;

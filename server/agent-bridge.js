@@ -5,7 +5,7 @@ import { normalizeImages, promptWithImageFiles, writeImageFiles } from './agent-
 import { killProcessTree, resolveCliBin, spawnCli } from './cli-process.js';
 import { runOpencodeAgent, prepareOpencodeSession, closeOpencodeSession } from './opencode-session.js';
 import { runApiAgent, prepareApiSession } from './api-session.js';
-import { isApiProvider } from '../shared/api-providers.js';
+import { isHttpProvider } from '../shared/api-providers.js';
 export { runCodexAgent, closeCodexSession } from './codex-session.js';
 export { runClaudeAgent, closeClaudeSession } from './claude-session.js';
 
@@ -200,14 +200,14 @@ export function prepareAgentSession(options) {
   if (options.provider === 'codex') return prepareCodexSession(options);
   if (options.provider === 'claude') return prepareClaudeSession(options);
   if (options.provider === 'opencode') return prepareOpencodeSession(options);
-  if (isApiProvider(options.provider)) return prepareApiSession(options);
+  if (isHttpProvider(options.provider)) return prepareApiSession(options);
   return prepareAgySession(options);
 }
 
 // Copilot answers that run as one-shot turns: no conversation to keep, and a
-// cancelled answer leaves no cold start behind (warm Antigravity pool, HTTP APIs).
+// cancelled answer leaves no cold start behind (warm Antigravity pool, HTTP APIs and local runtimes).
 export function runsOneShot(provider) {
-  return provider === 'antigravity' || isApiProvider(provider);
+  return provider === 'antigravity' || isHttpProvider(provider);
 }
 
 /** Starts the processes one-shot turns will use, without sending a prompt. */
@@ -267,11 +267,11 @@ export function runIsolatedAgent({ timeoutMs = 120000, onText, signal, ...option
 }
 
 /**
- * Unified runner that dispatches to Antigravity, Codex, Claude Code, OpenCode or an API provider.
+ * Unified runner that dispatches to Antigravity, Codex, Claude Code, OpenCode, an API provider or a local runtime.
  */
 export function runUnifiedAgent(options) {
   if (options.provider === 'opencode') return runOpencodeAgent(options);
-  if (isApiProvider(options.provider)) return runApiAgent({ ...options, isolated: options.isolated || !!options.oneShot });
+  if (isHttpProvider(options.provider)) return runApiAgent({ ...options, isolated: options.isolated || !!options.oneShot });
   if (options.provider === 'codex') {
     return runCodexAgent(options);
   }

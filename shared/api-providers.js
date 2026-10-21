@@ -1,3 +1,5 @@
+import { isLocalProvider } from './local-providers.js';
+
 // Providers reached directly over HTTP with the user's own API key. The server
 // streams from them (server/api-session.js) and lists the account's models with the
 // same key, so the model lists come from the provider instead of being hard-coded.
@@ -131,6 +133,9 @@ export const API_PROVIDERS = {
 export const API_PROVIDER_IDS = Object.keys(API_PROVIDERS);
 
 export const isApiProvider = (id) => Object.hasOwn(API_PROVIDERS, id);
+
+/** Reached over HTTP (an API key or a local runtime), so no CLI process to keep warm. */
+export const isHttpProvider = (id) => isApiProvider(id) || isLocalProvider(id);
 
 // Never chat models, whatever the provider calls them.
 const NON_CHAT = /embed|tts|whisper|audio|realtime|transcribe|dall-e|image|moderation|rerank|search|guard|computer-use|codex/i;

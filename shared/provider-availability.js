@@ -52,3 +52,12 @@ export function availableSelection(availability, providers, provider, modelId) {
   }
   return null;
 }
+
+/**
+ * Whether the provider was found on this machine: a CLI or local runtime that is
+ * installed, or an API with a key. Unknown while its check runs.
+ */
+export function providerDetected(entry) {
+  if (!entry || entry.status === 'checking') return null;
+  return entry.installed !== false && !entry.needsKey;
+}

@@ -3,12 +3,17 @@ import { agentWorkspace, cliAvailable, killProcessTree, resolveCliBin, spawnCli 
 import { API_PROVIDERS, API_PROVIDER_IDS, chatModels } from '../shared/api-providers.js';
 import { listApiModels } from './api-session.js';
 import { opencodeEnv } from './opencode-session.js';
+import { checkLmstudio, checkOllama } from './local-models.js';
+import { LOCAL_PROVIDERS } from '../shared/local-providers.js';
 
 // Each check asks the CLI about the login and the account's models without sending
 // a prompt, so it uses no model quota. Only a definite answer (not installed, logged
 // out, model not listed) blocks a provider; a timeout or unexpected output leaves it
 // usable as "unknown", so a network hiccup never stops the CLI from being prepared.
 // API providers list the key's models the same way; a rejected key blocks them.
+// Local runtimes (Ollama, LM Studio) answer on localhost with their installed models.
+// `installed: false` marks a CLI or runtime this machine does not have, so the client
+// lists only what it found; `setup` names the screen that fixes an unavailable one.
 // `catalog` ({ id, name }) is the model list the client shows for providers whose
 // models come from the account instead of src/config/models.js.
 const CHECK_TIMEOUT_MS = 20000;
@@ -149,16 +154,19 @@ async function checkApi(provider) {
 const CHECKS = {
   antigravity: checkAntigravity, codex: checkCodex, claude: checkClaude, opencode: checkOpencode,
   ...Object.fromEntries(API_PROVIDER_IDS.map((id) => [id, () => checkApi(id)])),
+  ollama: checkOllama,
+  lmstudio: checkLmstudio,
 };
 
 async function checkProvider(provider) {
-  if (API_PROVIDERS[provider]) {
+  if (!BINS[provider]) {
+    const name = (API_PROVIDERS[provider] || LOCAL_PROVIDERS[provider])?.shortName || provider;
     try { return await CHECKS[provider](); }
-    catch (error) { return unknown(`Não foi possível verificar ${API_PROVIDERS[provider].shortName}: ${error.message}`); }
+    catch (error) { return unknown(`Não foi possível verificar ${name}: ${error.message}`); }
   }
   const bin = resolveCliBin(BINS[provider]);
   if (!cliAvailable(bin)) {
-    return unavailable(`${NAMES[provider]} não está instalado (comando "${BINS[provider]}" não encontrado).`);
+    return { ...unavailable(`${NAMES[provider]} não está instalado (comando "${BINS[provider]}" não encontrado).`), installed: false };
   }
   try { return await CHECKS[provider](bin); }
   catch (error) { return unknown(`Não foi possível verificar o ${NAMES[provider]}: ${error.message}`); }

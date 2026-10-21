@@ -2,11 +2,11 @@
 
 ## Preparar uma conversa
 
-Na primeira abertura, se faltar algo, a tela **Bem-vindo ao Sidenote** mostra os dois passos: uma API key (Gemini e Groq têm plano gratuito; **Outros…** abre todas as chaves) ou um CLI autenticado, e o download do Parakeet para o reconhecimento de voz. Cada passo já resolvido aparece marcado. A tela some depois de fechada; os mesmos ajustes ficam em **Menu → Chaves de API** e **Menu → Reconhecimento de voz**.
+Na primeira abertura, se faltar algo, a tela **Bem-vindo ao Sidenote** mostra os dois passos: uma API key (Gemini e Groq têm plano gratuito; **Outros…** abre todas as chaves), um CLI autenticado (a tela diz quais encontrou instalados sem login) ou um [modelo local](#modelos-locais-ollama-e-lm-studio), e o download do Parakeet para o reconhecimento de voz. Cada passo já resolvido aparece marcado. A tela some depois de fechada; os mesmos ajustes ficam em **Menu → Chaves de API** e **Menu → Reconhecimento de voz**.
 
 Abra o app com `npm start`. No menu (☰) da barra inferior, selecione em **Modelo** o provedor, o modelo e o nível de raciocínio, e em **Modo** a persona adequada: conversa geral, vendas, entrevista técnica, arquitetura, comportamental, RH, perguntas ao entrevistador ou vendas.
 
-O app prepara a sessão do agente sem enviar uma pergunta. Ao abrir, o backend verifica cada provedor sem gastar cota: se o CLI está instalado e logado e, no Antigravity (`agy models`) e no Codex (`model/list`), quais modelos a conta oferece. O Claude Code informa só o login, então todos os modelos da lista ficam liberados quando ele está logado. No seletor, provedores e modelos indisponíveis aparecem desativados, com o motivo; **Verificar novamente** refaz a verificação, por exemplo depois de um login.
+O app prepara a sessão do agente sem enviar uma pergunta. Ao abrir, o backend verifica cada provedor sem gastar cota: se o CLI está instalado e logado e, no Antigravity (`agy models`) e no Codex (`model/list`), quais modelos a conta oferece. O Claude Code informa só o login, então todos os modelos da lista ficam liberados quando ele está logado. O seletor não traz uma lista fixa: em **Encontrados neste computador** ficam só os provedores que o app achou na máquina (CLIs instalados, APIs com key salva ou em variável de ambiente, Ollama e LM Studio instalados). Os demais ficam recolhidos em **Outros provedores**, cada um com o que falta: **Não instalado** (CLI ausente), **Adicionar key** (abre as chaves de API) ou **Instalar**/**Iniciar**/**Baixar modelo** (abre os modelos locais). Um provedor encontrado mas indisponível, como um CLI sem login, continua na lista de cima, desativado e com o motivo. **Verificar novamente** refaz a busca, por exemplo depois de instalar um CLI ou fazer login.
 
 Se o modelo salvo deixar de estar disponível, o app troca para o primeiro modelo utilizável, do mesmo provedor se houver, e avisa no topo da janela. Sem nenhuma opção utilizável, um aviso vermelho explica o motivo, e o backend recusa iniciar o agente, a sugestão automática e as mensagens diretas. Uma falha ao iniciar ou responder também dispara uma nova verificação daquele provedor. Para Antigravity, Codex e Claude Code, a lista do seletor continua definida no projeto: modelos novos da conta só aparecem depois de adicionados em `src/config/models.js`.
 
@@ -19,6 +19,27 @@ Com o [OpenCode](https://opencode.ai) instalado (`opencode` no PATH, em `~/.open
 Em **Menu → Chaves de API** (ou **Gerenciar keys** no seletor de modelo), cole a key de OpenAI, Anthropic, Google Gemini, OpenRouter, Groq, DeepSeek, Mistral ou xAI. O backend valida a key listando os modelos da conta, sem gastar tokens, e o provedor passa a aparecer em **Modelo** com esses modelos; uma key recusada aparece como **Inválida**. Para um modelo que não estiver na lista, informe o ID em **Outro modelo**. As keys ficam em `api-keys.json`, ao lado do perfil (`~/.local/share/sidenote/` no Linux, `%APPDATA%\Sidenote\` no Windows), legíveis só pelo seu usuário; a interface nunca recebe a key de volta, só os últimos caracteres. Sem key salva, o app usa a variável de ambiente do provedor (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`...). As keys também são repassadas ao OpenCode, que então oferece os modelos desses provedores.
 
 Nesses provedores o histórico da conversa fica na memória do backend e vai junto a cada pergunta, até ser apagado por **Nova sessão**. Em **Raciocínio**, **Padrão** não envia nível de esforço; OpenAI, Anthropic, Gemini e OpenRouter aceitam Low, Médio e High (modelos sem raciocínio podem recusar o parâmetro). Nos modelos Claude Fable 5.1, Opus 5.5, Opus 5 e Sonnet 5.5 o app ativa o fallback de recusa da Anthropic, que reenvia a pergunta a outro modelo se a resposta for recusada.
+
+### Modelos locais (Ollama e LM Studio)
+
+**Menu → Modelos locais** (ou **Modelos locais** no seletor) roda a IA no próprio computador, sem conta, sem key e sem mandar a conversa para a internet.
+
+Ao abrir, o app escaneia o hardware: CPU, RAM e placas de vídeo com a memória de cada uma (NVIDIA pelo `nvidia-smi`; AMD e Intel pelo `/sys/class/drm` no Linux e pelo registro no Windows; memória unificada no Apple Silicon). Com isso ele classifica cada modelo do catálogo como **Cabe na placa de vídeo**, **Divide placa de vídeo e RAM**, **Roda na CPU** ou **Não cabe nesta máquina**, com a velocidade esperada ao vivo, e marca como **Recomendado** o de melhor qualidade que ainda responde rápido. Modelos MoE (GPT-OSS, Qwen 3.6 35B) leem poucos pesos por fala e continuam rápidos mesmo divididos com a RAM.
+
+| Máquina | Recomendação típica |
+| --- | --- |
+| Só CPU, 8 GB de RAM | Qwen 3.5 2B |
+| Só CPU, 16 GB | Qwen 3.5 4B |
+| Só CPU, 32 GB | GPT-OSS 20B (MoE) |
+| Placa de 8 GB | Gemma 4 12B |
+| Placa de 24 GB | Qwen 3.6 27B |
+| Mac com 128 GB de memória unificada | GPT-OSS 120B |
+
+Os downloads usam o [Ollama](https://ollama.com). Sem ele instalado, a tela mostra o comando de instalação (Linux) ou o link de download; instalado mas parado, **Iniciar** abre o `ollama serve` (encerrado junto com o app). **Baixar** mostra o progresso e pode ser cancelado; um modelo baixado ganha **Usar**, que o escolhe em **Modelo**, e a lixeira o apaga do disco. Modelos já baixados fora do app também aparecem, com quanto deles está na placa de vídeo quando carregados. Placas AMD dependem do suporte do Ollama (ROCm ou Vulkan); se a sua não for compatível, o modelo roda na CPU.
+
+O app carrega o modelo na memória ao selecioná-lo e o mantém carregado por 30 minutos, pede ao Ollama uma janela de contexto de 8 mil tokens (o padrão de 4 mil cortaria o prompt do copiloto) e, em **Raciocínio**, começa em **Sem raciocínio**, o mais rápido para respostas ao vivo. Low, Médio e High ligam o raciocínio dos modelos que têm esse modo.
+
+O [LM Studio](https://lmstudio.ai) também é detectado: com o servidor local ligado (no LM Studio em Developer → Start Server, ou **Ligar o servidor** no app, que usa `lms server start`), os modelos baixados nele aparecem para usar. Downloads do LM Studio continuam sendo feitos nele.
 
 ## Meu contexto
 
@@ -36,6 +57,8 @@ O ícone de pessoa na barra inferior abre o editor em tela cheia. Um ponto azul 
 Arraste um arquivo para a área **Importar currículo** (aba Perfil) ou clique nela para escolher. São aceitos PDF com texto selecionável, DOCX, TXT e MD, até 10 MB. O backend extrai o texto e pede ao provedor selecionado em **Menu → Modelo** que o organize nos campos: nome, cargo, nível, anos, linguagem preferida, tecnologias, resumo, até 8 experiências e, em Extras, formação, idiomas e links. A leitura costuma levar de alguns segundos a um minuto.
 
 A área **Importar descrição da vaga** (aba Vaga) faz o mesmo com o anúncio da vaga ou um material sobre a empresa: preenche empresa, vaga, **Sobre a empresa e os produtos** e requisitos.
+
+Com o [Google conectado](#google-agenda-e-docs), as duas áreas também aceitam o link de um Google Docs: cole em **Ou cole o link de um Google Docs** e clique em **Importar**. O texto do documento (todas as abas, títulos e tabelas) passa pela mesma organização.
 
 A importação só altera o rascunho do editor: revise os campos e clique em **Salvar**, ou cancele para descartar. Campos que o documento não traz mantêm o que você já tinha escrito, tecnologias são somadas à lista e o texto de Extras é acrescentado. Os campos preenchidos substituem os anteriores, e as experiências são trocadas pelas do currículo. Se o provedor falhar, o texto extraído vai para Extras (currículo) ou para **Sobre a empresa** (vaga), para que nada se perca.
 
@@ -68,6 +91,20 @@ Durante a fala do PC, a transcrição parcial já é usada como busca. Quando ap
 A busca é por palavras (BM25), sem acentos e com variações simples, como plural e terminações de verbo ("liderou" encontra "liderei"). Ela não entende sinônimos: se a nota diz "p99" e a pergunta diz "percentil", a nota pode não aparecer. Use os títulos das seções para nomear o assunto. Conversa casual e perguntas sem relação não trazem trechos, e nesse caso o prompt fica igual ao de antes. Use **Testar uma pergunta**, na mesma tela, para conferir o que uma pergunta encontra.
 
 São indexados até 5.000 arquivos de até 512 KB. Notas, anexos e imagens não saem do computador; só os trechos encontrados vão ao provedor, junto com a pergunta.
+
+## Google Agenda e Docs
+
+**Menu → Google** conecta sua conta Google. A conexão usa um cliente OAuth seu, criado uma vez no Google Cloud:
+
+1. Em [console.cloud.google.com](https://console.cloud.google.com/apis/credentials), crie um projeto e ative as APIs **Google Calendar**, **Google Docs** e **Google Drive**.
+2. Em **Tela de consentimento OAuth**, escolha "Externo" e adicione seu e-mail como usuário de teste.
+3. Em **Credenciais → Criar credenciais → ID do cliente OAuth**, escolha **App para computador** e cole o Client ID e o Client secret no Sidenote.
+
+**Conectar conta Google** abre o login no navegador; ao autorizar, a página diz para voltar ao app. O Sidenote pede só leitura dos eventos da agenda, leitura dos Docs e acesso aos arquivos que ele mesmo criar no Drive. As credenciais ficam em `google.json`, ao lado do perfil, legíveis só pelo seu usuário, e a interface nunca recebe os tokens. **Desconectar** apaga os tokens e revoga o acesso no Google. Também dá para passar o cliente por `SIDENOTE_GOOGLE_CLIENT_ID` e `SIDENOTE_GOOGLE_CLIENT_SECRET`.
+
+**Agenda.** A tela lista os eventos de agora até o fim de amanhã (os recusados ficam de fora). **Usar nesta reunião** coloca o evento no contexto da sessão: título, horário, organizador, participantes, descrição e o texto de até 2 Google Docs anexados ao evento (uma pauta, por exemplo) vão junto com cada sugestão, mensagem direta e resumo. Quando há uma reunião na agenda acontecendo agora (ou começando em 10 minutos), uma faixa azul acima da transcrição oferece **Usar como contexto**; com um evento escolhido, a mesma faixa mostra qual é e o × o tira. **Nova sessão** guarda o evento na reunião do histórico e limpa a escolha para a próxima.
+
+**Docs.** No **Resumo**, o botão de upload cria um Google Docs com o resumo e a transcrição da sessão e mostra o link. No **Histórico**, o mesmo botão cria o documento da reunião uma vez e depois passa a abri-lo. Em ⚙, **Salvar reuniões terminadas no Google Docs** faz isso sozinho ao fim de cada reunião. Para importar um Google Docs no perfil, veja [Importar currículo e vaga](#importar-currículo-e-vaga).
 
 ## Áudio e respostas
 
@@ -113,7 +150,7 @@ Com **Atualizar automaticamente** ligado, o resumo é refeito em segundo plano d
 
 Em ⚙ escolha o **Modelo do resumo**: o mesmo da conversa ou um modelo dedicado de qualquer provedor disponível. Um modelo rápido (Flash, Haiku, Luna) basta.
 
-O botão de pasta salva o resumo e a transcrição completa em Markdown na pasta `sessions` ao lado do perfil (`~/.local/share/sidenote/sessions` no Linux). O botão de livro salva na pasta `Sidenote` da vault do Obsidian conectada, onde o arquivo passa a ser indexado com as outras notas. Com **Salvar sessão ao iniciar uma nova** ligado, **Nova sessão** também salva a sessão anterior em Markdown em `sessions`, com o título escolhido pelo modelo no nome do arquivo. O resumo final e o [histórico](#histórico-de-reuniões) são gerados de qualquer forma.
+O botão de pasta salva o resumo e a transcrição completa em Markdown na pasta `sessions` ao lado do perfil (`~/.local/share/sidenote/sessions` no Linux). O botão de livro salva na pasta `Sidenote` da vault do Obsidian conectada, onde o arquivo passa a ser indexado com as outras notas. Com o Google conectado, o último botão cria um [Google Docs](#google-agenda-e-docs) com o mesmo conteúdo. Com **Salvar sessão ao iniciar uma nova** ligado, **Nova sessão** também salva a sessão anterior em Markdown em `sessions`, com o título escolhido pelo modelo no nome do arquivo. O resumo final e o [histórico](#histórico-de-reuniões) são gerados de qualquer forma.
 
 ## Histórico de reuniões
 
@@ -166,6 +203,10 @@ Com o Google (o padrão), o áudio de cada fala vai ao serviço gratuito do Goog
 Currículos e descrições de vaga importados são enviados ao provedor uma vez, para organizar os campos; o arquivo não é guardado pelo app, apenas o perfil que você salvar.
 
 Dos arquivos da vault do Obsidian, só os trechos encontrados para cada pergunta vão ao provedor.
+
+Com um modelo local (Ollama ou LM Studio), o prompt, a transcrição e o contexto ficam no computador: nada vai a um provedor externo.
+
+Com o Google conectado, o evento escolhido e o texto dos Docs anexados a ele vão ao provedor junto com cada pedido daquela sessão. Exportar para o Google Docs envia o resumo e a transcrição ao seu Drive.
 
 O histórico de reuniões fica só neste computador. A transcrição de cada reunião encerrada vai ao provedor do resumo uma vez, para gerar o resumo final e o título.
 

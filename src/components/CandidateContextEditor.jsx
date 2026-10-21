@@ -90,7 +90,7 @@ function TagInput({ id, tags, onChange, placeholder }) {
   );
 }
 
-function ProfileTab({ draft, set, uid, onImport }) {
+function ProfileTab({ draft, set, uid, onImport, googleConnected }) {
   return (
     <div className="space-y-4">
       <DocumentDropZone
@@ -98,6 +98,7 @@ function ProfileTab({ draft, set, uid, onImport }) {
         title="Importar currículo"
         hint="Arraste o CV aqui ou clique para escolher (PDF, DOCX, TXT)."
         onImported={onImport}
+        googleConnected={googleConnected}
       />
       <Field label="Nome" htmlFor={`${uid}-name`}>
         <TextInput id={`${uid}-name`} value={draft.name} onChange={(v) => set('name', v)} maxLength={80} placeholder="Como você se apresenta" />
@@ -199,7 +200,7 @@ function ExperiencesTab({ draft, set, uid }) {
   );
 }
 
-function JobTab({ draft, set, uid, onImport }) {
+function JobTab({ draft, set, uid, onImport, googleConnected }) {
   const hasJob = TAB_FILLED.job(draft);
   return (
     <div className="space-y-4">
@@ -220,6 +221,7 @@ function JobTab({ draft, set, uid, onImport }) {
         title="Importar descrição da vaga"
         hint="Arraste a vaga ou material da empresa (PDF, DOCX, TXT)."
         onImported={onImport}
+        googleConnected={googleConnected}
       />
       <div className="grid grid-cols-2 gap-3">
         <Field label="Empresa" htmlFor={`${uid}-company`}>
@@ -303,7 +305,7 @@ function ExtrasTab({ draft, set, uid, file, preview }) {
   );
 }
 
-export function CandidateContextEditor({ profile, file, status, loadError, onRetry, onSave, onClose }) {
+export function CandidateContextEditor({ profile, file, status, loadError, onRetry, onSave, onClose, googleConnected = false }) {
   const uid = useId();
   const [tab, setTab] = useState('profile');
   const [draft, setDraft] = useState(() => normalizeProfile(profile));
@@ -358,7 +360,7 @@ export function CandidateContextEditor({ profile, file, status, loadError, onRet
     setDraft((current) => mergeImportedFields(current, fields));
     setConfirmDiscard(false);
   };
-  const panelProps = { draft, set, uid, onImport: importFields };
+  const panelProps = { draft, set, uid, onImport: importFields, googleConnected };
 
   return (
     <div role="dialog" aria-modal="true" aria-labelledby={`${uid}-title`} className="app-context-editor fixed inset-0 z-50 flex flex-col select-text">

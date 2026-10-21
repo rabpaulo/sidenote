@@ -6,7 +6,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { runUnifiedAgent, runIsolatedAgent, prepareAgentSession, closeAgentSession, prepareOneShotSessions, runsOneShot } from './agent-bridge.js';
-import { importDocument, ImportError, MAX_IMPORT_BYTES } from './document-import.js';
+import { importDocument, importText, ImportError, MAX_IMPORT_BYTES } from './document-import.js';
 import { systemAudioEngine, SystemAudioEngine } from './system-audio-engine.js';
 import { createTranscriber } from './transcriber.js';
 import { createModelStore } from './speech-models.js';
@@ -25,7 +25,7 @@ import { createMeetingHistory } from './meeting-history.js';
 import { existingNote, writeMeetingNote } from './meeting-vault.js';
 import { listAudioStreams } from './audio-apps.js';
 import { createBackendAuth } from './backend-auth.js';
-import { buildAgentPrompt } from './agent-prompt.js';
+import { buildAgentPrompt, meetingEventBlock } from './agent-prompt.js';
 import { normalizeImages, imageDataUrl, SCREENSHOT_PROMPT } from './agent-images.js';
 import { AVAILABLE_MODELS, AVAILABLE_PERSONAS, generateCopilotResponse } from './gemini-copilot.js';
 import { AUTO_LANGUAGE, LANGUAGES } from '../shared/language.js';
@@ -33,7 +33,11 @@ import { unavailableReason } from '../shared/provider-availability.js';
 import { createProviderAvailability } from './provider-availability.js';
 import { providerKeys } from './provider-keys.js';
 import { resetApiConversations } from './api-session.js';
-import { API_PROVIDER_IDS, isApiProvider } from '../shared/api-providers.js';
+import { API_PROVIDER_IDS, isApiProvider, isHttpProvider } from '../shared/api-providers.js';
+import { LOCAL_PROVIDER_IDS } from '../shared/local-providers.js';
+import { createLocalModels, isModelName } from './local-models.js';
+import { createGoogle, GoogleError } from './google.js';
+import { accountEmail, createDocument, getEvent, listEvents, readDocument } from './google-workspace.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -75,7 +79,7 @@ if (fs.existsSync(distPath)) {
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server, verifyClient: (info) => auth.verifySocket(info) });
 
-const PROVIDER_IDS = ['antigravity', 'codex', 'claude', 'opencode', ...API_PROVIDER_IDS];
+const PROVIDER_IDS = ['antigravity', 'codex', 'claude', 'opencode', ...API_PROVIDER_IDS, ...LOCAL_PROVIDER_IDS];
 const activeConversationIds = Object.fromEntries(PROVIDER_IDS.map((id) => [id, null]));
 const DEFAULT_MODELS = {
   antigravity: 'gemini-3.8-flash',
@@ -105,7 +109,7 @@ let activeLanguage = AUTO_LANGUAGE;
 const conversationMemory = createConversationMemory();
 const sessionTranscript = createSessionTranscript();
 // Summary settings come from the client. No provider means the conversation's model.
-let summarySettings = { auto: true, provider: null, model: null, saveOnReset: true, saveToVault: false };
+let summarySettings = { auto: true, provider: null, model: null, saveOnReset: true, saveToVault: false, saveToGoogleDocs: false };
 // Finished meetings, titled by the model that writes their final summary.
 // Speech recognition: Google, or a local engine whose model is downloaded next to the profile.
 const dataDir = path.dirname(profileStore.file);
@@ -156,6 +160,40 @@ const notesLookup = createNotesLookup({
   search: (text) => notesVault.search(text),
   onHits: (utteranceId, hits) => broadcast({ type: 'notes_hits', utteranceId, hits }),
 });
+
+// Local models (Ollama, LM Studio): hardware scan, recommendations and downloads.
+const localModels = createLocalModels({
+  onChange: ({ pulls, settled }) => {
+    broadcast({ type: 'local_ai_pulls', pulls });
+    // A finished or removed download changes what the provider can offer.
+    if (settled) {
+      providerAvailability.refresh('ollama', { force: true });
+      providerAvailability.refresh('lmstudio', { force: true });
+    }
+  },
+});
+
+// Google account (Calendar and Docs).
+const google = createGoogle({ onChange: (status) => broadcast({ type: 'google_status', status }) });
+const googleRequest = (url, init) => google.request(url, init);
+
+// The Google Calendar event chosen for the meeting in progress, with the text of its
+// attached Docs. It goes into every suggestion, message and summary of this session.
+let meetingEvent = null;
+const publicEvent = (event) => event && { ...event, documents: (event.documents || []).map(({ title, url }) => ({ title, url })) };
+// What the history keeps: no attachment text, which can be long and is in Drive anyway.
+const storedEvent = (event) => event && (({ documents, attachments, ...rest }) => rest)(event);
+
+function setMeetingEvent(event) {
+  meetingEvent = event;
+  summaryService.refresh();
+  broadcast({ type: 'meeting_event', event: publicEvent(event) });
+}
+
+function googleFailure(res, error, fallback) {
+  if (!(error instanceof GoogleError) && !error.status) console.error(`[Google] ${error.message}`);
+  res.status(error.status || 500).json({ error: error.status ? error.message : fallback });
+}
 
 // A screenshot sent without text gets a default request; memory keeps only a marker for the image.
 function readUserTurn({ text, images }) {
@@ -268,7 +306,7 @@ function resetAgentSession(provider) {
   preparationGeneration++;
   preparationKey = null;
   closeAgentSession(provider);
-  if (!provider || isApiProvider(provider)) resetApiConversations();
+  if (!provider || isHttpProvider(provider)) resetApiConversations();
   if (provider && activeConversationIds[provider] !== undefined) activeConversationIds[provider] = null;
   else {
     for (const name of Object.keys(activeConversationIds)) activeConversationIds[name] = null;
@@ -278,6 +316,8 @@ function resetAgentSession(provider) {
   lastPcTranscript = '';
   conversationMemory.clear();
   archiveSession();
+  // The next session is another meeting; its event is chosen again.
+  if (meetingEvent) setMeetingEvent(null);
   sessionTranscript.clear();
   summaryService.reset();
   notesLookup.clear();
@@ -311,7 +351,8 @@ function summaryConfig() {
   const model = summarySettings.provider
     ? summarySettings.model || defaultModelFor(provider)
     : selectedModel;
-  return { auto: summarySettings.auto, provider, model, fastMode: selectedFastMode, error: blockedReason(provider, model) };
+  return { auto: summarySettings.auto, provider, model, fastMode: selectedFastMode, error: blockedReason(provider, model),
+    context: meetingEventBlock(meetingEvent) };
 }
 
 const summaryService = createSummaryService({
@@ -352,7 +393,8 @@ function summarizeMeeting(id, { previous = null } = {}) {
   if (config.error) return Promise.resolve(meetingHistory.update(id, { status: 'done', summaryError: config.error }));
   meetingHistory.update(id, { status: 'summarizing', summaryError: null });
   return runIsolatedAgent({
-    prompt: buildSummaryPrompt({ entries: record.entries, startedAt: record.startedAt, previous, final: true }),
+    prompt: buildSummaryPrompt({ entries: record.entries, startedAt: record.startedAt, previous, final: true,
+      context: meetingEventBlock(record.event) }),
     provider: config.provider, model: config.model, reasoningEffort: 'medium', fastMode: config.fastMode,
     timeoutMs: 180000, cwd: agentWorkspace(),
   }).then((output) => {
@@ -370,6 +412,7 @@ async function summarizePendingMeetings() {
     if (meetingHistory.get(id)?.status !== 'pending') continue;
     await summarizeMeeting(id);
     autoSaveToVault(id);
+    autoSaveToGoogleDocs(id);
   }
 }
 
@@ -402,6 +445,28 @@ function autoSaveToVault(id) {
     });
 }
 
+// Creates (or, when it has one already, returns) the Google Doc of a history meeting.
+async function saveMeetingToGoogleDocs(id, { again = false } = {}) {
+  const record = meetingHistory.get(id);
+  if (!record) throw Object.assign(new Error('Reunião não encontrada.'), { status: 404 });
+  if (record.googleDoc && !again) return record.googleDoc;
+  const markdown = sessionMarkdown({ entries: record.entries, startedAt: record.startedAt, summary: record.summary,
+    model: record.model, title: record.title, now: record.endedAt });
+  const doc = await createDocument(googleRequest, { title: `${record.title || 'Reunião'} · Sidenote`, markdown });
+  meetingHistory.update(id, { googleDoc: doc });
+  return doc;
+}
+
+function autoSaveToGoogleDocs(id) {
+  if (!summarySettings.saveToGoogleDocs || !google.connected) return;
+  saveMeetingToGoogleDocs(id)
+    .then((doc) => console.log(`[History] Saved ${id} to Google Docs at ${doc.url}`))
+    .catch((error) => {
+      console.error(`[History] Could not save ${id} to Google Docs: ${error.message}`);
+      broadcast({ type: 'summary_save_error', error: `Google Docs: ${error.message}` });
+    });
+}
+
 // "Nova sessão" moves the finished meeting into the history, summarizing it first
 // when the summary on screen does not cover the last lines, and, if enabled, also
 // keeps it as Markdown.
@@ -411,12 +476,15 @@ function archiveSession() {
   const startedAt = sessionTranscript.startedAt;
   const current = summaryService.current();
   const record = meetingHistory.add({
-    entries, startedAt,
+    entries, startedAt, event: storedEvent(meetingEvent),
     ...(current ? { status: 'done', title: current.title, summary: current.text, model: current.model } : {}),
   });
   if (!record) return;
   const finished = current ? Promise.resolve(record) : summarizeMeeting(record.id, { previous: summaryService.basis() });
-  finished.then(() => autoSaveToVault(record.id));
+  finished.then(() => {
+    autoSaveToVault(record.id);
+    autoSaveToGoogleDocs(record.id);
+  });
   if (!summarySettings.saveOnReset) return;
   finished
     .then((saved) => saveSessionMarkdown(sessionsDir(),
@@ -522,6 +590,7 @@ function triggerCopilotForText(transcript, overrideOptions = {}) {
     candidateContext,
     recentTurns: conversationMemory.beforeQuestion(transcript),
     notes,
+    event: meetingEvent,
     cwd: agentWorkspace(),
     onToken: (token, fullText) => {
       if (generation !== copilotGeneration || settled) return;
@@ -796,6 +865,157 @@ app.delete('/api/provider-keys/:provider', (req, res) => {
   res.json(keysResponse());
 });
 
+// Local models: this machine's hardware, the catalog rated for it, Ollama and LM Studio.
+app.get('/api/local-ai', async (req, res) => {
+  res.set('Cache-Control', 'no-store');
+  const rescan = Boolean(req.query.rescan);
+  // Opening the screen (or rescanning) also catches an Ollama installed or started meanwhile.
+  for (const runtime of LOCAL_PROVIDER_IDS) providerAvailability.refresh(runtime, { force: rescan });
+  try {
+    res.json(await localModels.status({ rescan }));
+  } catch (error) {
+    console.error(`[LocalAI] ${error.message}`);
+    res.status(500).json({ error: 'Não foi possível verificar os modelos locais.' });
+  }
+});
+
+app.post('/api/local-ai/models/pull', (req, res) => {
+  const id = req.body?.model;
+  if (!isModelName(id)) return res.status(400).json({ error: 'Nome de modelo inválido.' });
+  localModels.pull(id).catch((error) => console.warn(`[LocalAI] ${error.message}`));
+  res.json({ success: true });
+});
+
+app.post('/api/local-ai/models/cancel', (req, res) => {
+  localModels.cancel(String(req.body?.model || ''));
+  res.json({ success: true });
+});
+
+app.post('/api/local-ai/models/delete', async (req, res) => {
+  try {
+    await localModels.remove(req.body?.model);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(error.status || 502).json({ error: `Não foi possível apagar o modelo: ${error.message}` });
+  }
+});
+
+app.post('/api/local-ai/:runtime/start', async (req, res) => {
+  const { runtime } = req.params;
+  if (!LOCAL_PROVIDER_IDS.includes(runtime)) return res.status(404).json({ error: 'Runtime desconhecido.' });
+  try {
+    await localModels.start(runtime);
+    providerAvailability.refresh(runtime, { force: true });
+    res.json({ success: true });
+  } catch (error) {
+    res.status(error.status || 502).json({ error: error.message });
+  }
+});
+
+// Google account: OAuth client, connection, calendar events and Docs.
+app.get('/api/google', (req, res) => {
+  res.set('Cache-Control', 'no-store');
+  res.json({ status: google.status(), file: google.file, event: publicEvent(meetingEvent) });
+});
+
+app.put('/api/google/client', (req, res) => {
+  try {
+    google.setClient(req.body || {});
+    res.json({ status: google.status() });
+  } catch (error) {
+    googleFailure(res, error, 'Não foi possível salvar o cliente OAuth.');
+  }
+});
+
+app.delete('/api/google/client', (req, res) => {
+  google.removeClient();
+  res.json({ status: google.status() });
+});
+
+// Returns the Google sign-in URL; the window opens it in the browser.
+app.post('/api/google/connect', async (req, res) => {
+  try {
+    const { authUrl } = await google.connect({ fetchEmail: () => accountEmail(googleRequest) });
+    res.json({ authUrl, status: google.status() });
+  } catch (error) {
+    googleFailure(res, error, 'Não foi possível iniciar o login no Google.');
+  }
+});
+
+app.post('/api/google/connect/cancel', (req, res) => {
+  google.cancelConnect();
+  res.json({ status: google.status() });
+});
+
+app.delete('/api/google', async (req, res) => {
+  await google.disconnect();
+  if (meetingEvent) setMeetingEvent(null);
+  res.json({ status: google.status() });
+});
+
+app.get('/api/google/events', async (req, res) => {
+  res.set('Cache-Control', 'no-store');
+  if (!google.connected) return res.json({ events: [] });
+  const now = Date.now();
+  try {
+    // From meetings that started a while ago until the end of tomorrow.
+    const until = new Date(now);
+    until.setDate(until.getDate() + 2);
+    until.setHours(0, 0, 0, 0);
+    res.json({ events: await listEvents(googleRequest, { from: now - 3 * 3600 * 1000, to: until.getTime() }) });
+  } catch (error) {
+    googleFailure(res, error, 'Não foi possível ler a agenda.');
+  }
+});
+
+// Chooses the meeting in progress; the text of its attached Google Docs comes along.
+app.put('/api/google/meeting-event', async (req, res) => {
+  const id = typeof req.body?.id === 'string' ? req.body.id : '';
+  if (!id) return res.status(400).json({ error: 'Evento inválido.' });
+  try {
+    const event = await getEvent(googleRequest, id);
+    const attachments = event.attachments.filter((file) => file.mimeType === 'application/vnd.google-apps.document' && (file.fileId || file.url)).slice(0, 2);
+    const documents = [];
+    for (const file of attachments) {
+      try {
+        const doc = await readDocument(googleRequest, file.fileId || file.url);
+        if (doc.text) documents.push({ title: doc.title, url: file.url, text: doc.text });
+      } catch (error) {
+        console.warn(`[Google] Skipping attachment "${file.title}": ${error.message}`);
+      }
+    }
+    setMeetingEvent({ ...event, documents });
+    res.json({ event: publicEvent(meetingEvent) });
+  } catch (error) {
+    googleFailure(res, error, 'Não foi possível ler o evento.');
+  }
+});
+
+app.delete('/api/google/meeting-event', (req, res) => {
+  setMeetingEvent(null);
+  res.json({ event: null });
+});
+
+// Fills profile fields from a Google Docs document, like a dropped file.
+app.post('/api/profile/import-google', async (req, res) => {
+  const { kind, url } = req.body || {};
+  try {
+    const doc = await readDocument(googleRequest, url);
+    const result = await importText({
+      kind, text: doc.text,
+      runAgent: (prompt) => runIsolatedAgent({
+        provider: selectedProvider, model: selectedModel, reasoningEffort: 'low', fastMode: true,
+        prompt, cwd: agentWorkspace(),
+      }),
+    });
+    console.log(`[Profile] Imported ${kind} from Google Docs "${doc.title}" (${result.chars} chars)`);
+    res.json({ ...result, title: doc.title });
+  } catch (error) {
+    if (error instanceof ImportError) return res.status(error.status).json({ error: error.message });
+    googleFailure(res, error, 'Não foi possível importar o documento.');
+  }
+});
+
 app.post('/api/settings', (req, res) => {
   const { provider, model, reasoningEffort, fastMode } = req.body || {};
   syncAgentSettings({ provider, model, reasoningEffort, fastMode });
@@ -901,6 +1121,15 @@ app.post('/api/history/:id/vault', async (req, res) => {
   }
 });
 
+app.post('/api/history/:id/google-doc', async (req, res) => {
+  try {
+    const doc = await saveMeetingToGoogleDocs(req.params.id, { again: Boolean(req.body?.again) });
+    res.json({ doc });
+  } catch (error) {
+    googleFailure(res, error, 'Não foi possível salvar no Google Docs.');
+  }
+});
+
 app.delete('/api/history/:id', async (req, res) => {
   try {
     if (!(await meetingHistory.remove(req.params.id))) return res.status(404).json({ error: 'Reunião não encontrada.' });
@@ -951,9 +1180,22 @@ app.post(
 // Saves the current session (summary and full transcript) as Markdown in the app's
 // sessions folder or in the connected Obsidian vault.
 app.post('/api/summary/export', async (req, res) => {
-  const target = req.body?.target === 'vault' ? 'vault' : 'sessions';
+  const target = ['vault', 'google'].includes(req.body?.target) ? req.body.target : 'sessions';
   const entries = sessionTranscript.entries();
   if (!entries.length) return res.status(400).json({ error: 'Ainda não há nada para salvar nesta sessão.' });
+  if (target === 'google') {
+    const { text, model, title } = summaryService.state;
+    try {
+      const doc = await createDocument(googleRequest, {
+        title: `${title || meetingEvent?.title || 'Sessão'} · Sidenote`,
+        markdown: sessionMarkdown({ entries, startedAt: sessionTranscript.startedAt, summary: text, model, title }),
+      });
+      console.log(`[Summary] Exported session to Google Docs at ${doc.url}`);
+      return res.json({ file: doc.url, url: doc.url });
+    } catch (error) {
+      return googleFailure(res, error, 'Não foi possível salvar no Google Docs.');
+    }
+  }
   const vault = notesVault.status;
   if (target === 'vault' && !(vault.connected && vault.path)) {
     return res.status(400).json({ error: 'Conecte uma vault do Obsidian para salvar nela.' });
@@ -1004,7 +1246,7 @@ app.post('/api/message', (req, res) => {
     model,
     reasoningEffort,
     fastMode,
-    prompt: buildAgentPrompt(turn.request, candidateProfile, notesVault.search(turn.request), meeting),
+    prompt: buildAgentPrompt(turn.request, candidateProfile, notesVault.search(turn.request), meeting, meetingEvent),
     images: turn.images,
     conversationId: convId,
     cwd: agentWorkspace(),
@@ -1069,6 +1311,8 @@ wss.on('connection', (ws, req) => {
       availablePersonas: AVAILABLE_PERSONAS,
       availableSinks: SystemAudioEngine.listAudioSinks(systemAudioEngine.source),
       summary: summaryService.state,
+      meetingEvent: publicEvent(meetingEvent),
+      google: google.status(),
     })
   );
 
@@ -1191,13 +1435,14 @@ function handleClientMessage(ws, data) {
   }
 
   if (type === 'summary_settings') {
-    const { auto, provider, model, saveOnReset, saveToVault } = data.settings || {};
+    const { auto, provider, model, saveOnReset, saveToVault, saveToGoogleDocs } = data.settings || {};
     summarySettings = {
       auto: auto !== undefined ? !!auto : summarySettings.auto,
       provider: provider === undefined ? summarySettings.provider : PROVIDER_IDS.includes(provider) ? provider : null,
       model: model === undefined ? summarySettings.model : (typeof model === 'string' && model) || null,
       saveOnReset: saveOnReset !== undefined ? !!saveOnReset : summarySettings.saveOnReset,
       saveToVault: saveToVault !== undefined ? !!saveToVault : summarySettings.saveToVault,
+      saveToGoogleDocs: saveToGoogleDocs !== undefined ? !!saveToGoogleDocs : summarySettings.saveToGoogleDocs,
     };
     summaryService.refresh();
     return;
@@ -1271,7 +1516,7 @@ function handleClientMessage(ws, data) {
       model,
       reasoningEffort,
       fastMode,
-      prompt: buildAgentPrompt(prompt, candidateProfile, notes, meeting),
+      prompt: buildAgentPrompt(prompt, candidateProfile, notes, meeting, meetingEvent),
       images: turn.images,
       conversationId: currentConvId,
       cwd: agentWorkspace(),
@@ -1353,6 +1598,8 @@ function shutdown() {
   closeAgentSession();
   systemAudioEngine.stopCapture();
   notesVault.close();
+  localModels.close();
+  google.cancelConnect();
   // The meeting in progress is summarized and titled on the next start.
   meetingHistory.flushDraft();
   process.exit(0);

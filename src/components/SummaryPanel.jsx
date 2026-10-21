@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FileText, Sparkles, Copy, Check, FolderDown, BookOpen, Settings2, X, AlertCircle } from 'lucide-react';
+import { FileText, Sparkles, Copy, Check, FolderDown, BookOpen, Settings2, X, AlertCircle, FileUp, ExternalLink } from 'lucide-react';
 import { FormattedAgentResponse } from './CodeBlock.jsx';
 import { PROVIDERS } from '../config/models.js';
 import { providerModels, unavailableReason } from '../../shared/provider-availability.js';
@@ -41,8 +41,15 @@ export function SummaryPanel({
   notice,
   onClearNotice,
   vaultConnected,
+  googleConnected,
   availability,
 }) {
+  const [savingGoogle, setSavingGoogle] = useState(false);
+  const exportGoogle = async () => {
+    setSavingGoogle(true);
+    await onExport('google');
+    setSavingGoogle(false);
+  };
   const [copied, setCopied] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const totalInterlocutor = messages.filter((m) => m.role === 'interlocutor').length;
@@ -94,6 +101,9 @@ export function SummaryPanel({
             <Toggle label="Atualizar automaticamente durante a conversa" checked={settings.auto} onChange={(auto) => onChangeSettings({ auto })} />
             <Toggle label="Salvar sessão ao iniciar uma nova" checked={settings.saveOnReset} onChange={(saveOnReset) => onChangeSettings({ saveOnReset })} />
             <Toggle label="Salvar reuniões terminadas na vault do Obsidian" checked={settings.saveToVault} onChange={(saveToVault) => onChangeSettings({ saveToVault })} />
+            {googleConnected && (
+              <Toggle label="Salvar reuniões terminadas no Google Docs" checked={settings.saveToGoogleDocs} onChange={(saveToGoogleDocs) => onChangeSettings({ saveToGoogleDocs })} />
+            )}
             <label className="block space-y-1">
               <span>Modelo do resumo</span>
               <select
@@ -204,12 +214,24 @@ export function SummaryPanel({
           >
             <BookOpen size={13} />
           </button>
+          <button
+            type="button"
+            onClick={exportGoogle}
+            disabled={!hasLines || !googleConnected || savingGoogle}
+            className="p-1.5 rounded-lg border border-white/10 text-zinc-300 hover:bg-white/10 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+            title={googleConnected ? 'Salvar resumo e transcrição num Google Docs' : 'Conecte o Google (Menu → Google) para salvar no Docs'}
+            aria-label="Salvar no Google Docs"
+          >
+            <FileUp size={13} className={savingGoogle ? 'animate-pulse' : ''} />
+          </button>
         </div>
 
         {notice && (
           <div className={`mt-2.5 flex items-start justify-between gap-2 text-[10px] ${notice.error ? 'text-rose-300' : 'text-zinc-400'}`}>
             <span className="break-all select-text">
-              {notice.error || `${notice.archived ? 'Sessão anterior salva em' : 'Salvo em'} ${notice.file}`}
+              {notice.error || (notice.url
+                ? <a href={notice.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-blue-300 hover:text-blue-200">Salvo no Google Docs <ExternalLink size={9} /></a>
+                : `${notice.archived ? 'Sessão anterior salva em' : 'Salvo em'} ${notice.file}`)}
             </span>
             <button type="button" onClick={onClearNotice} className="p-0.5 rounded hover:bg-white/10 cursor-pointer shrink-0" aria-label="Fechar aviso">
               <X size={10} />

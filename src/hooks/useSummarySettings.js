@@ -3,7 +3,7 @@ import { PROVIDERS } from '../config/models.js';
 
 const STORAGE_KEY = 'sidenote_summary_settings_v1';
 // No provider means the summary uses the conversation's model.
-const DEFAULTS = { auto: true, provider: null, model: null, saveOnReset: true, saveToVault: false };
+const DEFAULTS = { auto: true, provider: null, model: null, saveOnReset: true, saveToVault: false, saveToGoogleDocs: false };
 
 function load() {
   try {
@@ -20,6 +20,7 @@ function load() {
       model: provider ? model || PROVIDERS[provider].defaultModel : null,
       saveOnReset: typeof saved.saveOnReset === 'boolean' ? saved.saveOnReset : DEFAULTS.saveOnReset,
       saveToVault: typeof saved.saveToVault === 'boolean' ? saved.saveToVault : DEFAULTS.saveToVault,
+      saveToGoogleDocs: typeof saved.saveToGoogleDocs === 'boolean' ? saved.saveToGoogleDocs : DEFAULTS.saveToGoogleDocs,
     };
   } catch {
     return DEFAULTS;

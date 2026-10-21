@@ -12,8 +12,10 @@ Copiloto desktop para conversas em tempo real. Ele ouve a chamada, transcreve en
 - **Notas do Obsidian**: trechos relevantes da sua vault aparecem enquanto a pessoa fala e entram no contexto da resposta.
 - Ctrl+Alt+S envia uma captura da tela (um slide, um código, um erro) diretamente ao agente.
 - Modo compacto (Alt+C): janela pequena com só a última resposta, os medidores e o menu.
-- Integração com os CLIs autenticados do Antigravity, do Codex, do Claude Code e do OpenCode.
+- **Provedores encontrados na sua máquina**: o app procura os CLIs instalados (Antigravity, Codex, Claude Code e OpenCode), as keys salvas ou em variáveis de ambiente e os runtimes locais, e mostra só o que achou; o resto fica em "Outros provedores", com o que falta para cada um.
 - **Chaves de API** próprias para OpenAI, Anthropic, Google Gemini, OpenRouter, Groq, DeepSeek, Mistral e xAI, com os modelos listados pela sua conta.
+- **Modelos locais** pelo Ollama ou pelo LM Studio: o app escaneia CPU, RAM e placa de vídeo, recomenda o melhor modelo que roda rápido nessa máquina (Qwen 3.5/3.6, Gemma 4, GPT-OSS) e baixa com um clique. A conversa não sai do computador.
+- **Google Agenda e Docs**: a reunião da agenda (participantes, descrição e Docs anexados) entra no contexto das sugestões e do resumo; importe um Google Docs no perfil e salve reuniões no Docs.
 
 <p align="center">
   <img src="docs/screenshots/transcricao.png" width="400" alt="Pergunta de uma colega na reunião, o trecho da nota do Obsidian que responde e a sugestão de resposta com os números">
@@ -39,7 +41,8 @@ O instalador e o executável portátil para Windows estão na [página de releas
 - Node.js **22.12+** e npm.
 - Nada mais para transcrever: o reconhecimento padrão (Parakeet) roda dentro do app, e o modelo (670 MB) é baixado na tela de boas-vindas.
 - Opcional: Python 3 com `SpeechRecognition` para o reconhecimento online do Google, e o pacote Python dos outros motores locais (`faster-whisper` ou `vosk`) ou o `whisper-server` do whisper.cpp. O app mostra o comando de instalação em **Menu → Reconhecimento de voz**; veja o [guia de desenvolvimento](docs/development.md#reconhecimento-de-voz-local).
-- Uma chave de API de um dos provedores suportados ou um dos CLIs (`agy`, `codex`, `claude` ou `opencode`) instalado e autenticado.
+- Uma chave de API de um dos provedores suportados, um dos CLIs (`agy`, `codex`, `claude` ou `opencode`) instalado e autenticado, ou o [Ollama](https://ollama.com)/[LM Studio](https://lmstudio.ai) para rodar um modelo local.
+- Opcional: um cliente OAuth do Google (tipo App para computador) para a agenda e o Docs; o passo a passo está no [guia de uso](docs/usage.md#google-agenda-e-docs).
 - `xrandr` (opcional, Linux/X11) para escolher o monitor da captura de tela pelo nome.
 - Internet para as respostas do provedor (e para o reconhecimento pelo Google, se escolhido).
 
@@ -52,7 +55,7 @@ npm ci
 npm start
 ```
 
-Na primeira abertura, a tela de boas-vindas pede o que falta: uma API key (Gemini e Groq têm plano gratuito) e o download do modelo de reconhecimento de voz.
+Na primeira abertura, a tela de boas-vindas pede o que falta: uma API key (Gemini e Groq têm plano gratuito), um CLI com login ou um modelo local, e o download do modelo de reconhecimento de voz.
 
 O app também usa os CLIs autenticados: encontra `agy`, `codex` e `claude` no `PATH` (no Windows, também os atalhos `.cmd` do npm). Se o CLI estiver em outro lugar, informe o caminho:
 
@@ -110,7 +113,7 @@ chmod +x "release/Sidenote-1.0.0.AppImage"
 
 ## Documentação
 
-- [Uso, contexto pessoal, importação de currículo e vaga, reconhecimento de voz, histórico de reuniões e atalhos](docs/usage.md)
+- [Uso, provedores, modelos locais, Google Agenda e Docs, contexto pessoal, reconhecimento de voz, histórico de reuniões e atalhos](docs/usage.md)
 - [Instalação, arquitetura e testes](docs/development.md)
 - [Fluxo de áudio e diagnóstico de latência](docs/response-latency.md)
 

@@ -1,4 +1,5 @@
 import { API_PROVIDERS, apiReasoningLevels } from '../../shared/api-providers.js';
+import { LOCAL_PROVIDERS } from '../../shared/local-providers.js';
 
 export const PROVIDERS = {
   antigravity: {
@@ -232,7 +233,23 @@ export const PROVIDERS = {
     defaultReasoning: 'default',
     supportsFastMode: false,
   }])),
+  // Models on this computer; the list is what the runtime has installed.
+  ...Object.fromEntries(Object.values(LOCAL_PROVIDERS).map((local) => [local.id, {
+    id: local.id,
+    name: local.name,
+    shortName: local.shortName,
+    tagline: local.tagline,
+    kind: 'local',
+    installUrl: local.installUrl,
+    defaultModel: null,
+    dynamicModels: true,
+    models: [],
+    reasoningLevels: local.reasoningLevels,
+    defaultReasoning: local.defaultReasoning,
+    supportsFastMode: false,
+  }])),
 };
 
-export const CLI_PROVIDER_IDS = Object.keys(PROVIDERS).filter((id) => PROVIDERS[id].kind !== 'api');
+export const CLI_PROVIDER_IDS = Object.keys(PROVIDERS).filter((id) => PROVIDERS[id].kind === 'cli' || !PROVIDERS[id].kind);
 export const API_PROVIDER_LIST = Object.values(PROVIDERS).filter((provider) => provider.kind === 'api');
+export const LOCAL_PROVIDER_LIST = Object.values(PROVIDERS).filter((provider) => provider.kind === 'local');

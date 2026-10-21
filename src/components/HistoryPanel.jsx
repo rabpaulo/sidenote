@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Search, ArrowLeft, Trash2, Copy, Check, Sparkles, X, AlertCircle, History, BookOpen } from 'lucide-react';
+import { Search, ArrowLeft, Trash2, Copy, Check, Sparkles, X, AlertCircle, History, BookOpen, FileUp, CalendarDays } from 'lucide-react';
 import { FormattedAgentResponse } from './CodeBlock.jsx';
 
 const ROLE_LABELS = { interlocutor: 'Interlocutor', user: 'Você', assistant: 'Sugestão da IA' };
@@ -50,7 +50,7 @@ function vaultTitle(vaultConnected, meeting) {
   return meeting.vaultFile ? 'Atualizar a nota na vault do Obsidian' : 'Salvar na vault do Obsidian (pasta Sidenote)';
 }
 
-function MeetingDetail({ meeting, onBack, onDelete, onSummarize, onSaveToVault, vaultConnected }) {
+function MeetingDetail({ meeting, onBack, onDelete, onSummarize, onSaveToVault, vaultConnected, onSaveToGoogleDocs, googleConnected }) {
   const [copied, setCopied] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const running = summarizing(meeting);
@@ -97,6 +97,16 @@ function MeetingDetail({ meeting, onBack, onDelete, onSummarize, onSaveToVault, 
           </button>
           <button
             type="button"
+            onClick={() => onSaveToGoogleDocs(meeting.id)}
+            disabled={(!googleConnected && !meeting.googleDoc) || running}
+            title={meeting.googleDoc ? 'Abrir no Google Docs' : googleConnected ? 'Salvar no Google Docs' : 'Conecte o Google (Menu → Google) para salvar no Docs'}
+            aria-label={meeting.googleDoc ? 'Abrir no Google Docs' : 'Salvar no Google Docs'}
+            className={`p-1 rounded hover:bg-white/10 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${meeting.googleDoc ? 'text-blue-300' : 'text-zinc-400'}`}
+          >
+            <FileUp size={12} />
+          </button>
+          <button
+            type="button"
             onClick={() => (confirmDelete ? onDelete(meeting.id) : setConfirmDelete(true))}
             title="Apagar reunião"
             aria-label={confirmDelete ? 'Confirmar exclusão' : 'Apagar reunião'}
@@ -111,6 +121,7 @@ function MeetingDetail({ meeting, onBack, onDelete, onSummarize, onSaveToVault, 
       <h2 className="text-sm font-bold text-zinc-100 leading-snug select-text">{titleOf(meeting)}</h2>
       <p className="mt-0.5 mb-3 text-[10px] text-zinc-500 font-mono">
         Terminou em {endedLabel(meeting.endedAt)} · {duration(meeting.endedAt - meeting.startedAt)}
+        {meeting.event?.title && <> · <CalendarDays size={9} className="inline -mt-0.5" /> {meeting.event.title}</>}
       </p>
 
       {meeting.summary ? (
@@ -159,9 +170,9 @@ function MeetingDetail({ meeting, onBack, onDelete, onSummarize, onSaveToVault, 
   );
 }
 
-export function HistoryPanel({ history, vaultConnected }) {
+export function HistoryPanel({ history, vaultConnected, googleConnected }) {
   const {
-    query, setQuery, meetings, error, clearError, notice, clearNotice, selectedId, select, selected, remove, summarize, saveToVault,
+    query, setQuery, meetings, error, clearError, notice, clearNotice, selectedId, select, selected, remove, summarize, saveToVault, saveToGoogleDocs,
   } = history;
   const [savingAll, setSavingAll] = useState(false);
 
@@ -199,6 +210,8 @@ export function HistoryPanel({ history, vaultConnected }) {
           onSummarize={summarize}
           onSaveToVault={saveToVault}
           vaultConnected={vaultConnected}
+          onSaveToGoogleDocs={(id) => (selected.googleDoc ? window.open(selected.googleDoc.url, '_blank', 'noopener') : saveToGoogleDocs(id))}
+          googleConnected={googleConnected}
         />
       ) : (
         <>
@@ -264,6 +277,7 @@ export function HistoryPanel({ history, vaultConnected }) {
                       {summarizing(meeting) && <span className="text-emerald-300/80">· resumindo…</span>}
                       {!summarizing(meeting) && meeting.summaryError && <span className="text-rose-300/80">· sem resumo</span>}
                       {meeting.vaultFile && <span className="text-emerald-300/70" title={meeting.vaultFile}>· na vault</span>}
+                      {meeting.googleDoc && <span className="text-blue-300/70">· no Docs</span>}
                     </div>
                     <Snippet snippet={meeting.snippet} />
                   </button>

@@ -21,6 +21,8 @@ import {
   Terminal,
   Cpu,
   AudioLines,
+  HardDrive,
+  CalendarDays,
 } from 'lucide-react';
 
 import { getPersonaById } from '../config/personas.js';
@@ -43,6 +45,9 @@ export function AppMenu({
   onOpenNotesModal,
   onOpenKeysModal,
   onOpenSpeechModal,
+  onOpenLocalModal,
+  onOpenGoogleModal,
+  googleStatus,
   speechLabel,
   notesStatus,
   onNewSession,
@@ -120,7 +125,7 @@ export function AppMenu({
 
   const { provider, currentProviderConfig, currentModel, fastMode } = agentSettings;
   const currentPersona = getPersonaById(selectedPersona);
-  const ProviderIcon = { antigravity: Sparkles, codex: Bot, claude: Asterisk, opencode: Terminal }[provider] || Cpu;
+  const ProviderIcon = { antigravity: Sparkles, codex: Bot, claude: Asterisk, opencode: Terminal, ollama: HardDrive, lmstudio: HardDrive }[provider] || Cpu;
 
   return (
     <div ref={menuRef} className="relative">
@@ -159,6 +164,25 @@ export function AppMenu({
               <KeyRound size={14} className="text-zinc-400 shrink-0" />
               <span className="text-zinc-400">Chaves de API</span>
               <ChevronRight size={12} className="ml-auto text-zinc-500 shrink-0" />
+            </button>
+          )}
+
+          {onOpenLocalModal && (
+            <button type="button" role="menuitem" onClick={runAndClose(onOpenLocalModal)} className="app-menu-item">
+              <HardDrive size={14} className="text-zinc-400 shrink-0" />
+              <span className="text-zinc-400">Modelos locais</span>
+              <ChevronRight size={12} className="ml-auto text-zinc-500 shrink-0" />
+            </button>
+          )}
+
+          {onOpenGoogleModal && (
+            <button type="button" role="menuitem" onClick={runAndClose(onOpenGoogleModal)} className="app-menu-item">
+              <CalendarDays size={14} className={`shrink-0 ${googleStatus?.connected ? 'text-emerald-300' : 'text-zinc-400'}`} />
+              <span className="text-zinc-400">Google</span>
+              <span className="ml-auto truncate text-zinc-100 font-medium">
+                {googleStatus?.connected ? 'Agenda e Docs' : googleStatus?.connecting ? 'Entrando…' : 'Conectar'}
+              </span>
+              <ChevronRight size={12} className="text-zinc-500 shrink-0" />
             </button>
           )}
 

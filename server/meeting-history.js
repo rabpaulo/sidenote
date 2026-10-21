@@ -79,6 +79,8 @@ function listItem(record, snippet = null) {
     status: record.status,
     summaryError: record.summaryError || null,
     vaultFile: record.vaultFile || null,
+    googleDoc: record.googleDoc || null,
+    event: record.event || null,
     counts: { interlocutor: count('interlocutor'), user: count('user') },
     snippet,
   };
@@ -121,9 +123,11 @@ export function createMeetingHistory({ dir, onChange = () => {}, draftDelayMs = 
   }
 
   function insert({ entries, endedAt = entries.at(-1)?.at ?? now(), startedAt = entries[0]?.at ?? endedAt, status,
-    title = null, summary = null, model = null }) {
+    title = null, summary = null, model = null, event = null }) {
     const record = {
       id: newId(endedAt), title, startedAt, endedAt, status, summary, model, summaryError: null,
+      // The Google Calendar event chosen for the meeting: { id, title, start }.
+      ...(event ? { event } : {}),
       entries: entries.map(({ role, text, at }) => ({ role, text, at })),
     };
     records.set(record.id, record);
