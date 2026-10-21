@@ -19,4 +19,4 @@
 ## Upgrade notes
 
 - Perfis salvos continuam valendo: só os rótulos mudaram, os campos gravados em `profile.json` são os mesmos.
-- O cliente OAuth do Google fica em `server/google-client.json`, fora do git. Num clone sem esse arquivo, a integração com o Google precisa de um cliente OAuth próprio (tipo **App para computador**, veja o guia de desenvolvimento).
+- **Google Agenda e Docs exigem um cliente OAuth próprio.** O repositório não traz o cliente do Google. Para usar a integração, crie o seu no Google Cloud (tipo **App para computador**, uns 5 minutos) e cole em **Menu → Google**; o passo a passo está no [guia de uso](https://github.com/rabpaulo/sidenote/blob/main/docs/usage.md#google-agenda-e-docs). O resto do app funciona sem isso.

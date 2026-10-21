@@ -26,6 +26,11 @@ function ClientForm({ google, onCancel }) {
   return (
     <form onSubmit={submit} className="rounded-xl border border-zinc-800/80 bg-zinc-900/30 p-3 space-y-2">
       <h3 className="font-semibold text-zinc-100">{onCancel ? 'Seu próprio cliente OAuth' : '1. Cliente OAuth do Google'}</h3>
+      {!onCancel && (
+        <p className="text-[11px] text-zinc-400 leading-relaxed">
+          O Sidenote não traz um cliente do Google embutido. Crie o seu uma vez no Google Cloud (uns 5 minutos, gratuito):
+        </p>
+      )}
       <ol className="list-decimal pl-4 space-y-0.5 text-[11px] text-zinc-400 leading-relaxed">
         <li>No Google Cloud, crie um projeto e ative as APIs <b>Google Calendar</b>, <b>Google Docs</b> e <b>Google Drive</b>.</li>
         <li>Em <b>Tela de consentimento OAuth</b>, escolha “Externo” e adicione seu e-mail como usuário de teste.</li>

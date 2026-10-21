@@ -245,7 +245,7 @@ O backend é voltado ao uso local: escuta só em `127.0.0.1` e exige o token de 
 
 ## Cliente OAuth do Google
 
-O app distribuído traz o cliente OAuth do Sidenote em `server/google-client.json`, fora do git. Antes de gerar um pacote, crie o arquivo com o Client ID e o Client secret do projeto do Sidenote no Google Cloud (cliente do tipo **App para computador**):
+O repositório não traz cliente OAuth do Google: `server/google-client.json` fica fora do git, e quem roda a partir do código cria o próprio cliente em **Menu → Google** ([guia de uso](usage.md#google-agenda-e-docs)). Para gerar um pacote com um cliente embutido, crie o arquivo com o Client ID e o Client secret do seu projeto no Google Cloud (cliente do tipo **App para computador**):
 
 ```json
 { "clientId": "…apps.googleusercontent.com", "clientSecret": "GOCSPX-…" }
