@@ -59,7 +59,7 @@ ${kept.join('\n')}
 Reescreva o resumo completo, integrando as falas novas ao resumo anterior.`;
   }
 
-  return `Você resume uma reunião ou entrevista para a pessoa que usa o Sidenote${final ? '. A sessão terminou' : '. A sessão pode ainda estar em andamento'}.
+  return `Você resume uma reunião ou conversa para a pessoa que usa o Sidenote${final ? '. A sessão terminou' : '. A sessão pode ainda estar em andamento'}.
 Na transcrição, cada linha tem [tempo desde o início] papel: fala.
 - Interlocutor: a outra pessoa da chamada (áudio do computador, transcrito automaticamente; pode ter erros).
 - Você: o usuário do app (microfone ou texto digitado).

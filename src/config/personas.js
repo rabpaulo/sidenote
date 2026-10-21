@@ -1,5 +1,5 @@
 export const PERSONA_CATEGORIES = [
-  { id: 'general', name: 'Geral' },
+  { id: 'general', name: 'Reuniões' },
   { id: 'business', name: 'Negócios' },
   { id: 'interview', name: 'Entrevistas' },
 ];
@@ -50,9 +50,9 @@ export const AVAILABLE_PERSONAS = [
   {
     id: 'general',
     category: 'general',
-    shortName: 'Conversa geral',
+    shortName: 'Reunião ou conversa',
     iconName: 'MessageSquare',
-    description: 'Reuniões, 1:1s, aulas e conversas livres.',
+    description: 'Reuniões de time, 1:1s, clientes, aulas e conversas livres.',
   },
 ];
 

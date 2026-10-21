@@ -197,7 +197,7 @@ export function GoogleModal({ isOpen, onClose, google }) {
                 )}
               </section>
               <p className="text-[10px] text-zinc-500 leading-relaxed">
-                Google Docs: importe um documento em <b>Meu contexto</b> (Perfil ou Vaga) e salve reuniões pelo botão do Docs no Resumo ou no Histórico.
+                Google Docs: importe um documento em <b>Meu contexto</b> (Perfil ou Conversa) e salve reuniões pelo botão do Docs no Resumo ou no Histórico.
               </p>
             </>
           )}

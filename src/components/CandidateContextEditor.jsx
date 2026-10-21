@@ -1,5 +1,5 @@
 import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
-import { X, Plus, Trash2, FileText, UserRound, BookOpen, Briefcase, StickyNote, Loader2 } from 'lucide-react';
+import { X, Plus, Trash2, FileText, UserRound, BookOpen, Building2, StickyNote, Loader2 } from 'lucide-react';
 import { DocumentDropZone } from './DocumentDropZone.jsx';
 import {
   composeCandidateContext,
@@ -16,7 +16,7 @@ import { apiFetch } from '../backend.js';
 const TABS = [
   { id: 'profile', label: 'Perfil', Icon: UserRound },
   { id: 'experiences', label: 'Experiências', Icon: BookOpen },
-  { id: 'job', label: 'Vaga', Icon: Briefcase },
+  { id: 'job', label: 'Conversa', Icon: Building2 },
   { id: 'extras', label: 'Extras', Icon: StickyNote },
 ];
 
@@ -90,13 +90,13 @@ function TagInput({ id, tags, onChange, placeholder }) {
   );
 }
 
-function ProfileTab({ draft, set, uid, onImport, googleConnected }) {
+function ProfileTab({ draft, set, uid, onImport, googleConnected, interviewMode }) {
   return (
     <div className="space-y-4">
       <DocumentDropZone
         kind="cv"
-        title="Importar currículo"
-        hint="Arraste o CV aqui ou clique para escolher (PDF, DOCX, TXT)."
+        title="Importar currículo ou bio"
+        hint="Arraste um currículo, bio ou perfil do LinkedIn (PDF, DOCX, TXT)."
         onImported={onImport}
         googleConnected={googleConnected}
       />
@@ -111,26 +111,30 @@ function ProfileTab({ draft, set, uid, onImport, googleConnected }) {
           <TextInput id={`${uid}-years`} value={draft.years} onChange={(v) => set('years', v.replace(/\D/g, '').slice(0, 2))} inputMode="numeric" placeholder="Ex.: 5" />
         </Field>
       </div>
-      <Field label="Nível">
-        <div className="flex flex-wrap gap-1.5" role="group" aria-label="Nível">
-          {SENIORITY_OPTIONS.map((option) => (
-            <Chip key={option} active={draft.seniority === option} onClick={() => set('seniority', draft.seniority === option ? '' : option)}>{option}</Chip>
-          ))}
-        </div>
-      </Field>
-      <Field label="Linguagem preferida" htmlFor={`${uid}-language`} hint="Usada nas soluções de código quando a pergunta não pede outra linguagem.">
-        <TextInput id={`${uid}-language`} value={draft.preferredLanguage} onChange={(v) => set('preferredLanguage', v)} maxLength={40} placeholder="Ex.: TypeScript" />
-        <div className="flex flex-wrap gap-1.5 pt-0.5">
-          {LANGUAGE_SUGGESTIONS.map((language) => (
-            <Chip key={language} active={draft.preferredLanguage.trim().toLowerCase() === language.toLowerCase()} onClick={() => set('preferredLanguage', language)}>{language}</Chip>
-          ))}
-        </div>
-      </Field>
-      <Field label="Tecnologias que você domina" htmlFor={`${uid}-stack`} hint="Enter ou vírgula para adicionar.">
-        <TagInput id={`${uid}-stack`} tags={draft.stack} onChange={(v) => set('stack', v)} placeholder="Ex.: React, Node.js" />
+      {interviewMode && (
+        <>
+          <Field label="Nível">
+            <div className="flex flex-wrap gap-1.5" role="group" aria-label="Nível">
+              {SENIORITY_OPTIONS.map((option) => (
+                <Chip key={option} active={draft.seniority === option} onClick={() => set('seniority', draft.seniority === option ? '' : option)}>{option}</Chip>
+              ))}
+            </div>
+          </Field>
+          <Field label="Linguagem preferida" htmlFor={`${uid}-language`} hint="Usada nas soluções de código quando a pergunta não pede outra linguagem.">
+            <TextInput id={`${uid}-language`} value={draft.preferredLanguage} onChange={(v) => set('preferredLanguage', v)} maxLength={40} placeholder="Ex.: TypeScript" />
+            <div className="flex flex-wrap gap-1.5 pt-0.5">
+              {LANGUAGE_SUGGESTIONS.map((language) => (
+                <Chip key={language} active={draft.preferredLanguage.trim().toLowerCase() === language.toLowerCase()} onClick={() => set('preferredLanguage', language)}>{language}</Chip>
+              ))}
+            </div>
+          </Field>
+        </>
+      )}
+      <Field label="Áreas e ferramentas que você domina" htmlFor={`${uid}-stack`} hint="Enter ou vírgula para adicionar.">
+        <TagInput id={`${uid}-stack`} tags={draft.stack} onChange={(v) => set('stack', v)} placeholder="Ex.: Vendas B2B, React, Power BI" />
       </Field>
       <Field label="Resumo profissional" htmlFor={`${uid}-summary`}>
-        <TextArea id={`${uid}-summary`} value={draft.summary} onChange={(v) => set('summary', v)} maxLength={1500} placeholder="2 ou 3 frases sobre sua trajetória, áreas de foco e o que você busca." />
+        <TextArea id={`${uid}-summary`} value={draft.summary} onChange={(v) => set('summary', v)} maxLength={1500} placeholder="2 ou 3 frases sobre sua trajetória, sua função e no que você trabalha hoje." />
       </Field>
     </div>
   );
@@ -142,7 +146,7 @@ function ExperiencesTab({ draft, set, uid }) {
   return (
     <div className="space-y-3">
       <p className="text-[11px] leading-relaxed text-zinc-400">
-        Histórias reais para perguntas como “conte uma vez em que…”. Diga o problema, o que você fez e o resultado. A IA não inventa detalhes além do que estiver aqui.
+        Projetos e casos reais que você pode citar numa conversa: o problema, o que foi feito e o resultado. A IA não inventa detalhes além do que estiver aqui.
       </p>
       {draft.experiences.map((item, index) => (
         <div key={index} className="app-context-card space-y-2.5">
@@ -205,40 +209,40 @@ function JobTab({ draft, set, uid, onImport, googleConnected }) {
   return (
     <div className="space-y-4">
       <div className="flex items-start justify-between gap-3">
-        <p className="text-[11px] leading-relaxed text-zinc-400">A entrevista de agora. Atualize antes de cada processo.</p>
+        <p className="text-[11px] leading-relaxed text-zinc-400">A reunião de agora: com quem é e o que está em jogo. Atualize antes de cada uma.</p>
         {hasJob && (
           <button
             type="button"
             onClick={() => JOB_FIELDS.forEach((key) => set(key, ''))}
             className="shrink-0 text-[11px] text-zinc-500 hover:text-zinc-200 underline-offset-2 hover:underline cursor-pointer"
           >
-            Limpar vaga
+            Limpar conversa
           </button>
         )}
       </div>
       <DocumentDropZone
         kind="job"
-        title="Importar descrição da vaga"
-        hint="Arraste a vaga ou material da empresa (PDF, DOCX, TXT)."
+        title="Importar material da reunião"
+        hint="Arraste a pauta, uma proposta ou material da empresa (PDF, DOCX, TXT)."
         onImported={onImport}
         googleConnected={googleConnected}
       />
       <div className="grid grid-cols-2 gap-3">
         <Field label="Empresa" htmlFor={`${uid}-company`}>
-          <TextInput id={`${uid}-company`} value={draft.jobCompany} onChange={(v) => set('jobCompany', v)} maxLength={120} placeholder="Ex.: Nubank" />
+          <TextInput id={`${uid}-company`} value={draft.jobCompany} onChange={(v) => set('jobCompany', v)} maxLength={120} placeholder="Ex.: cliente, parceiro ou seu time" />
         </Field>
-        <Field label="Vaga" htmlFor={`${uid}-job-role`}>
-          <TextInput id={`${uid}-job-role`} value={draft.jobRole} onChange={(v) => set('jobRole', v)} maxLength={120} placeholder="Ex.: Backend Sênior" />
+        <Field label="Assunto" htmlFor={`${uid}-job-role`}>
+          <TextInput id={`${uid}-job-role`} value={draft.jobRole} onChange={(v) => set('jobRole', v)} maxLength={120} placeholder="Ex.: Renovação do contrato" />
         </Field>
       </div>
       <Field label="Sobre a empresa e os produtos" htmlFor={`${uid}-company-context`} hint="A IA conecta as respostas a esse contexto quando fizer sentido.">
         <TextArea id={`${uid}-company-context`} value={draft.jobCompanyContext} onChange={(v) => set('jobCompanyContext', v)} rows={4} maxLength={2000} placeholder="O que a empresa faz, produtos (por exemplo, de IA ou de infraestrutura), clientes, stack, momento do time…" />
       </Field>
-      <Field label="O que a vaga pede" htmlFor={`${uid}-requirements`}>
-        <TextArea id={`${uid}-requirements`} value={draft.jobRequirements} onChange={(v) => set('jobRequirements', v)} rows={5} maxLength={1500} placeholder="Cole os requisitos da descrição da vaga ou o que o recrutador contou." />
+      <Field label="Pontos importantes" htmlFor={`${uid}-requirements`}>
+        <TextArea id={`${uid}-requirements`} value={draft.jobRequirements} onChange={(v) => set('jobRequirements', v)} rows={5} maxLength={1500} placeholder="Pauta, requisitos, dúvidas que devem aparecer, números que precisam estar à mão…" />
       </Field>
-      <Field label="Por que essa vaga te interessa" htmlFor={`${uid}-motivation`}>
-        <TextArea id={`${uid}-motivation`} value={draft.motivation} onChange={(v) => set('motivation', v)} maxLength={800} placeholder="Seus motivos reais: produto, time, desafio técnico…" />
+      <Field label="Seu objetivo na conversa" htmlFor={`${uid}-motivation`}>
+        <TextArea id={`${uid}-motivation`} value={draft.motivation} onChange={(v) => set('motivation', v)} maxLength={800} placeholder="O que você quer que saia da reunião: fechar o escopo, alinhar prazos, aprovar uma proposta…" />
       </Field>
     </div>
   );
@@ -281,7 +285,7 @@ function ExtrasTab({ draft, set, uid, file, preview }) {
   return (
     <div className="space-y-4">
       <Field label="Outras informações" htmlFor={`${uid}-notes`} hint="Fatos que a IA pode citar quando perguntarem.">
-        <TextArea id={`${uid}-notes`} value={draft.notes} onChange={(v) => set('notes', v)} rows={7} maxLength={6000} placeholder="Pretensão salarial, disponibilidade, nível de inglês, modelo de trabalho, certificações…" autoFocus />
+        <TextArea id={`${uid}-notes`} value={draft.notes} onChange={(v) => set('notes', v)} rows={7} maxLength={6000} placeholder="Preços e condições, prazos, disponibilidade, números do time, links úteis…" autoFocus />
       </Field>
       <div className="space-y-1.5">
         <button type="button" onClick={importFile} disabled={importing} className="app-quiet-button flex items-center gap-1.5 rounded-lg border border-white/10 px-3 py-1.5 text-xs text-zinc-200 cursor-pointer disabled:opacity-50">
@@ -305,7 +309,7 @@ function ExtrasTab({ draft, set, uid, file, preview }) {
   );
 }
 
-export function CandidateContextEditor({ profile, file, status, loadError, onRetry, onSave, onClose, googleConnected = false }) {
+export function CandidateContextEditor({ profile, file, status, loadError, onRetry, onSave, onClose, googleConnected = false, interviewMode = false }) {
   const uid = useId();
   const [tab, setTab] = useState('profile');
   const [draft, setDraft] = useState(() => normalizeProfile(profile));
@@ -360,7 +364,7 @@ export function CandidateContextEditor({ profile, file, status, loadError, onRet
     setDraft((current) => mergeImportedFields(current, fields));
     setConfirmDiscard(false);
   };
-  const panelProps = { draft, set, uid, onImport: importFields, googleConnected };
+  const panelProps = { draft, set, uid, onImport: importFields, googleConnected, interviewMode };
 
   return (
     <div role="dialog" aria-modal="true" aria-labelledby={`${uid}-title`} className="app-context-editor fixed inset-0 z-50 flex flex-col select-text">

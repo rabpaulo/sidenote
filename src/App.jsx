@@ -10,6 +10,7 @@ import { CompactBottomBar } from './components/CompactBottomBar.jsx';
 import { CompactModeBar } from './components/CompactModeBar.jsx';
 import { ModelSelectorModal } from './components/ModelSelectorModal.jsx';
 import { PersonaSelectorModal } from './components/PersonaSelectorModal.jsx';
+import { getPersonaById } from './config/personas.js';
 import { CandidateContextEditor } from './components/CandidateContextEditor.jsx';
 import { NotesVaultModal } from './components/NotesVaultModal.jsx';
 import { ApiKeysModal } from './components/ApiKeysModal.jsx';
@@ -701,6 +702,7 @@ export default function App() {
           onRetry={candidateProfile.reload}
           onSave={candidateProfile.save}
           googleConnected={google.connected}
+          interviewMode={getPersonaById(selectedPersona).category === 'interview'}
           onClose={() => setIsContextOpen(false)}
         />
       )}

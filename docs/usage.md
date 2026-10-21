@@ -4,7 +4,7 @@
 
 Na primeira abertura, se faltar algo, a tela **Bem-vindo ao Sidenote** mostra os dois passos: uma API key (Gemini e Groq têm plano gratuito; **Outros…** abre todas as chaves), um CLI autenticado (a tela diz quais encontrou instalados sem login) ou um [modelo local](#modelos-locais-ollama-e-lm-studio), e o download do Parakeet para o reconhecimento de voz. Cada passo já resolvido aparece marcado. A tela some depois de fechada; os mesmos ajustes ficam em **Menu → Chaves de API** e **Menu → Reconhecimento de voz**.
 
-Abra o app com `npm start`. No menu (☰) da barra inferior, selecione em **Modelo** o provedor, o modelo e o nível de raciocínio, e em **Modo** a persona adequada: conversa geral, vendas, entrevista técnica, arquitetura, comportamental, RH, perguntas ao entrevistador ou vendas.
+Abra o app com `npm start`. No menu (☰) da barra inferior, selecione em **Modelo** o provedor, o modelo e o nível de raciocínio, e em **Modo** a persona adequada: reunião ou conversa, vendas ou um dos modos de entrevista (código, system design, comportamental, RH e perguntas ao entrevistador).
 
 O app prepara a sessão do agente sem enviar uma pergunta. Ao abrir, o backend verifica cada provedor sem gastar cota: se o CLI está instalado e logado e, no Antigravity (`agy models`) e no Codex (`model/list`), quais modelos a conta oferece. O Claude Code informa só o login, então todos os modelos da lista ficam liberados quando ele está logado. O seletor não traz uma lista fixa: em **Encontrados neste computador** ficam só os provedores que o app achou na máquina (CLIs instalados, APIs com key salva ou em variável de ambiente, Ollama e LM Studio instalados). Os demais ficam recolhidos em **Outros provedores**, cada um com o que falta: **Não instalado** (CLI ausente), **Adicionar key** (abre as chaves de API) ou **Instalar**/**Iniciar**/**Baixar modelo** (abre os modelos locais). Um provedor encontrado mas indisponível, como um CLI sem login, continua na lista de cima, desativado e com o motivo. **Verificar novamente** refaz a busca, por exemplo depois de instalar um CLI ou fazer login.
 
@@ -43,36 +43,32 @@ O [LM Studio](https://lmstudio.ai) também é detectado: com o servidor local li
 
 ## Meu contexto
 
-O ícone de pessoa na barra inferior abre o editor em tela cheia. Um ponto azul no ícone indica que o perfil ainda está vazio. Preencha apenas fatos que você consiga sustentar na entrevista; campos vazios são ignorados.
+O ícone de pessoa na barra inferior abre o editor em tela cheia. Um ponto azul no ícone indica que o perfil ainda está vazio. Preencha apenas fatos que você consiga sustentar na conversa; campos vazios são ignorados.
 
 | Aba | Campos |
 | --- | --- |
-| Perfil | **Importar currículo**, nome, cargo atual, anos de experiência, nível, **linguagem preferida**, tecnologias (Enter ou vírgula para adicionar) e resumo profissional. |
-| Experiências | Até 8 histórias reais, cada uma com título e descrição (problema, o que você fez, resultado). |
-| Vaga | **Importar descrição da vaga**, empresa, vaga, **sobre a empresa e os produtos**, requisitos e motivação. **Limpar vaga** apaga só essa aba, para a próxima entrevista. |
-| Extras | Notas livres (pretensão, disponibilidade, inglês…), **Importar contexto.md** e a prévia do texto enviado à IA. |
+| Perfil | **Importar currículo ou bio**, nome, cargo atual, anos de experiência, áreas e ferramentas (Enter ou vírgula para adicionar) e resumo profissional. Nos modos de entrevista aparecem também nível e **linguagem preferida**. |
+| Experiências | Até 8 projetos ou casos reais, cada um com título e descrição (problema, o que foi feito, resultado). |
+| Conversa | **Importar material da reunião**, empresa, assunto, **sobre a empresa e os produtos**, pontos importantes e seu objetivo. **Limpar conversa** apaga só essa aba, para a próxima reunião. |
+| Extras | Notas livres (preços, prazos, disponibilidade, links…), **Importar contexto.md** e a prévia do texto enviado à IA. |
 
-### Importar currículo e vaga
+### Importar currículo e material da reunião
 
-Arraste um arquivo para a área **Importar currículo** (aba Perfil) ou clique nela para escolher. São aceitos PDF com texto selecionável, DOCX, TXT e MD, até 10 MB. O backend extrai o texto e pede ao provedor selecionado em **Menu → Modelo** que o organize nos campos: nome, cargo, nível, anos, linguagem preferida, tecnologias, resumo, até 8 experiências e, em Extras, formação, idiomas e links. A leitura costuma levar de alguns segundos a um minuto.
+Arraste um arquivo para a área **Importar currículo ou bio** (aba Perfil) ou clique nela para escolher. São aceitos PDF com texto selecionável, DOCX, TXT e MD, até 10 MB. O backend extrai o texto e pede ao provedor selecionado em **Menu → Modelo** que o organize nos campos: nome, cargo, nível, anos, linguagem preferida, tecnologias, resumo, até 8 experiências e, em Extras, formação, idiomas e links. A leitura costuma levar de alguns segundos a um minuto.
 
-A área **Importar descrição da vaga** (aba Vaga) faz o mesmo com o anúncio da vaga ou um material sobre a empresa: preenche empresa, vaga, **Sobre a empresa e os produtos** e requisitos.
+A área **Importar material da reunião** (aba Conversa) faz o mesmo com a pauta, uma proposta, um material sobre a empresa ou uma descrição de vaga: preenche empresa, assunto, **Sobre a empresa e os produtos** e pontos importantes.
 
 Com o [Google conectado](#google-agenda-e-docs), as duas áreas também aceitam o link de um Google Docs: cole em **Ou cole o link de um Google Docs** e clique em **Importar**. O texto do documento (todas as abas, títulos e tabelas) passa pela mesma organização.
 
-A importação só altera o rascunho do editor: revise os campos e clique em **Salvar**, ou cancele para descartar. Campos que o documento não traz mantêm o que você já tinha escrito, tecnologias são somadas à lista e o texto de Extras é acrescentado. Os campos preenchidos substituem os anteriores, e as experiências são trocadas pelas do currículo. Se o provedor falhar, o texto extraído vai para Extras (currículo) ou para **Sobre a empresa** (vaga), para que nada se perca.
+A importação só altera o rascunho do editor: revise os campos e clique em **Salvar**, ou cancele para descartar. Campos que o documento não traz mantêm o que você já tinha escrito, tecnologias são somadas à lista e o texto de Extras é acrescentado. Os campos preenchidos substituem os anteriores, e as experiências são trocadas pelas do currículo. Se o provedor falhar, o texto extraído vai para Extras (currículo) ou para **Sobre a empresa** (aba Conversa), para que nada se perca.
 
-A organização roda num processo separado do CLI, com o modelo selecionado e esforço baixo, então o documento não entra na conversa da entrevista. O texto do arquivo é enviado ao provedor; PDFs escaneados (só imagem) não têm texto para extrair.
+A organização roda num processo separado do CLI, com o modelo selecionado e esforço baixo, então o documento não entra na conversa da reunião. O texto do arquivo é enviado ao provedor; PDFs escaneados (só imagem) não têm texto para extrair.
 
 ### Contexto da empresa
 
 Em **Sobre a empresa e os produtos**, descreva o que a empresa faz, seus produtos (por exemplo, de IA ou de infraestrutura), clientes, stack e o momento do time. As sugestões usam esse contexto para conectar a resposta aos produtos e desafios da empresa quando fizer sentido, sem forçar a ligação em toda fala e sem inventar fatos sobre ela.
 
-<p align="center">
-  <img src="screenshots/vaga.png" width="320" alt="Aba Vaga preenchida a partir da descrição da vaga, com o contexto da empresa">
-</p>
-
-A linguagem preferida (por exemplo, TypeScript) vira o padrão das soluções de código no chat e é citada nas sugestões faladas, a menos que a pergunta peça outra linguagem.
+A linguagem preferida (por exemplo, TypeScript), editável nos modos de entrevista, vira o padrão das soluções de código no chat e é citada nas sugestões faladas, a menos que a pergunta peça outra linguagem.
 
 **Salvar** (ou Ctrl+S) grava todas as abas de uma vez. Fechar com alterações pendentes pede confirmação antes de descartar. O contexto completo aceita até 10.000 caracteres; o contador fica no rodapé.
 
@@ -114,7 +110,7 @@ Se preferir usar um cliente OAuth seu, clique em **Usar meu próprio cliente OAu
 
 A captura do PC usa a saída de áudio padrão (ou o aplicativo escolhido, veja abaixo) e tenta iniciar quando o app abre. No Linux, o backend lê o monitor da saída com `parec`; no Windows, a janela do Electron captura o loopback do sistema (o que está tocando nos alto-falantes ou fones) e envia o áudio ao backend pela conexão local. Os medidores permitem acompanhar e controlar a captura. A transcrição parcial aparece enquanto a pessoa fala. Com Antigravity ou um provedor por API key, o modo automático já mostra uma prévia da sugestão durante a fala e a atualiza conforme a pergunta cresce; a prévia vira a resposta quando a fala consolidada for igual a ela. Com Codex, Claude Code e OpenCode, só a fala consolidada vai ao modelo.
 
-Após cerca de 900 ms de silêncio, o app encerra o trecho. Uma pausa no meio da pergunta também pode encerrá-lo: a detecção é baseada em áudio, sem análise semântica do fim da pergunta. Se isso atrapalhar a entrevista, desative o modo automático e use **Diga isso** após conferir a transcrição. O botão usa a última fala consolidada; ele não junta automaticamente vários trechos.
+Após cerca de 900 ms de silêncio, o app encerra o trecho. Uma pausa no meio da pergunta também pode encerrá-lo: a detecção é baseada em áudio, sem análise semântica do fim da pergunta. Se isso atrapalhar a conversa, desative o modo automático e use **Diga isso** após conferir a transcrição. O botão usa a última fala consolidada; ele não junta automaticamente vários trechos.
 
 ### Ouvir só a janela da reunião
 
@@ -204,7 +200,7 @@ Atalhos globais podem conflitar com o ambiente desktop ou com outros programas (
 
 Com o Google (o padrão), o áudio de cada fala vai ao serviço gratuito do Google por meio da biblioteca Python `SpeechRecognition`, e a transcrição precisa de internet. Com um motor local, o áudio não sai do computador; se o motor local falhar, as falas daquele momento vão ao Google, e o app avisa. Em qualquer caso, o texto reconhecido e o contexto salvo são enviados ao provedor quando uma sugestão é solicitada.
 
-Currículos e descrições de vaga importados são enviados ao provedor uma vez, para organizar os campos; o arquivo não é guardado pelo app, apenas o perfil que você salvar.
+Currículos e materiais de reunião importados são enviados ao provedor uma vez, para organizar os campos; o arquivo não é guardado pelo app, apenas o perfil que você salvar.
 
 Dos arquivos da vault do Obsidian, só os trechos encontrados para cada pergunta vão ao provedor.
 

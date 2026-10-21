@@ -28,7 +28,7 @@ test('composes only the filled sections, in a stable order', () => {
   assert.equal(text, [
     '## Perfil\nNome: Ana\nCargo atual: Backend\nNível: Sênior, 1 ano de experiência\nLinguagem preferida para código: TypeScript\nTecnologias que domino: Node.js, PostgreSQL',
     '## Experiências reais\n### Experiência\nMigrei a fila.',
-    '## Entrevista atual\nEmpresa: Loja',
+    '## Conversa atual\nEmpresa: Loja',
     '## Outras informações\nInglês avançado.',
   ].join('\n\n'));
 });
@@ -40,7 +40,7 @@ test('chat prompts default code answers to the preferred language', () => {
 
 test('company context is part of the current interview block', () => {
   assert.equal(composeCandidateContext({ jobCompany: 'Acme', jobCompanyContext: 'Produtos de IA e de infraestrutura.', jobRole: 'SRE' }),
-    '## Entrevista atual\nEmpresa: Acme\nSobre a empresa e seus produtos: Produtos de IA e de infraestrutura.\nVaga: SRE');
+    '## Conversa atual\nEmpresa: Acme\nSobre a empresa e seus produtos: Produtos de IA e de infraestrutura.\nAssunto: SRE');
 });
 
 test('imported fields replace filled values, extend the stack and append notes', () => {

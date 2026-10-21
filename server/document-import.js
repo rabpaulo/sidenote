@@ -83,14 +83,14 @@ const CV_SHAPE = `{
 
 const JOB_SHAPE = `{
   "jobCompany": "nome da empresa",
-  "jobRole": "título da vaga",
+  "jobRole": "assunto da reunião ou título da vaga",
   "jobCompanyContext": "o que a empresa faz, produtos (por exemplo, de IA ou infraestrutura), clientes, mercado, stack e cultura, só com fatos do documento (até 1800 caracteres)",
-  "jobRequirements": "requisitos e responsabilidades principais, em tópicos curtos (até 1400 caracteres)"
+  "jobRequirements": "pontos importantes (pauta, requisitos, dúvidas, responsabilidades), em tópicos curtos (até 1400 caracteres)"
 }`;
 
 export function buildImportPrompt(kind, text) {
   const cv = kind === 'cv';
-  return `Você extrai dados ${cv ? 'de um currículo' : 'de uma descrição de vaga'} para preencher o perfil de um copiloto de entrevistas.
+  return `Você extrai dados ${cv ? 'de um currículo ou bio profissional' : 'de um material sobre uma reunião (pauta, proposta, material da empresa ou descrição de vaga)'} para preencher o perfil de um copiloto de reuniões.
 Responda SOMENTE com um objeto JSON válido, sem Markdown e sem comentários, neste formato:
 ${cv ? CV_SHAPE : JOB_SHAPE}
 Regras:

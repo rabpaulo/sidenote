@@ -1,4 +1,4 @@
-// Structured candidate profile. The server persists it to disk and sends the
+// Structured personal profile. The server persists it to disk and sends the
 // composed text (composeCandidateContext) to the model with every suggestion.
 
 export const MAX_CONTEXT_CHARS = 10000;
@@ -84,15 +84,15 @@ export function composeCandidateContext(input) {
   const job = lines([
     ['Empresa', t('jobCompany')],
     ['Sobre a empresa e seus produtos', t('jobCompanyContext')],
-    ['Vaga', t('jobRole')],
-    ['O que a vaga pede', t('jobRequirements')],
-    ['Por que me interessa', t('motivation')],
+    ['Assunto', t('jobRole')],
+    ['Pontos importantes', t('jobRequirements')],
+    ['Meu objetivo', t('motivation')],
   ]);
 
   return [
     block('Perfil', profile),
     block('Experiências reais', experiences),
-    block('Entrevista atual', job),
+    block('Conversa atual', job),
     block('Outras informações', t('notes')),
   ].filter(Boolean).join('\n\n');
 }

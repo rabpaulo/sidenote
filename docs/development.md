@@ -160,8 +160,8 @@ O backend não carrega `.env` automaticamente. Exporte as variáveis no shell ou
 | src/components/HistoryPanel.jsx e src/hooks/useMeetingHistory.js | Aba Histórico: busca, lista, detalhe, exclusão e novo resumo. |
 | src/audio/system-loopback.js | Captura do loopback do sistema na janela do Electron (Windows) e envio do PCM pelo WebSocket. |
 | server/cli-process.js | Localização dos CLIs e do Python (PATH/PATHEXT), execução de atalhos `.cmd` e encerramento da árvore de processos no Windows. |
-| server/document-import.js | Extração de texto de PDF (`unpdf`), DOCX (`mammoth`), TXT e MD, prompt de organização e validação dos campos do currículo ou da vaga. |
-| src/components/DocumentDropZone.jsx | Área de arrastar ou escolher arquivo das abas Perfil e Vaga. |
+| server/document-import.js | Extração de texto de PDF (`unpdf`), DOCX (`mammoth`), TXT e MD, prompt de organização e validação dos campos do currículo ou do material da reunião. |
+| src/components/DocumentDropZone.jsx | Área de arrastar ou escolher arquivo das abas Perfil e Conversa. |
 | server/pc-transcription.js | Encaminhamento dos trechos do PC ao transcritor. |
 | server/transcriber.js | Um processo por configuração de motor (`parakeet-worker.js` em Node para o Parakeet, `transcribe.py --serve` para os outros), ids dos pedidos, espera pelo modelo carregando, cancelamento, troca de motor (o processo antigo termina a fila e sai) e uso do Google quando o motor local não carrega ou falha. |
 | server/parakeet-worker.js | Parakeet pelo `sherpa-onnx-node`, com o mesmo protocolo do `transcribe.py`: leitura do WAV, idioma pelas palavras e fila de pedidos. |

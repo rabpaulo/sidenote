@@ -85,7 +85,7 @@ export function CompactBottomBar({
               onOpenContext();
             }}
             aria-label="Meu contexto"
-            title={hasContext ? 'Meu contexto para a entrevista' : 'Meu contexto (vazio): preencha para respostas personalizadas'}
+            title={hasContext ? 'Meu contexto' : 'Meu contexto (vazio): preencha para respostas personalizadas'}
             className="app-quiet-button relative p-2 rounded-xl transition cursor-pointer text-zinc-400"
           >
             <UserRound size={15} />
