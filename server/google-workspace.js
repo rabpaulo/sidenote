@@ -68,10 +68,13 @@ export async function getEvent(request, id) {
   return normalizeEvent(await response.json());
 }
 
-/** The account's e-mail: the primary calendar is named after it. */
+/**
+ * The account's e-mail: the primary calendar is named after it. The events list
+ * carries that name; reading the calendar itself needs a broader scope.
+ */
 export async function accountEmail(request) {
-  const response = await request(`${CALENDAR}/calendars/primary?fields=id`);
-  return (await response.json()).id || null;
+  const response = await request(`${CALENDAR}/calendars/primary/events?maxResults=1&fields=summary`);
+  return (await response.json()).summary || null;
 }
 
 /** Document id from a docs.google.com link (or the bare id). */
