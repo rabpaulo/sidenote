@@ -21,13 +21,13 @@ import { NotesCard } from './NotesCard.jsx';
 import { PROVIDERS } from '../config/models.js';
 
 const AGENT_STYLES = {
-  antigravity: { name: 'ANTIGRAVITY', fallbackModel: 'Gemini', Icon: Sparkles, card: 'border-accent-500/25 bg-[#0f1422]/85',
+  antigravity: { name: 'ANTIGRAVITY', fallbackModel: 'Gemini', Icon: Sparkles, card: 'border-accent-500/25 bg-[#141414]/85',
     divider: 'border-accent-500/15', icon: 'text-accent-400', label: 'text-accent-300' },
-  codex: { name: 'CODEX', fallbackModel: 'GPT-6', Icon: Bot, card: 'border-purple-500/25 bg-[#14101e]/85',
+  codex: { name: 'CODEX', fallbackModel: 'GPT-6', Icon: Bot, card: 'border-purple-500/25 bg-[#141414]/85',
     divider: 'border-purple-500/15', icon: 'text-purple-400', label: 'text-purple-300' },
-  claude: { name: 'CLAUDE CODE', fallbackModel: 'Claude', Icon: Asterisk, card: 'border-amber-500/25 bg-[#1a140c]/85',
+  claude: { name: 'CLAUDE CODE', fallbackModel: 'Claude', Icon: Asterisk, card: 'border-amber-500/25 bg-[#161616]/85',
     divider: 'border-amber-500/15', icon: 'text-amber-400', label: 'text-amber-300' },
-  opencode: { name: 'OPENCODE', fallbackModel: 'OpenCode', Icon: Terminal, card: 'border-emerald-500/25 bg-[#0d1714]/85',
+  opencode: { name: 'OPENCODE', fallbackModel: 'OpenCode', Icon: Terminal, card: 'border-emerald-500/25 bg-[#141414]/85',
     divider: 'border-emerald-500/15', icon: 'text-emerald-400', label: 'text-emerald-300' },
 };
 
@@ -36,7 +36,7 @@ function agentStyle(provider) {
   if (AGENT_STYLES[provider]) return AGENT_STYLES[provider];
   const config = PROVIDERS[provider];
   if (!config) return AGENT_STYLES.antigravity;
-  return { name: config.shortName.toUpperCase(), fallbackModel: config.shortName, Icon: Cpu, card: 'border-accent-500/25 bg-[#0e1520]/85',
+  return { name: config.shortName.toUpperCase(), fallbackModel: config.shortName, Icon: Cpu, card: 'border-accent-500/25 bg-[#141414]/85',
     divider: 'border-accent-500/15', icon: 'text-accent-400', label: 'text-accent-300' };
 }
 
@@ -200,7 +200,7 @@ export function CompactTranscriptFeed({
             return (
               <div
                 key={key}
-                className="transcript-entry rounded-xl border border-white/[0.06] bg-[#14141c]/80 p-3 shadow-sm"
+                className="transcript-entry rounded-xl border border-white/[0.06] bg-[#161616]/80 p-3 shadow-sm"
               >
                 <div className="flex items-center justify-between mb-1.5 text-[10px]">
                   <div className="flex items-center gap-1.5 font-bold tracking-wider text-accent-400">
@@ -236,7 +236,7 @@ export function CompactTranscriptFeed({
             return (
               <div
                 key={key}
-                className="transcript-entry transcript-entry--question rounded-xl border border-accent-500/20 bg-[#101324]/80 p-3 shadow-sm"
+                className="transcript-entry transcript-entry--question rounded-xl border border-accent-500/20 bg-[#141414]/80 p-3 shadow-sm"
               >
                 <div className="flex items-center justify-between mb-1.5 text-[10px]">
                   <div className="flex items-center gap-1.5 font-bold tracking-wider text-accent-300">
@@ -458,7 +458,7 @@ export function CompactTranscriptFeed({
           qAndAs.map((pair, idx) => (
             <div
               key={idx}
-              className="rounded-xl border border-white/[0.06] bg-[#121218]/90 p-3 shadow-sm backdrop-blur-md space-y-2"
+              className="rounded-xl border border-white/[0.06] bg-[#161616]/90 p-3 shadow-sm backdrop-blur-md space-y-2"
             >
               <div className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">
                 Momento #{idx + 1}

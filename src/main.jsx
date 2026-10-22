@@ -25,7 +25,7 @@ class ErrorBoundary extends React.Component {
         <div style={{
           padding: '20px',
           color: '#f87171',
-          background: '#0c0c11',
+          background: '#0a0a0a',
           fontFamily: 'monospace',
           fontSize: '12px',
           height: '100vh',
@@ -51,7 +51,7 @@ class ErrorBoundary extends React.Component {
             style={{
               marginTop: '16px',
               padding: '8px 16px',
-              background: '#06b6d4',
+              background: '#ededed',
               color: '#000',
               border: 'none',
               borderRadius: '6px',

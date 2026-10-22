@@ -42,7 +42,7 @@ export function NotesVaultModal({ isOpen, onClose, vault }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
       <div className="fixed inset-0 bg-black/80 backdrop-blur-md" onClick={onClose} />
-      <div role="dialog" aria-modal="true" aria-labelledby="notes-vault-title" className="relative w-full max-w-md rounded-2xl border border-neutral-800 bg-[#0e0e14] shadow-2xl overflow-hidden z-10 flex flex-col max-h-[90vh] text-[12px]">
+      <div role="dialog" aria-modal="true" aria-labelledby="notes-vault-title" className="relative w-full max-w-md rounded-2xl border border-neutral-800 bg-[#121212] shadow-2xl overflow-hidden z-10 flex flex-col max-h-[90vh] text-[12px]">
         <div className="flex items-center justify-between px-5 py-3.5 border-b border-neutral-800/80 bg-neutral-950/60">
           <h2 id="notes-vault-title" className="flex items-center gap-2 text-base font-bold text-white tracking-tight">
             <NotebookText size={16} className="text-emerald-300" />

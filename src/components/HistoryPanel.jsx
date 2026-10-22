@@ -68,7 +68,7 @@ function MeetingDetail({ meeting, onBack, onDelete, onSummarize, onSaveToVault, 
   };
 
   return (
-    <div className="rounded-xl border border-white/[0.06] bg-[#121218]/90 p-3 shadow-sm backdrop-blur-md">
+    <div className="rounded-xl border border-white/[0.06] bg-[#161616]/90 p-3 shadow-sm backdrop-blur-md">
       <div className="flex items-center justify-between gap-2 pb-2 mb-2.5 border-b border-white/[0.06]">
         <button type="button" onClick={onBack} className="flex items-center gap-1 text-[11px] text-neutral-400 hover:text-neutral-100 cursor-pointer">
           <ArrowLeft size={12} />
@@ -262,7 +262,7 @@ export function HistoryPanel({ history, vaultConnected, googleConnected }) {
                   <button
                     type="button"
                     onClick={() => select(meeting.id)}
-                    className="w-full text-left rounded-lg border border-white/[0.06] bg-[#121218]/80 hover:bg-white/[0.05] px-3 py-2 cursor-pointer transition"
+                    className="w-full text-left rounded-lg border border-white/[0.06] bg-[#161616]/80 hover:bg-white/[0.05] px-3 py-2 cursor-pointer transition"
                   >
                     <div className="flex items-baseline justify-between gap-2">
                       <span className={`font-semibold text-[12px] truncate ${meeting.title ? 'text-neutral-100' : 'text-neutral-400 italic'}`}>

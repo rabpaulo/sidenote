@@ -75,7 +75,7 @@ export function SummaryPanel({
 
   return (
     <div className="app-transcript-feed flex-1 overflow-y-auto px-4 py-4 space-y-3 text-xs">
-      <div className="rounded-xl border border-white/[0.06] bg-[#121218]/90 p-3 shadow-sm backdrop-blur-md">
+      <div className="rounded-xl border border-white/[0.06] bg-[#161616]/90 p-3 shadow-sm backdrop-blur-md">
         <div className="flex items-center justify-between pb-2 mb-2.5 border-b border-white/[0.06]">
           <div className="flex items-center gap-1.5 text-xs font-bold text-neutral-200">
             <FileText size={13} className="text-emerald-400" />

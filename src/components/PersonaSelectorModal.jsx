@@ -41,7 +41,7 @@ export function PersonaSelectorModal({
       />
 
       {/* Modal Dialog */}
-      <div className="relative w-full max-w-md rounded-3xl border border-neutral-800 bg-[#0e0e14] shadow-2xl overflow-hidden z-10 flex flex-col max-h-[90vh]">
+      <div className="relative w-full max-w-md rounded-3xl border border-neutral-800 bg-[#121212] shadow-2xl overflow-hidden z-10 flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-800/80 bg-neutral-950/60">
           <h2 className="text-lg font-bold text-white tracking-tight">Modo</h2>
