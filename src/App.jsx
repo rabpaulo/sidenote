@@ -429,21 +429,21 @@ export default function App() {
   };
 
   return (
-    <div className="app-shell text-zinc-100 flex flex-col h-dvh w-screen overflow-hidden select-none">
+    <div className="app-shell text-neutral-100 flex flex-col h-dvh w-screen overflow-hidden select-none">
       {/* Frameless Desktop Window Container */}
       <div className="app-frame flex flex-col h-full w-full">
 
         {/* New Session Feedback Banner */}
         {sessionToast && (
-          <div className="bg-blue-500/10 border-b border-blue-500/25 px-3 py-1.5 flex items-center justify-between text-[11px] text-blue-200 animate-in fade-in slide-in-from-top-1 duration-150">
+          <div className="bg-accent-500/10 border-b border-accent-500/25 px-3 py-1.5 flex items-center justify-between text-[11px] text-accent-200 animate-in fade-in slide-in-from-top-1 duration-150">
             <div className="flex items-center gap-1.5 font-medium">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
+              <span className="w-1.5 h-1.5 rounded-full bg-accent-400 animate-pulse" />
               <span>{sessionToast}</span>
             </div>
             <button
               type="button"
               onClick={() => setSessionToast(null)}
-              className="p-0.5 hover:bg-blue-500/20 rounded transition text-blue-200 hover:text-white cursor-pointer"
+              className="p-0.5 hover:bg-accent-500/20 rounded transition text-accent-200 hover:text-white cursor-pointer"
             >
               <X size={12} />
             </button>
@@ -491,7 +491,7 @@ export default function App() {
                   if (picked) selectPcSource(toSelection(picked));
                 }}
                 aria-label={`Escolher o áudio de ${pcCaptureApp.name}`}
-                className="flex-1 min-w-0 rounded bg-zinc-900 border border-white/10 px-1.5 py-0.5 text-[10px] text-zinc-200 cursor-pointer"
+                className="flex-1 min-w-0 rounded bg-neutral-900 border border-white/10 px-1.5 py-0.5 text-[10px] text-neutral-200 cursor-pointer"
               >
                 <option value="" disabled>Escolher o áudio da chamada…</option>
                 {ambiguousStreams.map((entry, index) => (

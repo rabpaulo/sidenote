@@ -3,7 +3,7 @@ import { Search, ArrowLeft, Trash2, Copy, Check, Sparkles, X, AlertCircle, Histo
 import { FormattedAgentResponse } from './CodeBlock.jsx';
 
 const ROLE_LABELS = { interlocutor: 'Interlocutor', user: 'Você', assistant: 'Sugestão da IA' };
-const ROLE_COLORS = { interlocutor: 'text-indigo-300', user: 'text-cyan-300', assistant: 'text-emerald-300' };
+const ROLE_COLORS = { interlocutor: 'text-accent-300', user: 'text-accent-300', assistant: 'text-emerald-300' };
 
 function endedLabel(ms) {
   const date = new Date(ms);
@@ -35,9 +35,9 @@ function titleOf(meeting) {
 function Snippet({ snippet }) {
   if (!snippet?.text) return null;
   const at = snippet.match ? snippet.text.indexOf(snippet.match) : -1;
-  if (at < 0) return <p className="mt-1 text-[10px] text-zinc-500 line-clamp-2">{snippet.text}</p>;
+  if (at < 0) return <p className="mt-1 text-[10px] text-neutral-500 line-clamp-2">{snippet.text}</p>;
   return (
-    <p className="mt-1 text-[10px] text-zinc-500 line-clamp-2">
+    <p className="mt-1 text-[10px] text-neutral-500 line-clamp-2">
       {snippet.text.slice(0, at)}
       <mark className="bg-amber-400/20 text-amber-200 rounded-sm">{snippet.match}</mark>
       {snippet.text.slice(at + snippet.match.length)}
@@ -70,7 +70,7 @@ function MeetingDetail({ meeting, onBack, onDelete, onSummarize, onSaveToVault, 
   return (
     <div className="rounded-xl border border-white/[0.06] bg-[#121218]/90 p-3 shadow-sm backdrop-blur-md">
       <div className="flex items-center justify-between gap-2 pb-2 mb-2.5 border-b border-white/[0.06]">
-        <button type="button" onClick={onBack} className="flex items-center gap-1 text-[11px] text-zinc-400 hover:text-zinc-100 cursor-pointer">
+        <button type="button" onClick={onBack} className="flex items-center gap-1 text-[11px] text-neutral-400 hover:text-neutral-100 cursor-pointer">
           <ArrowLeft size={12} />
           <span>Histórico</span>
         </button>
@@ -81,7 +81,7 @@ function MeetingDetail({ meeting, onBack, onDelete, onSummarize, onSaveToVault, 
             disabled={!meeting.summary}
             title="Copiar título e resumo"
             aria-label="Copiar título e resumo"
-            className="p-1 rounded text-zinc-400 hover:bg-white/10 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+            className="p-1 rounded text-neutral-400 hover:bg-white/10 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {copied ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
           </button>
@@ -91,7 +91,7 @@ function MeetingDetail({ meeting, onBack, onDelete, onSummarize, onSaveToVault, 
             disabled={!vaultConnected || running}
             title={vaultTitle(vaultConnected, meeting)}
             aria-label={vaultTitle(vaultConnected, meeting)}
-            className={`p-1 rounded hover:bg-white/10 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${meeting.vaultFile ? 'text-emerald-300' : 'text-zinc-400'}`}
+            className={`p-1 rounded hover:bg-white/10 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${meeting.vaultFile ? 'text-emerald-300' : 'text-neutral-400'}`}
           >
             <BookOpen size={12} />
           </button>
@@ -101,7 +101,7 @@ function MeetingDetail({ meeting, onBack, onDelete, onSummarize, onSaveToVault, 
             disabled={(!googleConnected && !meeting.googleDoc) || running}
             title={meeting.googleDoc ? 'Abrir no Google Docs' : googleConnected ? 'Salvar no Google Docs' : 'Conecte o Google (Menu → Google) para salvar no Docs'}
             aria-label={meeting.googleDoc ? 'Abrir no Google Docs' : 'Salvar no Google Docs'}
-            className={`p-1 rounded hover:bg-white/10 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${meeting.googleDoc ? 'text-blue-300' : 'text-zinc-400'}`}
+            className={`p-1 rounded hover:bg-white/10 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${meeting.googleDoc ? 'text-accent-300' : 'text-neutral-400'}`}
           >
             <FileUp size={12} />
           </button>
@@ -110,7 +110,7 @@ function MeetingDetail({ meeting, onBack, onDelete, onSummarize, onSaveToVault, 
             onClick={() => (confirmDelete ? onDelete(meeting.id) : setConfirmDelete(true))}
             title="Apagar reunião"
             aria-label={confirmDelete ? 'Confirmar exclusão' : 'Apagar reunião'}
-            className={`flex items-center gap-1 px-1 py-1 rounded cursor-pointer text-[10px] ${confirmDelete ? 'bg-rose-500/20 text-rose-200' : 'text-zinc-400 hover:bg-white/10'}`}
+            className={`flex items-center gap-1 px-1 py-1 rounded cursor-pointer text-[10px] ${confirmDelete ? 'bg-rose-500/20 text-rose-200' : 'text-neutral-400 hover:bg-white/10'}`}
           >
             <Trash2 size={12} />
             {confirmDelete && <span>Confirmar</span>}
@@ -118,18 +118,18 @@ function MeetingDetail({ meeting, onBack, onDelete, onSummarize, onSaveToVault, 
         </div>
       </div>
 
-      <h2 className="text-sm font-bold text-zinc-100 leading-snug select-text">{titleOf(meeting)}</h2>
-      <p className="mt-0.5 mb-3 text-[10px] text-zinc-500 font-mono">
+      <h2 className="text-sm font-bold text-neutral-100 leading-snug select-text">{titleOf(meeting)}</h2>
+      <p className="mt-0.5 mb-3 text-[10px] text-neutral-500 font-mono">
         Terminou em {endedLabel(meeting.endedAt)} · {duration(meeting.endedAt - meeting.startedAt)}
         {meeting.event?.title && <> · <CalendarDays size={9} className="inline -mt-0.5" /> {meeting.event.title}</>}
       </p>
 
       {meeting.summary ? (
-        <div className="mb-3 p-2.5 rounded-lg bg-emerald-950/20 border border-emerald-500/20 text-zinc-100 leading-relaxed text-[12px] select-text">
+        <div className="mb-3 p-2.5 rounded-lg bg-emerald-950/20 border border-emerald-500/20 text-neutral-100 leading-relaxed text-[12px] select-text">
           <FormattedAgentResponse text={meeting.summary} />
         </div>
       ) : running ? (
-        <div className="mb-3 flex items-center gap-2 text-[11px] text-zinc-400">
+        <div className="mb-3 flex items-center gap-2 text-[11px] text-neutral-400">
           <span className="w-1.5 h-1.5 rounded-full animate-pulse bg-emerald-400" />
           <span>O modelo está escrevendo o resumo e o título…</span>
         </div>
@@ -153,13 +153,13 @@ function MeetingDetail({ meeting, onBack, onDelete, onSummarize, onSaveToVault, 
       )}
 
       <details className="group">
-        <summary className="cursor-pointer text-[11px] font-semibold text-zinc-300 hover:text-white">
+        <summary className="cursor-pointer text-[11px] font-semibold text-neutral-300 hover:text-white">
           Transcrição ({meeting.entries.length} {meeting.entries.length === 1 ? 'fala' : 'falas'})
         </summary>
         <div className="mt-2 space-y-1.5 text-[11px] leading-relaxed select-text">
           {meeting.entries.map((entry, index) => (
-            <p key={index} className="text-zinc-300">
-              <span className="font-mono text-[10px] text-zinc-600">[{clock(entry.at - meeting.startedAt)}] </span>
+            <p key={index} className="text-neutral-300">
+              <span className="font-mono text-[10px] text-neutral-600">[{clock(entry.at - meeting.startedAt)}] </span>
               <span className={`font-semibold ${ROLE_COLORS[entry.role] || ''}`}>{ROLE_LABELS[entry.role] || entry.role}: </span>
               <span className="whitespace-pre-wrap">{entry.text}</span>
             </p>
@@ -216,18 +216,18 @@ export function HistoryPanel({ history, vaultConnected, googleConnected }) {
       ) : (
         <>
           <div className="flex items-center gap-1.5">
-            <label className="flex-1 min-w-0 flex items-center gap-2 rounded-lg border border-white/10 bg-black/30 px-2.5 py-1.5 focus-within:border-blue-500/50">
-              <Search size={12} className="text-zinc-500 shrink-0" />
+            <label className="flex-1 min-w-0 flex items-center gap-2 rounded-lg border border-white/10 bg-black/30 px-2.5 py-1.5 focus-within:border-accent-500/50">
+              <Search size={12} className="text-neutral-500 shrink-0" />
               <input
                 type="search"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder="Buscar por título, assunto ou fala…"
                 aria-label="Buscar no histórico"
-                className="flex-1 min-w-0 bg-transparent text-[12px] text-zinc-100 outline-none placeholder:text-zinc-600"
+                className="flex-1 min-w-0 bg-transparent text-[12px] text-neutral-100 outline-none placeholder:text-neutral-600"
               />
               {query && (
-                <button type="button" onClick={() => setQuery('')} aria-label="Limpar busca" className="p-0.5 rounded text-zinc-500 hover:text-zinc-200 cursor-pointer">
+                <button type="button" onClick={() => setQuery('')} aria-label="Limpar busca" className="p-0.5 rounded text-neutral-500 hover:text-neutral-200 cursor-pointer">
                   <X size={11} />
                 </button>
               )}
@@ -238,17 +238,17 @@ export function HistoryPanel({ history, vaultConnected, googleConnected }) {
               disabled={!vaultConnected || savingAll || !meetings?.length}
               title={vaultConnected ? 'Salvar na vault as reuniões que ainda não estão lá' : 'Conecte uma vault do Obsidian para salvar nela'}
               aria-label="Salvar todas as reuniões na vault do Obsidian"
-              className="shrink-0 p-1.5 rounded-lg border border-white/10 text-zinc-300 hover:bg-white/10 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              className="shrink-0 p-1.5 rounded-lg border border-white/10 text-neutral-300 hover:bg-white/10 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <BookOpen size={13} className={savingAll ? 'animate-pulse' : ''} />
             </button>
           </div>
 
           {meetings === null ? (
-            <p className="text-[11px] text-zinc-500">Carregando…</p>
+            <p className="text-[11px] text-neutral-500">Carregando…</p>
           ) : !meetings.length ? (
-            <div className="pt-6 text-center text-[11px] text-zinc-500 space-y-2">
-              <History size={20} className="mx-auto text-zinc-700" />
+            <div className="pt-6 text-center text-[11px] text-neutral-500 space-y-2">
+              <History size={20} className="mx-auto text-neutral-700" />
               <p>
                 {query
                   ? `Nada encontrado para “${query}”.`
@@ -265,19 +265,19 @@ export function HistoryPanel({ history, vaultConnected, googleConnected }) {
                     className="w-full text-left rounded-lg border border-white/[0.06] bg-[#121218]/80 hover:bg-white/[0.05] px-3 py-2 cursor-pointer transition"
                   >
                     <div className="flex items-baseline justify-between gap-2">
-                      <span className={`font-semibold text-[12px] truncate ${meeting.title ? 'text-zinc-100' : 'text-zinc-400 italic'}`}>
+                      <span className={`font-semibold text-[12px] truncate ${meeting.title ? 'text-neutral-100' : 'text-neutral-400 italic'}`}>
                         {titleOf(meeting)}
                       </span>
-                      <span className="shrink-0 font-mono text-[10px] text-zinc-500">{endedLabel(meeting.endedAt)}</span>
+                      <span className="shrink-0 font-mono text-[10px] text-neutral-500">{endedLabel(meeting.endedAt)}</span>
                     </div>
-                    <div className="mt-0.5 flex items-center gap-2 text-[10px] text-zinc-500">
+                    <div className="mt-0.5 flex items-center gap-2 text-[10px] text-neutral-500">
                       <span>{duration(meeting.endedAt - meeting.startedAt)}</span>
                       <span>·</span>
                       <span>{meeting.counts.interlocutor + meeting.counts.user} falas</span>
                       {summarizing(meeting) && <span className="text-emerald-300/80">· resumindo…</span>}
                       {!summarizing(meeting) && meeting.summaryError && <span className="text-rose-300/80">· sem resumo</span>}
                       {meeting.vaultFile && <span className="text-emerald-300/70" title={meeting.vaultFile}>· na vault</span>}
-                      {meeting.googleDoc && <span className="text-blue-300/70">· no Docs</span>}
+                      {meeting.googleDoc && <span className="text-accent-300/70">· no Docs</span>}
                     </div>
                     <Snippet snippet={meeting.snippet} />
                   </button>

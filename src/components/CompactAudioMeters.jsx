@@ -25,20 +25,20 @@ export function CompactAudioMeters({
       <button
         type="button"
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="w-full flex items-center justify-between text-[11px] text-zinc-400 hover:text-zinc-200 transition cursor-pointer"
+        className="w-full flex items-center justify-between text-[11px] text-neutral-400 hover:text-neutral-200 transition cursor-pointer"
       >
         <div className="flex items-center gap-1.5">
-          <Volume2 size={12} className={isListening || isPcSpeaking ? 'text-blue-300' : 'text-zinc-500'} />
-          <span className="font-medium tracking-wide text-[10px] text-zinc-300">
+          <Volume2 size={12} className={isListening || isPcSpeaking ? 'text-accent-300' : 'text-neutral-500'} />
+          <span className="font-medium tracking-wide text-[10px] text-neutral-300">
             Medidores de Áudio
           </span>
-          <span className="text-[10px] text-zinc-500 font-mono">
+          <span className="text-[10px] text-neutral-500 font-mono">
             (PC: {isPcCapturing ? pcCaptureApp?.name || 'ON' : 'OFF'}
             {isPcCapturing && pcCaptureApp?.waiting && <span className="text-amber-300"> aguardando</span>} • Mic: {isListening ? 'ON' : 'OFF'})
           </span>
         </div>
 
-          <div className="app-quiet-button flex items-center gap-1 text-[10px] text-zinc-500 hover:text-zinc-300">
+          <div className="app-quiet-button flex items-center gap-1 text-[10px] text-neutral-500 hover:text-neutral-300">
           <span>{isCollapsed ? 'Expandir' : 'Ocultar'}</span>
           {isCollapsed ? <ChevronDown size={11} /> : <ChevronUp size={11} />}
         </div>
@@ -48,8 +48,8 @@ export function CompactAudioMeters({
         <div className="mt-2 space-y-2 pt-2 border-t border-white/[0.06]">
           {/* Row 1: VOCÊ (Microfone) */}
           <div className="flex items-center gap-2 text-[10px]">
-            <div className="w-14 flex items-center gap-1 font-medium text-zinc-400">
-              <Mic size={11} className={isListening ? 'text-blue-300' : 'text-zinc-600'} />
+            <div className="w-14 flex items-center gap-1 font-medium text-neutral-400">
+              <Mic size={11} className={isListening ? 'text-accent-300' : 'text-neutral-600'} />
               <span>VOCÊ</span>
             </div>
             <div className="audio-level-track flex-1 h-1.5 rounded-full overflow-hidden">
@@ -58,15 +58,15 @@ export function CompactAudioMeters({
                 style={{ width: `${isListening ? Math.max(4, audioLevel) : 0}%` }}
               />
             </div>
-            <span className="w-7 text-right font-mono text-zinc-400 text-[9px]">
+            <span className="w-7 text-right font-mono text-neutral-400 text-[9px]">
               {isListening ? `${audioLevel}%` : '0%'}
             </span>
           </div>
 
           {/* Row 2: PC / REUNIÃO (Loopback) */}
           <div className="flex items-center gap-2 text-[10px]">
-            <div className="w-14 flex items-center gap-1 font-medium text-zinc-400">
-              <Monitor size={11} className={isPcSpeaking ? 'text-blue-300 animate-pulse' : 'text-zinc-600'} />
+            <div className="w-14 flex items-center gap-1 font-medium text-neutral-400">
+              <Monitor size={11} className={isPcSpeaking ? 'text-accent-300 animate-pulse' : 'text-neutral-600'} />
               <span>PC CALL</span>
             </div>
             <div className="audio-level-track flex-1 h-1.5 rounded-full overflow-hidden">
@@ -76,7 +76,7 @@ export function CompactAudioMeters({
               />
             </div>
             <div className="flex items-center gap-1">
-              <span className="w-7 text-right font-mono text-zinc-400 text-[9px]">
+              <span className="w-7 text-right font-mono text-neutral-400 text-[9px]">
                 {isPcCapturing ? `${pcAudioLevel}%` : 'OFF'}
               </span>
               <button
@@ -84,8 +84,8 @@ export function CompactAudioMeters({
                 onClick={onTogglePcCapture}
                 className={`px-1.5 py-0.2 rounded text-[9px] font-bold transition cursor-pointer border ${
                   isPcCapturing
-                  ? 'audio-toggle-active bg-blue-500/10 border-blue-500/25 text-blue-200'
-                    : 'bg-white/[0.04] border-white/[0.08] text-zinc-400'
+                  ? 'audio-toggle-active bg-accent-500/10 border-accent-500/25 text-accent-200'
+                    : 'bg-white/[0.04] border-white/[0.08] text-neutral-400'
                 }`}
                 title="Ligar ou desligar captura de áudio do sistema"
               >
@@ -98,8 +98,8 @@ export function CompactAudioMeters({
 
           {/* Row 3: AGENTE */}
           <div className="flex items-center gap-2 text-[10px]">
-            <div className="w-14 flex items-center gap-1 font-medium text-zinc-400">
-              <Bot size={11} className={isProcessing ? 'text-blue-300 animate-pulse' : 'text-zinc-600'} />
+            <div className="w-14 flex items-center gap-1 font-medium text-neutral-400">
+              <Bot size={11} className={isProcessing ? 'text-accent-300 animate-pulse' : 'text-neutral-600'} />
               <span>AGENTE</span>
             </div>
             <div className="audio-level-track flex-1 h-1.5 rounded-full overflow-hidden">
@@ -108,7 +108,7 @@ export function CompactAudioMeters({
                 style={{ width: `${isProcessing ? agentLevel : 0}%` }}
               />
             </div>
-            <span className="w-7 text-right font-mono text-zinc-400 text-[9px]">
+            <span className="w-7 text-right font-mono text-neutral-400 text-[9px]">
               {isProcessing ? `${agentLevel}%` : '0%'}
             </span>
           </div>
@@ -165,11 +165,11 @@ export function InlineAudioMeters({
               aria-label={title}
               className="app-no-drag app-quiet-button p-0.5 rounded cursor-pointer"
             >
-              <Icon size={11} className={waiting ? 'text-amber-300' : highlight ? 'text-blue-300' : active ? 'text-zinc-300' : 'text-zinc-600'} />
+              <Icon size={11} className={waiting ? 'text-amber-300' : highlight ? 'text-accent-300' : active ? 'text-neutral-300' : 'text-neutral-600'} />
             </button>
           ) : (
             <span className="p-0.5">
-              <Icon size={11} className={highlight ? 'text-blue-300' : active ? 'text-zinc-300' : 'text-zinc-600'} />
+              <Icon size={11} className={highlight ? 'text-accent-300' : active ? 'text-neutral-300' : 'text-neutral-600'} />
             </span>
           )}
           {waiting ? (

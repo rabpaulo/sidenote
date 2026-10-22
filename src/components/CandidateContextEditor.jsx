@@ -32,9 +32,9 @@ const TAB_FILLED = {
 function Field({ label, hint, children, htmlFor }) {
   return (
     <div className="space-y-1.5">
-      <label htmlFor={htmlFor} className="block text-[11px] font-medium text-zinc-300">{label}</label>
+      <label htmlFor={htmlFor} className="block text-[11px] font-medium text-neutral-300">{label}</label>
       {children}
-      {hint && <p className="text-[11px] leading-snug text-zinc-500">{hint}</p>}
+      {hint && <p className="text-[11px] leading-snug text-neutral-500">{hint}</p>}
     </div>
   );
 }
@@ -67,7 +67,7 @@ function TagInput({ id, tags, onChange, placeholder }) {
       {tags.map((tag) => (
         <span key={tag} className="app-tag">
           {tag}
-          <button type="button" onClick={() => onChange(tags.filter((t) => t !== tag))} aria-label={`Remover ${tag}`} className="text-zinc-400 hover:text-white cursor-pointer">
+          <button type="button" onClick={() => onChange(tags.filter((t) => t !== tag))} aria-label={`Remover ${tag}`} className="text-neutral-400 hover:text-white cursor-pointer">
             <X size={11} />
           </button>
         </span>
@@ -84,7 +84,7 @@ function TagInput({ id, tags, onChange, placeholder }) {
         }}
         onBlur={() => add(draft)}
         placeholder={tags.length ? '' : placeholder}
-        className="flex-1 min-w-[90px] bg-transparent text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none py-0.5"
+        className="flex-1 min-w-[90px] bg-transparent text-xs text-neutral-100 placeholder-neutral-500 focus:outline-none py-0.5"
       />
     </div>
   );
@@ -145,13 +145,13 @@ function ExperiencesTab({ draft, set, uid }) {
   const update = (index, key, value) => set('experiences', draft.experiences.map((item, i) => (i === index ? { ...item, [key]: value } : item)));
   return (
     <div className="space-y-3">
-      <p className="text-[11px] leading-relaxed text-zinc-400">
+      <p className="text-[11px] leading-relaxed text-neutral-400">
         Projetos e casos reais que você pode citar numa conversa: o problema, o que foi feito e o resultado. A IA não inventa detalhes além do que estiver aqui.
       </p>
       {draft.experiences.map((item, index) => (
         <div key={index} className="app-context-card space-y-2.5">
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">#{index + 1}</span>
+            <span className="text-[10px] font-semibold uppercase tracking-wide text-neutral-500">#{index + 1}</span>
             <input
               type="text"
               value={item.title}
@@ -160,14 +160,14 @@ function ExperiencesTab({ draft, set, uid }) {
               autoFocus={focusIndex === index}
               aria-label={`Título da experiência ${index + 1}`}
               placeholder="Projeto ou situação"
-              className="flex-1 min-w-0 bg-transparent text-xs font-medium text-zinc-100 placeholder-zinc-500 focus:outline-none"
+              className="flex-1 min-w-0 bg-transparent text-xs font-medium text-neutral-100 placeholder-neutral-500 focus:outline-none"
             />
             <button
               type="button"
               onClick={() => set('experiences', draft.experiences.filter((_, i) => i !== index))}
               aria-label={`Remover experiência ${index + 1}`}
               title="Remover"
-              className="p-1 rounded-md text-zinc-500 hover:text-red-300 hover:bg-red-500/10 cursor-pointer"
+              className="p-1 rounded-md text-neutral-500 hover:text-red-300 hover:bg-red-500/10 cursor-pointer"
             >
               <Trash2 size={13} />
             </button>
@@ -184,7 +184,7 @@ function ExperiencesTab({ draft, set, uid }) {
         </div>
       ))}
       {draft.experiences.length === 0 && (
-        <div className="rounded-xl border border-dashed border-white/10 px-4 py-6 text-center text-[11px] text-zinc-500">
+        <div className="rounded-xl border border-dashed border-white/10 px-4 py-6 text-center text-[11px] text-neutral-500">
           Nenhuma experiência ainda.
         </div>
       )}
@@ -195,7 +195,7 @@ function ExperiencesTab({ draft, set, uid }) {
           setFocusIndex(draft.experiences.length);
           set('experiences', [...draft.experiences, { title: '', story: '' }]);
         }}
-        className="app-quiet-button w-full flex items-center justify-center gap-1.5 rounded-xl border border-white/10 px-3 py-2 text-xs text-zinc-200 cursor-pointer disabled:opacity-40"
+        className="app-quiet-button w-full flex items-center justify-center gap-1.5 rounded-xl border border-white/10 px-3 py-2 text-xs text-neutral-200 cursor-pointer disabled:opacity-40"
       >
         <Plus size={13} />
         {draft.experiences.length >= MAX_EXPERIENCES ? `Limite de ${MAX_EXPERIENCES} experiências` : 'Adicionar experiência'}
@@ -209,12 +209,12 @@ function JobTab({ draft, set, uid, onImport, googleConnected }) {
   return (
     <div className="space-y-4">
       <div className="flex items-start justify-between gap-3">
-        <p className="text-[11px] leading-relaxed text-zinc-400">A reunião de agora: com quem é e o que está em jogo. Atualize antes de cada uma.</p>
+        <p className="text-[11px] leading-relaxed text-neutral-400">A reunião de agora: com quem é e o que está em jogo. Atualize antes de cada uma.</p>
         {hasJob && (
           <button
             type="button"
             onClick={() => JOB_FIELDS.forEach((key) => set(key, ''))}
-            className="shrink-0 text-[11px] text-zinc-500 hover:text-zinc-200 underline-offset-2 hover:underline cursor-pointer"
+            className="shrink-0 text-[11px] text-neutral-500 hover:text-neutral-200 underline-offset-2 hover:underline cursor-pointer"
           >
             Limpar conversa
           </button>
@@ -288,21 +288,21 @@ function ExtrasTab({ draft, set, uid, file, preview }) {
         <TextArea id={`${uid}-notes`} value={draft.notes} onChange={(v) => set('notes', v)} rows={7} maxLength={6000} placeholder="Preços e condições, prazos, disponibilidade, números do time, links úteis…" autoFocus />
       </Field>
       <div className="space-y-1.5">
-        <button type="button" onClick={importFile} disabled={importing} className="app-quiet-button flex items-center gap-1.5 rounded-lg border border-white/10 px-3 py-1.5 text-xs text-zinc-200 cursor-pointer disabled:opacity-50">
+        <button type="button" onClick={importFile} disabled={importing} className="app-quiet-button flex items-center gap-1.5 rounded-lg border border-white/10 px-3 py-1.5 text-xs text-neutral-200 cursor-pointer disabled:opacity-50">
           {importing ? <Loader2 size={12} className="animate-spin" /> : <FileText size={12} />}
           {importing ? 'Lendo arquivo…' : 'Importar contexto.md'}
         </button>
-        {message && <p role={message.ok ? 'status' : 'alert'} className={`text-[11px] ${message.ok ? 'text-zinc-400' : 'text-red-300'}`}>{message.text}</p>}
+        {message && <p role={message.ok ? 'status' : 'alert'} className={`text-[11px] ${message.ok ? 'text-neutral-400' : 'text-red-300'}`}>{message.text}</p>}
       </div>
       <details className="app-context-card">
-        <summary className="cursor-pointer text-[11px] font-medium text-zinc-300">Ver o texto enviado à IA</summary>
-        <pre className="mt-2 max-h-56 overflow-y-auto whitespace-pre-wrap break-words text-[11px] leading-relaxed text-zinc-400 font-sans select-text">
+        <summary className="cursor-pointer text-[11px] font-medium text-neutral-300">Ver o texto enviado à IA</summary>
+        <pre className="mt-2 max-h-56 overflow-y-auto whitespace-pre-wrap break-words text-[11px] leading-relaxed text-neutral-400 font-sans select-text">
           {preview || 'Nada preenchido ainda.'}
         </pre>
       </details>
       {file && (
-        <p className="text-[11px] leading-relaxed text-zinc-500">
-          Salvo em <code className="break-all text-zinc-400">{file}</code>. Continua lá ao reiniciar ou reinstalar o app; para apagar, limpe os campos e salve.
+        <p className="text-[11px] leading-relaxed text-neutral-500">
+          Salvo em <code className="break-all text-neutral-400">{file}</code>. Continua lá ao reiniciar ou reinstalar o app; para apagar, limpe os campos e salve.
         </p>
       )}
     </div>
@@ -370,10 +370,10 @@ export function CandidateContextEditor({ profile, file, status, loadError, onRet
     <div role="dialog" aria-modal="true" aria-labelledby={`${uid}-title`} className="app-context-editor fixed inset-0 z-50 flex flex-col select-text">
       <header className="flex items-start gap-3 px-4 pt-4 pb-2">
         <div className="min-w-0 flex-1">
-          <h2 id={`${uid}-title`} className="text-sm font-semibold text-zinc-100">Meu contexto</h2>
-          <p className="text-[11px] text-zinc-500">A IA usa estes dados para personalizar cada resposta.</p>
+          <h2 id={`${uid}-title`} className="text-sm font-semibold text-neutral-100">Meu contexto</h2>
+          <p className="text-[11px] text-neutral-500">A IA usa estes dados para personalizar cada resposta.</p>
         </div>
-        <button type="button" onClick={requestClose} aria-label="Fechar meu contexto" className="app-quiet-button p-1.5 -mr-1 rounded-lg text-zinc-400 cursor-pointer">
+        <button type="button" onClick={requestClose} aria-label="Fechar meu contexto" className="app-quiet-button p-1.5 -mr-1 rounded-lg text-neutral-400 cursor-pointer">
           <X size={16} />
         </button>
       </header>
@@ -402,12 +402,12 @@ export function CandidateContextEditor({ profile, file, status, loadError, onRet
 
       <div id={`${uid}-panel`} role="tabpanel" aria-labelledby={`${uid}-tab-${tab}`} className="flex-1 overflow-y-auto px-4 py-4">
         {status === 'loading' && (
-          <p className="flex items-center gap-2 text-xs text-zinc-400"><Loader2 size={13} className="animate-spin" /> Carregando seu perfil…</p>
+          <p className="flex items-center gap-2 text-xs text-neutral-400"><Loader2 size={13} className="animate-spin" /> Carregando seu perfil…</p>
         )}
         {status === 'error' && (
           <div role="alert" className="space-y-2 text-xs text-red-300">
             <p>{loadError || 'Não foi possível carregar o perfil.'}</p>
-            <button type="button" onClick={onRetry} className="app-quiet-button rounded-lg border border-white/10 px-3 py-1.5 text-zinc-200 cursor-pointer">Tentar novamente</button>
+            <button type="button" onClick={onRetry} className="app-quiet-button rounded-lg border border-white/10 px-3 py-1.5 text-neutral-200 cursor-pointer">Tentar novamente</button>
           </div>
         )}
         {ready && tab === 'profile' && <ProfileTab {...panelProps} />}
@@ -419,8 +419,8 @@ export function CandidateContextEditor({ profile, file, status, loadError, onRet
       <footer className="app-context-footer px-4 py-3">
         {confirmDiscard ? (
           <div className="flex items-center gap-2">
-            <span className="flex-1 text-xs text-zinc-300">Descartar alterações?</span>
-            <button type="button" onClick={() => setConfirmDiscard(false)} className="text-xs text-zinc-400 hover:text-white px-3 py-2 cursor-pointer">Continuar editando</button>
+            <span className="flex-1 text-xs text-neutral-300">Descartar alterações?</span>
+            <button type="button" onClick={() => setConfirmDiscard(false)} className="text-xs text-neutral-400 hover:text-white px-3 py-2 cursor-pointer">Continuar editando</button>
             <button type="button" onClick={onClose} className="rounded-full bg-red-500/15 border border-red-500/30 px-4 py-2 text-xs font-semibold text-red-200 hover:bg-red-500/25 cursor-pointer">Descartar</button>
           </div>
         ) : (
@@ -431,11 +431,11 @@ export function CandidateContextEditor({ profile, file, status, loadError, onRet
               </p>
             )}
             <div className="flex items-center gap-2">
-              <span className={`flex-1 text-[11px] tabular-nums ${tooLong ? 'text-red-300' : 'text-zinc-500'}`}>
+              <span className={`flex-1 text-[11px] tabular-nums ${tooLong ? 'text-red-300' : 'text-neutral-500'}`}>
                 {dirty ? 'Alterações não salvas · ' : ''}
                 {preview.length.toLocaleString('pt-BR')} / {MAX_CONTEXT_CHARS.toLocaleString('pt-BR')}
               </span>
-              <button type="button" onClick={requestClose} className="text-xs text-zinc-400 hover:text-white px-3 py-2 cursor-pointer">Cancelar</button>
+              <button type="button" onClick={requestClose} className="text-xs text-neutral-400 hover:text-white px-3 py-2 cursor-pointer">Cancelar</button>
               <button
                 type="button"
                 onClick={save}

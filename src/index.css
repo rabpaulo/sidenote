@@ -1,13 +1,29 @@
 @import "tailwindcss";
 
+/* Monochrome accent: utility classes use `accent-*` instead of a hue. */
+@theme {
+  --color-accent-50: #fafafa;
+  --color-accent-100: #f5f5f5;
+  --color-accent-200: #ededed;
+  --color-accent-300: #d4d4d4;
+  --color-accent-400: #ededed;
+  --color-accent-500: #d4d4d4;
+  --color-accent-600: #a3a3a3;
+  --color-accent-700: #525252;
+  --color-accent-800: #262626;
+  --color-accent-900: #1a1a1a;
+  --color-accent-950: #141414;
+}
+
 :root {
   color-scheme: dark;
-  --sidenote-bg: #050506;
-  --sidenote-surface: #0b0b0d;
-  --sidenote-surface-raised: #111113;
+  --sidenote-bg: #0a0a0a;
+  --sidenote-surface: #101010;
+  --sidenote-surface-raised: #141414;
   --sidenote-line: rgba(255, 255, 255, 0.09);
-  --sidenote-muted: #8c8c93;
-  --sidenote-blue: #2684ff;
+  --sidenote-muted: #8c8c8c;
+  --sidenote-accent: #ededed;
+  --sidenote-accent-text: #d4d4d4;
 }
 
 @layer base {
@@ -69,26 +85,26 @@ html.app-solid-text .app-bottom-bar {
 html.app-solid-text .app-shell .transcript-entry,
 html.app-solid-text .app-transcript-feed [class*="bg-["],
 html.app-solid-text .app-transcript-feed [class*="bg-black"],
-html.app-solid-text .app-transcript-feed [class*="bg-zinc-9"],
+html.app-solid-text .app-transcript-feed [class*="bg-neutral-9"],
 html.app-solid-text .app-transcript-feed [class*="bg-gradient-to-"] {
-  background-color: color-mix(in srgb, #0d0d10 calc(var(--app-opacity, 1) * 85%), transparent) !important;
+  background-color: color-mix(in srgb, #121212 calc(var(--app-opacity, 1) * 85%), transparent) !important;
 }
 
 html.app-solid-text .app-shell .say-this {
-  background: color-mix(in srgb, #17140c var(--app-glass), transparent);
+  background: color-mix(in srgb, #1a1a1a var(--app-glass), transparent);
 }
 
 html.app-solid-text .app-frame {
   text-shadow: 0 0 1px rgba(0, 0, 0, 0.9), 0 1px 3px rgba(0, 0, 0, 0.8);
 }
 
-html.app-solid-text .app-frame [class*="text-zinc-6"],
-html.app-solid-text .app-frame [class*="text-zinc-5"] {
+html.app-solid-text .app-frame [class*="text-neutral-6"],
+html.app-solid-text .app-frame [class*="text-neutral-5"] {
   color: #c4c4cc !important;
 }
 
-html.app-solid-text .app-frame [class*="text-zinc-4"],
-html.app-solid-text .app-frame [class*="text-zinc-3"] {
+html.app-solid-text .app-frame [class*="text-neutral-4"],
+html.app-solid-text .app-frame [class*="text-neutral-3"] {
   color: #e4e4e7 !important;
 }
 
@@ -99,7 +115,7 @@ html.app-solid-text .app-context-editor {
 }
 
 .app-menu {
-  background: #0d0d0f;
+  background: #121212;
   border: 1px solid rgba(255, 255, 255, 0.09);
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
 }
@@ -157,15 +173,16 @@ html.app-solid-text .app-context-editor {
 }
 
 .app-menu-switch--on {
-  background: var(--sidenote-blue);
+  background: var(--sidenote-accent);
 }
 
 .app-menu-switch--on::after {
+  background: #0a0a0a;
   transform: translateX(11px);
 }
 
 .app-opacity-slider {
-  accent-color: var(--sidenote-blue);
+  accent-color: var(--sidenote-accent);
 }
 
 .app-shell {
@@ -187,7 +204,7 @@ html.app-solid-text .app-context-editor {
 
 .app-shell button:focus-visible,
 .app-shell input:focus-visible {
-  outline: 2px solid var(--sidenote-blue);
+  outline: 2px solid var(--sidenote-accent);
   outline-offset: 2px;
 }
 
@@ -201,17 +218,17 @@ html.app-solid-text .app-context-editor {
 }
 
 .app-tabs {
-  background: #070708;
+  background: #0c0c0c;
   border-bottom: 1px solid var(--sidenote-line);
 }
 
 .app-tab-active {
-  background: #151517;
+  background: #1a1a1a;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
 .app-transcript-feed {
-  background: #070708;
+  background: #0c0c0c;
   scrollbar-gutter: stable;
 }
 
@@ -240,16 +257,16 @@ html.app-solid-text .app-context-editor {
   flex-shrink: 0;
   padding: 5px 8px;
   border-radius: 6px;
-  background: rgba(38, 132, 255, 0.13);
-  color: #8ebcff;
+  background: rgba(255, 255, 255, 0.078);
+  color: var(--sidenote-accent-text);
   cursor: pointer;
   font-size: 11px;
   font-weight: 600;
 }
 
 .app-resume-live:hover {
-  background: rgba(38, 132, 255, 0.22);
-  color: #c1d9ff;
+  background: rgba(255, 255, 255, 0.132);
+  color: #ffffff;
 }
 
 .app-transcript-feed p,
@@ -259,7 +276,7 @@ html.app-solid-text .app-context-editor {
 
 .transcript-entry {
   border-color: rgba(255, 255, 255, 0.09);
-  background: #0d0d0f;
+  background: #121212;
   box-shadow: none;
 }
 
@@ -269,11 +286,11 @@ html.app-solid-text .app-context-editor {
 
 .transcript-entry--answer,
 .transcript-entry--assistant {
-  border-left: 2px solid var(--sidenote-blue);
+  border-left: 2px solid var(--sidenote-accent);
 }
 
 .app-audio-panel {
-  background: #070708;
+  background: #0c0c0c;
   border-top: 1px solid var(--sidenote-line);
 }
 
@@ -282,25 +299,25 @@ html.app-solid-text .app-context-editor {
 }
 
 .audio-level-fill {
-  background: linear-gradient(90deg, #1c66dc, #76adff);
-  box-shadow: 0 0 12px rgba(38, 132, 255, 0.2);
+  background: linear-gradient(90deg, #737373, #ededed);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.12);
 }
 
 .audio-toggle-active {
-  border-color: rgba(38, 132, 255, 0.35);
+  border-color: rgba(255, 255, 255, 0.21);
 }
 
 .app-bottom-bar {
-  background: rgba(5, 5, 6, 0.97);
+  background: rgba(10, 10, 10, 0.97);
   border-top: 1px solid var(--sidenote-line);
 }
 
 .app-primary-button:hover {
-  box-shadow: 0 5px 20px rgba(38, 132, 255, 0.14);
+  box-shadow: 0 5px 20px rgba(255, 255, 255, 0.084);
 }
 
 .app-text-input {
-  background: #0e0e10;
+  background: #121212;
   border-color: rgba(255, 255, 255, 0.12);
 }
 
@@ -348,22 +365,22 @@ html.app-solid-text .app-context-editor {
   bottom: -1px;
   height: 2px;
   border-radius: 2px;
-  background: var(--sidenote-blue);
+  background: var(--sidenote-accent);
 }
 
 .app-context-tab__dot {
   width: 5px;
   height: 5px;
   border-radius: 999px;
-  background: var(--sidenote-blue);
+  background: var(--sidenote-accent);
 }
 
 .app-context-tab__count {
   min-width: 16px;
   padding: 0 4px;
   border-radius: 999px;
-  background: rgba(38, 132, 255, 0.18);
-  color: #9cc4ff;
+  background: rgba(255, 255, 255, 0.108);
+  color: #e5e5e5;
   font-size: 10px;
   line-height: 16px;
   text-align: center;
@@ -392,8 +409,8 @@ html.app-solid-text .app-context-editor {
 
 .app-dropzone:hover,
 .app-dropzone--active {
-  border-color: rgba(38, 132, 255, 0.6);
-  background: rgba(38, 132, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.36);
+  background: rgba(255, 255, 255, 0.048);
 }
 
 .app-dropzone[aria-busy="true"] {
@@ -408,8 +425,8 @@ html.app-solid-text .app-context-editor {
   width: 30px;
   height: 30px;
   border-radius: 9px;
-  background: rgba(38, 132, 255, 0.14);
-  color: #8fbcff;
+  background: rgba(255, 255, 255, 0.084);
+  color: var(--sidenote-accent-text);
 }
 
 .app-context-footer {
@@ -422,7 +439,7 @@ html.app-solid-text .app-context-editor {
   width: 100%;
   padding: 8px 10px;
   border-radius: 10px;
-  background: #0e0e10;
+  background: #121212;
   border: 1px solid rgba(255, 255, 255, 0.12);
   color: #f4f4f5;
   font-size: 12px;
@@ -437,7 +454,7 @@ html.app-solid-text .app-context-editor {
 .app-field:focus,
 .app-field:focus-within {
   outline: none;
-  border-color: rgba(38, 132, 255, 0.55);
+  border-color: rgba(255, 255, 255, 0.33);
 }
 
 /* The border already marks focus; skip the shell's generic outline. */
@@ -462,8 +479,8 @@ html.app-solid-text .app-context-editor {
 
 .app-chip--on {
   color: #fff;
-  background: rgba(38, 132, 255, 0.18);
-  border-color: rgba(38, 132, 255, 0.5);
+  background: rgba(255, 255, 255, 0.108);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 .app-tag {
@@ -483,7 +500,7 @@ html.app-solid-text .app-context-editor {
 .app-shell [class*="text-purple-"],
 .app-shell [class*="text-emerald-"],
 .app-shell [class*="text-amber-"] {
-  color: #8ebcff !important;
+  color: var(--sidenote-accent-text) !important;
 }
 
 .app-shell [class*="bg-cyan-"],
@@ -504,7 +521,7 @@ html.app-solid-text .app-context-editor {
 
 .app-shell [class*="bg-gradient-to-"] {
   background-image: none !important;
-  background-color: #101012 !important;
+  background-color: #141414 !important;
 }
 
 .app-shell [class*="shadow-cyan-"],
@@ -525,10 +542,10 @@ html.app-solid-text .app-context-editor {
   position: relative;
   padding: 0;
   overflow: hidden;
-  border: 1px solid #756033;
-  border-left: 4px solid #f0c15a;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-left: 4px solid var(--sidenote-accent);
   border-radius: 12px;
-  background: #17140c;
+  background: #1a1a1a;
 }
 
 .say-this__copy {
@@ -541,12 +558,12 @@ html.app-solid-text .app-context-editor {
   min-width: 28px;
   min-height: 28px;
   border-radius: 6px;
-  color: #c3ac7c;
+  color: #a3a3a3;
   cursor: pointer;
 }
 
 .say-this__copy:hover {
-  background: rgba(240, 193, 90, 0.12);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .say-this__copy:focus-visible {
@@ -560,7 +577,7 @@ html.app-solid-text .app-context-editor {
 
 .say-this__body,
 .say-this__body > div {
-  color: #fff5dc;
+  color: #fafafa;
   font-size: 15px;
   line-height: 1.65;
 }
@@ -639,24 +656,24 @@ html.app-solid-text .app-context-editor {
 
 /* Glassmorphism effects */
 .glass-panel {
-  background: rgba(18, 18, 24, 0.75);
+  background: rgba(18, 18, 18, 0.75);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .glass-card {
-  background: rgba(24, 24, 32, 0.6);
+  background: rgba(24, 24, 24, 0.6);
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .glow-cyan {
-  box-shadow: 0 0 35px -5px rgba(6, 182, 212, 0.25);
+  box-shadow: 0 0 35px -5px rgba(255, 255, 255, 0.08);
 }
 
 .glow-purple {
-  box-shadow: 0 0 35px -5px rgba(168, 85, 247, 0.25);
+  box-shadow: 0 0 35px -5px rgba(255, 255, 255, 0.08);
 }
 
 /* Custom waveform animation for idle/speech states */
@@ -771,7 +788,7 @@ html.app-solid-text .app-context-editor {
 .agent-markdown li::marker { color: #71717a; }
 
 .agent-markdown blockquote {
-  border-left: 2px solid rgba(34, 211, 238, 0.45);
+  border-left: 2px solid rgba(255, 255, 255, 0.3);
   background: rgba(255, 255, 255, 0.03);
   border-radius: 0 8px 8px 0;
   padding: 0.5em 0.8em;
@@ -785,7 +802,7 @@ html.app-solid-text .app-context-editor {
 }
 
 .agent-markdown a {
-  color: #67e8f9;
+  color: #fafafa;
   text-decoration: underline;
   text-underline-offset: 2px;
 }
@@ -795,7 +812,7 @@ html.app-solid-text .app-context-editor {
   border-radius: 5px;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #a5f3fc;
+  color: #e5e5e5;
   font-size: 0.9em;
 }
 
@@ -823,7 +840,7 @@ html.app-solid-text .app-context-editor {
   overflow: hidden;
   border: 1px solid #27272a;
   border-radius: 10px;
-  background: #0d0d12;
+  background: #111111;
 }
 
 .code-frame__header {
@@ -882,12 +899,12 @@ html.app-solid-text .app-context-editor {
 
 .code-frame__tab[aria-selected="true"] {
   color: #f4f4f5;
-  border-bottom-color: #22d3ee;
-  background: rgba(34, 211, 238, 0.06);
+  border-bottom-color: var(--sidenote-accent);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .code-frame__tab:focus-visible {
-  outline: 2px solid #22d3ee;
+  outline: 2px solid var(--sidenote-accent);
   outline-offset: -2px;
 }
 
@@ -896,7 +913,7 @@ html.app-solid-text .app-context-editor {
   height: 6px;
   flex-shrink: 0;
   border-radius: 999px;
-  background: #22d3ee;
+  background: var(--sidenote-accent);
   animation: sidenotePulse 1.2s ease-in-out infinite;
 }
 

@@ -11,11 +11,11 @@ const FREE_PROVIDERS = ['gemini', 'groq'];
 
 function Step({ number, title, done, children }) {
   return (
-    <section className="rounded-xl border border-zinc-800/80 bg-zinc-900/30 p-3.5 space-y-2.5">
-      <h3 className="flex items-center gap-2 font-semibold text-zinc-100">
+    <section className="rounded-xl border border-neutral-800/80 bg-neutral-900/30 p-3.5 space-y-2.5">
+      <h3 className="flex items-center gap-2 font-semibold text-neutral-100">
         {done
           ? <CircleCheck size={16} className="text-emerald-400 shrink-0" />
-          : <span className="w-4 h-4 rounded-full border border-zinc-600 text-[10px] leading-[14px] text-center text-zinc-400 shrink-0">{number}</span>}
+          : <span className="w-4 h-4 rounded-full border border-neutral-600 text-[10px] leading-[14px] text-center text-neutral-400 shrink-0">{number}</span>}
         {title}
       </h3>
       {children}
@@ -32,7 +32,7 @@ function ProviderStep({ needed, availability, agentSettings, onRefresh, onOpenKe
   if (!needed) {
     return (
       <Step number={1} title="Modelo de IA" done>
-        <p className="text-zinc-400">Usando {current?.name}{agentSettings.currentModel?.name ? ` · ${agentSettings.currentModel.name}` : ''}.</p>
+        <p className="text-neutral-400">Usando {current?.name}{agentSettings.currentModel?.name ? ` · ${agentSettings.currentModel.name}` : ''}.</p>
       </Step>
     );
   }
@@ -46,7 +46,7 @@ function ProviderStep({ needed, availability, agentSettings, onRefresh, onOpenKe
 
   return (
     <Step number={1} title="Modelo de IA">
-      <p className="text-zinc-400 leading-relaxed">
+      <p className="text-neutral-400 leading-relaxed">
         Cole uma API key. Gemini e Groq têm plano gratuito; a key fica só neste computador.
       </p>
       <div role="tablist" className="flex gap-1.5">
@@ -57,12 +57,12 @@ function ProviderStep({ needed, availability, agentSettings, onRefresh, onOpenKe
             role="tab"
             aria-selected={choice === id}
             onClick={() => setChoice(id)}
-            className={`px-3 py-1 rounded-lg border text-[11px] cursor-pointer ${choice === id ? 'border-blue-500/50 bg-blue-500/15 text-blue-100' : 'border-zinc-800 text-zinc-400 hover:text-zinc-200'}`}
+            className={`px-3 py-1 rounded-lg border text-[11px] cursor-pointer ${choice === id ? 'border-accent-500/50 bg-accent-500/15 text-accent-100' : 'border-neutral-800 text-neutral-400 hover:text-neutral-200'}`}
           >
             {PROVIDERS[id].shortName || PROVIDERS[id].name}
           </button>
         ))}
-        <button type="button" onClick={onOpenKeys} className="px-3 py-1 rounded-lg border border-zinc-800 text-[11px] text-zinc-400 hover:text-zinc-200 cursor-pointer">
+        <button type="button" onClick={onOpenKeys} className="px-3 py-1 rounded-lg border border-neutral-800 text-[11px] text-neutral-400 hover:text-neutral-200 cursor-pointer">
           Outros…
         </button>
       </div>
@@ -76,11 +76,11 @@ function ProviderStep({ needed, availability, agentSettings, onRefresh, onOpenKe
         onSave={saveAndUse}
         onRemove={remove}
       />
-      <p className="text-[11px] text-zinc-500 leading-relaxed">
+      <p className="text-[11px] text-neutral-500 leading-relaxed">
         {installedClis.length
           ? <>Encontrei {installedClis.map((id) => PROVIDERS[id].shortName).join(', ')} neste computador, sem login. Faça login no terminal e{' '}</>
           : <>Nenhum CLI de IA (Codex, Claude Code, Antigravity, OpenCode) foi encontrado. Se instalar um, faça login e{' '}</>}
-        <button type="button" onClick={onRefresh} className="inline-flex items-center gap-1 underline hover:text-zinc-200 cursor-pointer">
+        <button type="button" onClick={onRefresh} className="inline-flex items-center gap-1 underline hover:text-neutral-200 cursor-pointer">
           verifique de novo <RefreshCw size={10} />
         </button>.
       </p>
@@ -98,14 +98,14 @@ function SpeechStep({ needed, speech }) {
   if (!status) {
     return (
       <Step number={2} title="Reconhecimento de voz">
-        <p className="flex items-center gap-1.5 text-zinc-400"><Loader2 size={12} className="animate-spin" /> Verificando…</p>
+        <p className="flex items-center gap-1.5 text-neutral-400"><Loader2 size={12} className="animate-spin" /> Verificando…</p>
       </Step>
     );
   }
   if (!needed) {
     return (
       <Step number={2} title="Reconhecimento de voz" done>
-        <p className="text-zinc-400">Usando {speechEngineName(status)}.</p>
+        <p className="text-neutral-400">Usando {speechEngineName(status)}.</p>
       </Step>
     );
   }
@@ -118,7 +118,7 @@ function SpeechStep({ needed, speech }) {
 
   return (
     <Step number={2} title="Reconhecimento de voz">
-      <p className="text-zinc-400 leading-relaxed">
+      <p className="text-neutral-400 leading-relaxed">
         Baixe o Parakeet uma vez: ele transcreve português e inglês no seu computador, sem internet e sem instalar mais nada.
       </p>
       <ModelRow
@@ -142,19 +142,19 @@ export function WelcomeModal({ isOpen, onClose, needs, availability, agentSettin
   return (
     <div className="fixed inset-0 z-[55] flex items-center justify-center p-4 overflow-y-auto">
       <div className="fixed inset-0 bg-black/80 backdrop-blur-md" />
-      <div role="dialog" aria-modal="true" aria-labelledby="welcome-title" className="relative w-full max-w-lg rounded-2xl border border-zinc-800 bg-[#0e0e14] shadow-2xl overflow-hidden z-10 flex flex-col max-h-[90vh] text-[12px]">
-        <div className="flex items-center justify-between px-5 py-3.5 border-b border-zinc-800/80 bg-zinc-950/60">
+      <div role="dialog" aria-modal="true" aria-labelledby="welcome-title" className="relative w-full max-w-lg rounded-2xl border border-neutral-800 bg-[#0e0e14] shadow-2xl overflow-hidden z-10 flex flex-col max-h-[90vh] text-[12px]">
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-neutral-800/80 bg-neutral-950/60">
           <h2 id="welcome-title" className="flex items-center gap-2 text-base font-bold text-white tracking-tight">
-            <Sparkles size={16} className="text-blue-300" />
+            <Sparkles size={16} className="text-accent-300" />
             Bem-vindo ao Sidenote
           </h2>
-          <button type="button" onClick={onClose} aria-label="Fechar" className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/80 transition cursor-pointer">
+          <button type="button" onClick={onClose} aria-label="Fechar" className="p-1.5 rounded-lg text-neutral-400 hover:text-white hover:bg-neutral-800/80 transition cursor-pointer">
             <X size={16} />
           </button>
         </div>
 
         <div className="p-5 overflow-y-auto space-y-3">
-          <p className="text-zinc-400 leading-relaxed">
+          <p className="text-neutral-400 leading-relaxed">
             O Sidenote ouve a chamada, transcreve e sugere o que responder. Faltam dois passos para começar.
           </p>
           <ProviderStep
@@ -168,11 +168,11 @@ export function WelcomeModal({ isOpen, onClose, needs, availability, agentSettin
           <SpeechStep needed={needs.speech} speech={speech} />
         </div>
 
-        <div className="flex justify-end px-5 py-3 border-t border-zinc-800/80 bg-zinc-950/60">
+        <div className="flex justify-end px-5 py-3 border-t border-neutral-800/80 bg-neutral-950/60">
           <button
             type="button"
             onClick={onClose}
-            className={`px-4 py-1.5 rounded-lg text-[12px] font-semibold cursor-pointer ${ready ? 'bg-blue-500 text-white hover:bg-blue-400' : 'border border-zinc-700 text-zinc-300 hover:bg-white/5'}`}
+            className={`px-4 py-1.5 rounded-lg text-[12px] font-semibold cursor-pointer ${ready ? 'bg-accent-200 text-neutral-950 hover:bg-white' : 'border border-neutral-700 text-neutral-300 hover:bg-white/5'}`}
           >
             {ready ? 'Começar' : 'Fazer isso depois'}
           </button>

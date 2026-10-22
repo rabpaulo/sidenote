@@ -135,7 +135,7 @@ export function AppMenu({
         aria-label="Menu"
         aria-expanded={isOpen}
         title="Menu"
-        className={`p-2 rounded-xl transition cursor-pointer ${isOpen ? 'bg-white/10 text-white' : 'app-quiet-button text-zinc-400'}`}
+        className={`p-2 rounded-xl transition cursor-pointer ${isOpen ? 'bg-white/10 text-white' : 'app-quiet-button text-neutral-400'}`}
       >
         <Menu size={15} />
       </button>
@@ -143,66 +143,66 @@ export function AppMenu({
       {isOpen && (
         <div role="menu" className="app-menu absolute left-0 bottom-full mb-2 z-40 w-64 max-h-[calc(100dvh-4rem)] overflow-y-auto rounded-xl p-1.5 text-[12px]">
           <button type="button" role="menuitem" onClick={runAndClose(onOpenModelModal)} className="app-menu-item">
-            <ProviderIcon size={14} className="text-blue-300 shrink-0" />
-            <span className="text-zinc-400">Modelo</span>
-            <span className="ml-auto flex items-center gap-1 truncate text-zinc-100 font-medium">
+            <ProviderIcon size={14} className="text-accent-300 shrink-0" />
+            <span className="text-neutral-400">Modelo</span>
+            <span className="ml-auto flex items-center gap-1 truncate text-neutral-100 font-medium">
               <span className="truncate">{currentModel?.name || currentProviderConfig.shortName}</span>
               {fastMode && provider === 'codex' && <Zap size={10} className="text-amber-400 shrink-0" />}
             </span>
-            <ChevronRight size={12} className="text-zinc-500 shrink-0" />
+            <ChevronRight size={12} className="text-neutral-500 shrink-0" />
           </button>
 
           <button type="button" role="menuitem" onClick={runAndClose(onOpenPersonaModal)} className="app-menu-item">
-            <Briefcase size={14} className="text-zinc-400 shrink-0" />
-            <span className="text-zinc-400">Modo</span>
-            <span className="ml-auto truncate text-zinc-100 font-medium">{currentPersona?.shortName || 'Reunião Geral'}</span>
-            <ChevronRight size={12} className="text-zinc-500 shrink-0" />
+            <Briefcase size={14} className="text-neutral-400 shrink-0" />
+            <span className="text-neutral-400">Modo</span>
+            <span className="ml-auto truncate text-neutral-100 font-medium">{currentPersona?.shortName || 'Reunião Geral'}</span>
+            <ChevronRight size={12} className="text-neutral-500 shrink-0" />
           </button>
 
           {onOpenKeysModal && (
             <button type="button" role="menuitem" onClick={runAndClose(onOpenKeysModal)} className="app-menu-item">
-              <KeyRound size={14} className="text-zinc-400 shrink-0" />
-              <span className="text-zinc-400">Chaves de API</span>
-              <ChevronRight size={12} className="ml-auto text-zinc-500 shrink-0" />
+              <KeyRound size={14} className="text-neutral-400 shrink-0" />
+              <span className="text-neutral-400">Chaves de API</span>
+              <ChevronRight size={12} className="ml-auto text-neutral-500 shrink-0" />
             </button>
           )}
 
           {onOpenLocalModal && (
             <button type="button" role="menuitem" onClick={runAndClose(onOpenLocalModal)} className="app-menu-item">
-              <HardDrive size={14} className="text-zinc-400 shrink-0" />
-              <span className="text-zinc-400">Modelos locais</span>
-              <ChevronRight size={12} className="ml-auto text-zinc-500 shrink-0" />
+              <HardDrive size={14} className="text-neutral-400 shrink-0" />
+              <span className="text-neutral-400">Modelos locais</span>
+              <ChevronRight size={12} className="ml-auto text-neutral-500 shrink-0" />
             </button>
           )}
 
           {onOpenGoogleModal && (
             <button type="button" role="menuitem" onClick={runAndClose(onOpenGoogleModal)} className="app-menu-item">
-              <CalendarDays size={14} className={`shrink-0 ${googleStatus?.connected ? 'text-emerald-300' : 'text-zinc-400'}`} />
-              <span className="text-zinc-400">Google</span>
-              <span className="ml-auto truncate text-zinc-100 font-medium">
+              <CalendarDays size={14} className={`shrink-0 ${googleStatus?.connected ? 'text-emerald-300' : 'text-neutral-400'}`} />
+              <span className="text-neutral-400">Google</span>
+              <span className="ml-auto truncate text-neutral-100 font-medium">
                 {googleStatus?.connected ? 'Agenda e Docs' : googleStatus?.connecting ? 'Entrando…' : 'Conectar'}
               </span>
-              <ChevronRight size={12} className="text-zinc-500 shrink-0" />
+              <ChevronRight size={12} className="text-neutral-500 shrink-0" />
             </button>
           )}
 
           {onOpenSpeechModal && (
             <button type="button" role="menuitem" onClick={runAndClose(onOpenSpeechModal)} className="app-menu-item">
-              <AudioLines size={14} className="text-zinc-400 shrink-0" />
-              <span className="text-zinc-400">Reconhecimento de voz</span>
-              <span className="ml-auto truncate text-zinc-100 font-medium">{speechLabel || ''}</span>
-              <ChevronRight size={12} className="text-zinc-500 shrink-0" />
+              <AudioLines size={14} className="text-neutral-400 shrink-0" />
+              <span className="text-neutral-400">Reconhecimento de voz</span>
+              <span className="ml-auto truncate text-neutral-100 font-medium">{speechLabel || ''}</span>
+              <ChevronRight size={12} className="text-neutral-500 shrink-0" />
             </button>
           )}
 
           {onOpenNotesModal && (
             <button type="button" role="menuitem" onClick={runAndClose(onOpenNotesModal)} className="app-menu-item">
-              <NotebookText size={14} className={`shrink-0 ${notesStatus?.connected ? 'text-emerald-300' : 'text-zinc-400'}`} />
-              <span className="text-zinc-400">Notas</span>
-              <span className="ml-auto truncate text-zinc-100 font-medium">
+              <NotebookText size={14} className={`shrink-0 ${notesStatus?.connected ? 'text-emerald-300' : 'text-neutral-400'}`} />
+              <span className="text-neutral-400">Notas</span>
+              <span className="ml-auto truncate text-neutral-100 font-medium">
                 {notesStatus?.connected ? `${notesStatus.files.toLocaleString('pt-BR')} no Obsidian` : notesStatus?.error ? 'Erro' : 'Conectar'}
               </span>
-              <ChevronRight size={12} className="text-zinc-500 shrink-0" />
+              <ChevronRight size={12} className="text-neutral-500 shrink-0" />
             </button>
           )}
 
@@ -212,9 +212,9 @@ export function AppMenu({
             onClick={() => setLanguage(LANGUAGE_OPTIONS[(LANGUAGE_OPTIONS.indexOf(language) + 1) % LANGUAGE_OPTIONS.length])}
             className="app-menu-item"
           >
-            <Languages size={14} className="text-zinc-400 shrink-0" />
-            <span className="text-zinc-400">Idioma</span>
-            <span className="ml-auto text-zinc-100 font-semibold">
+            <Languages size={14} className="text-neutral-400 shrink-0" />
+            <span className="text-neutral-400">Idioma</span>
+            <span className="ml-auto text-neutral-100 font-semibold">
               {language === AUTO_LANGUAGE ? `Auto${detectedLanguage ? ` · ${languageLabel(detectedLanguage)}` : ''}` : languageLabel(language)}
             </span>
           </button>
@@ -227,10 +227,10 @@ export function AppMenu({
               className="app-menu-item"
               title={`Monitor capturado por ${shortcutLabel(screenshot.shortcut)} e enviado ao agente. Clique para alternar.`}
             >
-              <Camera size={14} className="text-zinc-400 shrink-0" />
-              <span className="text-zinc-400">Captura</span>
-              <span className="ml-auto truncate text-zinc-100 font-semibold">{screenshotMonitorLabel()}</span>
-              <span className="text-[10px] text-zinc-500 shrink-0">{shortcutLabel(screenshot.shortcut)}</span>
+              <Camera size={14} className="text-neutral-400 shrink-0" />
+              <span className="text-neutral-400">Captura</span>
+              <span className="ml-auto truncate text-neutral-100 font-semibold">{screenshotMonitorLabel()}</span>
+              <span className="text-[10px] text-neutral-500 shrink-0">{shortcutLabel(screenshot.shortcut)}</span>
             </button>
           )}
 
@@ -243,17 +243,17 @@ export function AppMenu({
               className="app-menu-item"
               title="Mostra só a resposta do agente, as configurações e os medidores de áudio"
             >
-              <Minimize2 size={14} className={`shrink-0 ${isCompact ? 'text-blue-300' : 'text-zinc-400'}`} />
-              <span className="text-zinc-100">Modo compacto</span>
-              <span className="ml-auto text-[10px] text-zinc-500">Alt+C</span>
+              <Minimize2 size={14} className={`shrink-0 ${isCompact ? 'text-accent-300' : 'text-neutral-400'}`} />
+              <span className="text-neutral-100">Modo compacto</span>
+              <span className="ml-auto text-[10px] text-neutral-500">Alt+C</span>
               <span className={`app-menu-switch ${isCompact ? 'app-menu-switch--on' : ''}`} aria-hidden="true" />
             </button>
           )}
 
           <button type="button" role="menuitem" onClick={runAndClose(onNewSession)} className="app-menu-item">
-            <RotateCcw size={14} className="text-zinc-400 shrink-0" />
-            <span className="text-zinc-100">Nova sessão</span>
-            <span className="ml-auto text-[10px] text-zinc-500">Alt+N</span>
+            <RotateCcw size={14} className="text-neutral-400 shrink-0" />
+            <span className="text-neutral-100">Nova sessão</span>
+            <span className="ml-auto text-[10px] text-neutral-500">Alt+N</span>
           </button>
 
           {isDesktop && (
@@ -262,9 +262,9 @@ export function AppMenu({
 
               <div className="px-2.5 py-2">
                 <div className="flex items-center gap-2 mb-2">
-                  <Droplet size={14} className="text-zinc-400 shrink-0" />
-                  <span className="text-zinc-400">Opacidade</span>
-                  <span className="ml-auto text-zinc-100 tabular-nums">{Math.round(opacity * 100)}%</span>
+                  <Droplet size={14} className="text-neutral-400 shrink-0" />
+                  <span className="text-neutral-400">Opacidade</span>
+                  <span className="ml-auto text-neutral-100 tabular-nums">{Math.round(opacity * 100)}%</span>
                 </div>
                 <input
                   type="range"
@@ -292,15 +292,15 @@ export function AppMenu({
                   className="app-menu-item"
                   title="Deixa só o fundo transparente e mantém o texto 100% opaco e com alto contraste"
                 >
-                  <Type size={14} className={`shrink-0 ${solidText ? 'text-blue-300' : 'text-zinc-400'}`} />
-                  <span className="text-zinc-100">Texto nítido</span>
+                  <Type size={14} className={`shrink-0 ${solidText ? 'text-accent-300' : 'text-neutral-400'}`} />
+                  <span className="text-neutral-100">Texto nítido</span>
                   <span className={`app-menu-switch ml-auto ${solidText ? 'app-menu-switch--on' : ''}`} aria-hidden="true" />
                 </button>
               )}
 
               <button type="button" role="menuitemcheckbox" aria-checked={isPinned} onClick={handleTogglePin} className="app-menu-item">
-                <Pin size={14} className={`shrink-0 ${isPinned ? 'rotate-45 text-blue-300' : 'text-zinc-400'}`} />
-                <span className="text-zinc-100">Fixar no topo</span>
+                <Pin size={14} className={`shrink-0 ${isPinned ? 'rotate-45 text-accent-300' : 'text-neutral-400'}`} />
+                <span className="text-neutral-100">Fixar no topo</span>
                 <span className={`app-menu-switch ml-auto ${isPinned ? 'app-menu-switch--on' : ''}`} aria-hidden="true" />
               </button>
 
@@ -308,8 +308,8 @@ export function AppMenu({
 
               <div className="flex gap-1">
                 <button type="button" role="menuitem" onClick={runAndClose(() => window.sidenoteDesktop?.minimize?.())} className="app-menu-item flex-1">
-                  <Minus size={14} className="text-zinc-400 shrink-0" />
-                  <span className="text-zinc-100">Minimizar</span>
+                  <Minus size={14} className="text-neutral-400 shrink-0" />
+                  <span className="text-neutral-100">Minimizar</span>
                 </button>
                 <button type="button" role="menuitem" onClick={() => window.sidenoteDesktop?.close?.()} className="app-menu-item app-menu-item--danger flex-1">
                   <X size={14} className="shrink-0" />

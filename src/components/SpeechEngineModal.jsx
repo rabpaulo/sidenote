@@ -18,9 +18,9 @@ function CopyCommand({ command }) {
     setTimeout(() => setCopied(false), 1500);
   };
   return (
-    <div className="flex items-start gap-1.5 rounded-lg border border-zinc-800 bg-black/40 p-2">
-      <code className="flex-1 min-w-0 break-all font-mono text-[10px] text-zinc-200 select-text">{command}</code>
-      <button type="button" onClick={copy} aria-label="Copiar comando" title="Copiar comando" className="p-1 rounded text-zinc-400 hover:text-white hover:bg-white/10 cursor-pointer">
+    <div className="flex items-start gap-1.5 rounded-lg border border-neutral-800 bg-black/40 p-2">
+      <code className="flex-1 min-w-0 break-all font-mono text-[10px] text-neutral-200 select-text">{command}</code>
+      <button type="button" onClick={copy} aria-label="Copiar comando" title="Copiar comando" className="p-1 rounded text-neutral-400 hover:text-white hover:bg-white/10 cursor-pointer">
         {copied ? <Check size={12} /> : <Copy size={12} />}
       </button>
     </div>
@@ -32,24 +32,24 @@ export function ModelRow({ id, state, busy, onDownload, onCancel, onRemove }) {
   const download = state?.download;
   const percent = download?.total ? Math.min(100, Math.round((download.received / download.total) * 100)) : 0;
   return (
-    <div className="rounded-lg border border-zinc-800/80 bg-black/20 px-2.5 py-1.5 space-y-1.5">
+    <div className="rounded-lg border border-neutral-800/80 bg-black/20 px-2.5 py-1.5 space-y-1.5">
       <div className="flex items-center gap-2">
-        <span className="text-zinc-200">{model.label}</span>
-        <span className="text-[10px] text-zinc-500">
+        <span className="text-neutral-200">{model.label}</span>
+        <span className="text-[10px] text-neutral-500">
           {state?.installed && state.bytes ? `${megabytes(state.bytes)} no disco` : `download de ${megabytes(model.bytes)}`}
         </span>
         <span className="ml-auto flex items-center gap-1">
           {state?.installed && !download && <span className="text-[10px] text-emerald-300">Instalado</span>}
           {download ? (
-            <button type="button" onClick={() => onCancel(id)} disabled={download.phase === 'extracting'} className="px-2 py-0.5 rounded border border-zinc-700 text-[10px] text-zinc-300 hover:bg-white/10 cursor-pointer disabled:opacity-40">
+            <button type="button" onClick={() => onCancel(id)} disabled={download.phase === 'extracting'} className="px-2 py-0.5 rounded border border-neutral-700 text-[10px] text-neutral-300 hover:bg-white/10 cursor-pointer disabled:opacity-40">
               Cancelar
             </button>
           ) : state?.installed ? (
-            <button type="button" onClick={() => onRemove(id)} disabled={busy} title="Apagar o modelo" aria-label={`Apagar ${model.label}`} className="p-1 rounded text-zinc-500 hover:text-rose-300 hover:bg-rose-500/10 cursor-pointer disabled:opacity-40">
+            <button type="button" onClick={() => onRemove(id)} disabled={busy} title="Apagar o modelo" aria-label={`Apagar ${model.label}`} className="p-1 rounded text-neutral-500 hover:text-rose-300 hover:bg-rose-500/10 cursor-pointer disabled:opacity-40">
               <Trash2 size={12} />
             </button>
           ) : (
-            <button type="button" onClick={() => onDownload(id)} disabled={busy} className="flex items-center gap-1 px-2 py-0.5 rounded bg-blue-500/20 border border-blue-500/30 text-[10px] text-blue-200 hover:bg-blue-500/30 cursor-pointer disabled:opacity-40">
+            <button type="button" onClick={() => onDownload(id)} disabled={busy} className="flex items-center gap-1 px-2 py-0.5 rounded bg-accent-500/20 border border-accent-500/30 text-[10px] text-accent-200 hover:bg-accent-500/30 cursor-pointer disabled:opacity-40">
               <Download size={11} /> Baixar
             </button>
           )}
@@ -57,10 +57,10 @@ export function ModelRow({ id, state, busy, onDownload, onCancel, onRemove }) {
       </div>
       {download && (
         <div className="space-y-1">
-          <div className="h-1 rounded-full bg-zinc-800 overflow-hidden">
-            <div className="h-full bg-blue-400 transition-all" style={{ width: `${download.phase === 'extracting' ? 100 : percent}%` }} />
+          <div className="h-1 rounded-full bg-neutral-800 overflow-hidden">
+            <div className="h-full bg-accent-400 transition-all" style={{ width: `${download.phase === 'extracting' ? 100 : percent}%` }} />
           </div>
-          <p className="text-[10px] text-zinc-500 tabular-nums">
+          <p className="text-[10px] text-neutral-500 tabular-nums">
             {download.phase === 'extracting' ? 'Extraindo…' : `${megabytes(download.received)} de ${megabytes(download.total)} · ${percent}%`}
           </p>
         </div>
@@ -80,9 +80,9 @@ function missingText(engine, engineStatus) {
 }
 
 function EngineAction({ engine, engineStatus, selected, ready, busy, actions, status }) {
-  if (selected) return <span className="flex items-center gap-1 text-[10px] font-medium text-blue-200"><CircleCheck size={12} /> Em uso</span>;
-  if (engineStatus?.installing) return <span className="flex items-center gap-1 text-[10px] text-zinc-400"><Loader2 size={12} className="animate-spin" /> Instalando…</span>;
-  const button = 'px-2.5 py-1 rounded-lg bg-blue-500/20 border border-blue-500/30 text-[11px] text-blue-200 hover:bg-blue-500/30 cursor-pointer disabled:opacity-40 disabled:cursor-default';
+  if (selected) return <span className="flex items-center gap-1 text-[10px] font-medium text-accent-200"><CircleCheck size={12} /> Em uso</span>;
+  if (engineStatus?.installing) return <span className="flex items-center gap-1 text-[10px] text-neutral-400"><Loader2 size={12} className="animate-spin" /> Instalando…</span>;
+  const button = 'px-2.5 py-1 rounded-lg bg-accent-500/20 border border-accent-500/30 text-[11px] text-accent-200 hover:bg-accent-500/30 cursor-pointer disabled:opacity-40 disabled:cursor-default';
   if (engineStatus?.missingPackages.length && !status?.python?.error) {
     return (
       <button type="button" onClick={() => actions.install(engine.id)} disabled={!!busy} title={`Instala ${engineStatus.missingPackages.join(', ')} no Python do app`} className={button}>
@@ -109,18 +109,18 @@ function EngineCard({ engine, status, busy, actions }) {
     : engine.models;
 
   return (
-    <div className={`rounded-xl border p-2.5 space-y-1.5 ${selected ? 'border-blue-500/50 bg-blue-500/[0.06]' : 'border-zinc-800/80 bg-zinc-900/30'}`}>
+    <div className={`rounded-xl border p-2.5 space-y-1.5 ${selected ? 'border-accent-500/50 bg-accent-500/[0.06]' : 'border-neutral-800/80 bg-neutral-900/30'}`}>
       <div className="flex items-center gap-2">
-        <span className="font-semibold text-zinc-100">{engine.name}</span>
-        <span className="text-[10px] text-zinc-500">{engine.tag}</span>
+        <span className="font-semibold text-neutral-100">{engine.name}</span>
+        <span className="text-[10px] text-neutral-500">{engine.tag}</span>
         <span className="ml-auto">
           <EngineAction engine={engine} engineStatus={engineStatus} selected={selected} ready={ready} busy={busy} actions={actions} status={status} />
         </span>
       </div>
 
       <div className="flex items-start gap-2">
-        <p className="flex-1 text-zinc-400">{engine.summary}</p>
-        <button type="button" onClick={() => setShowDetails(!showDetails)} aria-expanded={showDetails} className="flex items-center gap-0.5 text-[10px] text-zinc-500 hover:text-zinc-300 cursor-pointer">
+        <p className="flex-1 text-neutral-400">{engine.summary}</p>
+        <button type="button" onClick={() => setShowDetails(!showDetails)} aria-expanded={showDetails} className="flex items-center gap-0.5 text-[10px] text-neutral-500 hover:text-neutral-300 cursor-pointer">
           Detalhes <ChevronDown size={11} className={showDetails ? 'rotate-180' : ''} />
         </button>
       </div>
@@ -128,15 +128,15 @@ function EngineCard({ engine, status, busy, actions }) {
         <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 text-[10px]">
           {engine.details.map(([label, value]) => (
             <React.Fragment key={label}>
-              <dt className="text-zinc-500">{label}</dt>
-              <dd className="text-zinc-300">{value}</dd>
+              <dt className="text-neutral-500">{label}</dt>
+              <dd className="text-neutral-300">{value}</dd>
             </React.Fragment>
           ))}
         </dl>
       )}
 
       {active && engine.id !== 'google' && (
-        <p className={`text-[10px] ${active.status === 'ready' ? 'text-emerald-300' : active.status === 'loading' || active.status === 'idle' ? 'text-zinc-400' : 'text-amber-300'}`}>
+        <p className={`text-[10px] ${active.status === 'ready' ? 'text-emerald-300' : active.status === 'loading' || active.status === 'idle' ? 'text-neutral-400' : 'text-amber-300'}`}>
           {active.status === 'ready' && `Carregado em ${active.device}${active.loadMs !== null ? ` · ${(active.loadMs / 1000).toFixed(1).replace('.', ',')} s para carregar` : ''}`}
           {active.status === 'loading' && 'Carregando o modelo…'}
           {active.status === 'idle' && 'Carrega quando a captura começar.'}
@@ -146,14 +146,14 @@ function EngineCard({ engine, status, busy, actions }) {
 
       {engine.variants && (
         <div className="flex items-center gap-1.5 text-[11px]">
-          <span className="text-zinc-500">Tamanho</span>
+          <span className="text-neutral-500">Tamanho</span>
           {engine.variants.map((variant) => (
             <button
               key={variant}
               type="button"
               onClick={() => actions.select(status.engine, variant)}
               disabled={!!busy || status?.variant === variant}
-              className={`px-2 py-0.5 rounded border cursor-pointer disabled:cursor-default ${status?.variant === variant ? 'border-blue-500/50 text-blue-200' : 'border-zinc-700 text-zinc-400 hover:bg-white/10'}`}
+              className={`px-2 py-0.5 rounded border cursor-pointer disabled:cursor-default ${status?.variant === variant ? 'border-accent-500/50 text-accent-200' : 'border-neutral-700 text-neutral-400 hover:bg-white/10'}`}
             >
               {variant}
             </button>
@@ -169,9 +169,9 @@ function EngineCard({ engine, status, busy, actions }) {
         </div>
       )}
       {engineStatus?.binary && !engineStatus.binary.found && (
-        <p className="text-[10px] text-zinc-500">
-          Compile o whisper.cpp com Vulkan e coloque o <code className="text-zinc-300">whisper-server</code> em{' '}
-          <code className="text-zinc-300 break-all select-text">{status.binDir}</code> (docs/development.md).
+        <p className="text-[10px] text-neutral-500">
+          Compile o whisper.cpp com Vulkan e coloque o <code className="text-neutral-300">whisper-server</code> em{' '}
+          <code className="text-neutral-300 break-all select-text">{status.binDir}</code> (docs/development.md).
         </p>
       )}
 
@@ -191,31 +191,31 @@ export function SpeechEngineModal({ isOpen, onClose, speech }) {
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 overflow-y-auto">
       <div className="fixed inset-0 bg-black/80 backdrop-blur-md" onClick={onClose} />
-      <div role="dialog" aria-modal="true" aria-labelledby="speech-title" className="relative w-full max-w-lg rounded-2xl border border-zinc-800 bg-[#0e0e14] shadow-2xl overflow-hidden z-10 flex flex-col max-h-[90vh] text-[12px]">
-        <div className="flex items-center justify-between px-5 py-3.5 border-b border-zinc-800/80 bg-zinc-950/60">
+      <div role="dialog" aria-modal="true" aria-labelledby="speech-title" className="relative w-full max-w-lg rounded-2xl border border-neutral-800 bg-[#0e0e14] shadow-2xl overflow-hidden z-10 flex flex-col max-h-[90vh] text-[12px]">
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-neutral-800/80 bg-neutral-950/60">
           <h2 id="speech-title" className="flex items-center gap-2 text-base font-bold text-white tracking-tight">
-            <AudioLines size={16} className="text-blue-300" />
+            <AudioLines size={16} className="text-accent-300" />
             Reconhecimento de voz
           </h2>
-          <button type="button" onClick={onClose} aria-label="Fechar" className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/80 transition cursor-pointer">
+          <button type="button" onClick={onClose} aria-label="Fechar" className="p-1.5 rounded-lg text-neutral-400 hover:text-white hover:bg-neutral-800/80 transition cursor-pointer">
             <X size={16} />
           </button>
         </div>
 
         <div className="p-4 overflow-y-auto space-y-2">
-          <p className="text-zinc-500">Os locais rodam offline neste PC. Se um falhar, o app volta ao Google.</p>
+          <p className="text-neutral-500">Os locais rodam offline neste PC. Se um falhar, o app volta ao Google.</p>
           {error && <p className="rounded-lg border border-rose-500/30 bg-rose-500/10 px-3 py-2 text-rose-200">{error}</p>}
-          {!status && !error && <p className="flex items-center gap-2 text-zinc-500"><Loader2 size={13} className="animate-spin" /> Verificando…</p>}
+          {!status && !error && <p className="flex items-center gap-2 text-neutral-500"><Loader2 size={13} className="animate-spin" /> Verificando…</p>}
           {status && SPEECH_ENGINES.map((engine) => (
             <EngineCard key={engine.id} engine={engine} status={status} busy={busy} actions={speech} />
           ))}
           {status && (
-            <div className="flex items-start gap-2 pt-1 text-[10px] text-zinc-600">
+            <div className="flex items-start gap-2 pt-1 text-[10px] text-neutral-600">
               <p className="flex-1 font-mono break-all leading-relaxed">
                 {status.python?.error || (status.python ? `Python ${status.python.version} · ${status.python.path}` : 'Python: verificando…')}
                 <br />Modelos em {status.modelsDir}
               </p>
-              <button type="button" onClick={refresh} disabled={!!busy} className="flex items-center gap-1 px-2 py-1 rounded border border-zinc-800 text-zinc-400 hover:text-white hover:bg-white/10 cursor-pointer disabled:opacity-40">
+              <button type="button" onClick={refresh} disabled={!!busy} className="flex items-center gap-1 px-2 py-1 rounded border border-neutral-800 text-neutral-400 hover:text-white hover:bg-white/10 cursor-pointer disabled:opacity-40">
                 <RefreshCw size={11} className={busy === 'refresh' ? 'animate-spin' : ''} /> Verificar de novo
               </button>
             </div>

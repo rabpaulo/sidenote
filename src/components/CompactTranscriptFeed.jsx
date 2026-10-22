@@ -21,8 +21,8 @@ import { NotesCard } from './NotesCard.jsx';
 import { PROVIDERS } from '../config/models.js';
 
 const AGENT_STYLES = {
-  antigravity: { name: 'ANTIGRAVITY', fallbackModel: 'Gemini', Icon: Sparkles, card: 'border-cyan-500/25 bg-[#0f1422]/85',
-    divider: 'border-cyan-500/15', icon: 'text-cyan-400', label: 'text-cyan-300' },
+  antigravity: { name: 'ANTIGRAVITY', fallbackModel: 'Gemini', Icon: Sparkles, card: 'border-accent-500/25 bg-[#0f1422]/85',
+    divider: 'border-accent-500/15', icon: 'text-accent-400', label: 'text-accent-300' },
   codex: { name: 'CODEX', fallbackModel: 'GPT-6', Icon: Bot, card: 'border-purple-500/25 bg-[#14101e]/85',
     divider: 'border-purple-500/15', icon: 'text-purple-400', label: 'text-purple-300' },
   claude: { name: 'CLAUDE CODE', fallbackModel: 'Claude', Icon: Asterisk, card: 'border-amber-500/25 bg-[#1a140c]/85',
@@ -36,8 +36,8 @@ function agentStyle(provider) {
   if (AGENT_STYLES[provider]) return AGENT_STYLES[provider];
   const config = PROVIDERS[provider];
   if (!config) return AGENT_STYLES.antigravity;
-  return { name: config.shortName.toUpperCase(), fallbackModel: config.shortName, Icon: Cpu, card: 'border-sky-500/25 bg-[#0e1520]/85',
-    divider: 'border-sky-500/15', icon: 'text-sky-400', label: 'text-sky-300' };
+  return { name: config.shortName.toUpperCase(), fallbackModel: config.shortName, Icon: Cpu, card: 'border-accent-500/25 bg-[#0e1520]/85',
+    divider: 'border-accent-500/15', icon: 'text-accent-400', label: 'text-accent-300' };
 }
 
 // Stable default, since the feed's scroll effect depends on it.
@@ -152,11 +152,11 @@ export function CompactTranscriptFeed({
           <div
             role="status"
             aria-live="polite"
-            className="flex items-center gap-2 rounded-lg border border-indigo-500/20 bg-indigo-500/[0.07] px-3 py-2 text-[11px] text-indigo-200"
+            className="flex items-center gap-2 rounded-lg border border-accent-500/20 bg-accent-500/[0.07] px-3 py-2 text-[11px] text-accent-200"
           >
             <span className="relative flex h-2 w-2 shrink-0">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-indigo-400 opacity-60" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-indigo-400" />
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-400 opacity-60" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-accent-400" />
             </span>
             <span>
               {isPcSpeaking
@@ -171,21 +171,21 @@ export function CompactTranscriptFeed({
         )}
 
         {isCompact && feedMessages.length === 0 && !isProcessing && !liveNotes && (
-          <div className="h-full flex items-center justify-center text-center p-4 text-[11px] text-zinc-500">
+          <div className="h-full flex items-center justify-center text-center p-4 text-[11px] text-neutral-500">
             {isPcSpeaking || isTranscribingPc ? 'Escutando a pergunta…' : 'A resposta do agente aparece aqui.'}
           </div>
         )}
 
         {/* Empty state */}
         {!isCompact && messages.length === 0 && !interimTranscript && !isProcessing && !isPcSpeaking && !isTranscribingPc && (
-          <div className="h-full flex flex-col items-center justify-center text-center p-6 text-zinc-500 min-h-[260px]">
-            <div className="w-10 h-10 rounded-full bg-white/[0.04] border border-white/[0.08] flex items-center justify-center mb-2.5 text-blue-300">
+          <div className="h-full flex flex-col items-center justify-center text-center p-6 text-neutral-500 min-h-[260px]">
+            <div className="w-10 h-10 rounded-full bg-white/[0.04] border border-white/[0.08] flex items-center justify-center mb-2.5 text-accent-300">
               <Mic size={17} />
             </div>
-            <h4 className="text-zinc-200 font-semibold text-xs mb-1">Sidenote está escutando</h4>
-            <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-white/[0.04] border border-white/[0.06] text-[10px] text-zinc-400 font-mono">
-              <kbd className="px-1 py-0.5 rounded bg-white/10 text-zinc-200">ESPAÇO</kbd> para falar •{' '}
-              <kbd className="px-1 py-0.5 rounded bg-white/10 text-zinc-200">Alt+Space</kbd> microfone
+            <h4 className="text-neutral-200 font-semibold text-xs mb-1">Sidenote está escutando</h4>
+            <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-white/[0.04] border border-white/[0.06] text-[10px] text-neutral-400 font-mono">
+              <kbd className="px-1 py-0.5 rounded bg-white/10 text-neutral-200">ESPAÇO</kbd> para falar •{' '}
+              <kbd className="px-1 py-0.5 rounded bg-white/10 text-neutral-200">Alt+Space</kbd> microfone
             </div>
           </div>
         )}
@@ -203,11 +203,11 @@ export function CompactTranscriptFeed({
                 className="transcript-entry rounded-xl border border-white/[0.06] bg-[#14141c]/80 p-3 shadow-sm"
               >
                 <div className="flex items-center justify-between mb-1.5 text-[10px]">
-                  <div className="flex items-center gap-1.5 font-bold tracking-wider text-cyan-400">
+                  <div className="flex items-center gap-1.5 font-bold tracking-wider text-accent-400">
                     {item.source === 'screenshot' ? <Camera size={11} /> : <Mic size={11} />}
                     <span>VOCÊ</span>
                   </div>
-                  <span className="font-mono text-zinc-500">
+                  <span className="font-mono text-neutral-500">
                     {item.timestamp ? new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : ''}
                   </span>
                 </div>
@@ -223,7 +223,7 @@ export function CompactTranscriptFeed({
                     ))}
                   </div>
                 )}
-                <p className="text-zinc-200 font-medium leading-relaxed italic text-[12px]">
+                <p className="text-neutral-200 font-medium leading-relaxed italic text-[12px]">
                   “{item.text}”
                 </p>
                 <NotesCard hits={notesFor(item)} />
@@ -236,26 +236,26 @@ export function CompactTranscriptFeed({
             return (
               <div
                 key={key}
-                className="transcript-entry transcript-entry--question rounded-xl border border-indigo-500/20 bg-[#101324]/80 p-3 shadow-sm"
+                className="transcript-entry transcript-entry--question rounded-xl border border-accent-500/20 bg-[#101324]/80 p-3 shadow-sm"
               >
                 <div className="flex items-center justify-between mb-1.5 text-[10px]">
-                  <div className="flex items-center gap-1.5 font-bold tracking-wider text-indigo-300">
+                  <div className="flex items-center gap-1.5 font-bold tracking-wider text-accent-300">
                     <Monitor size={11} />
                     <span>PC / REUNIÃO</span>
                   </div>
                   <div className="flex items-center gap-2">
                     {item.durationSec && (
-                      <span className="text-[9px] px-1.5 py-0.2 rounded bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 font-mono">
+                      <span className="text-[9px] px-1.5 py-0.2 rounded bg-accent-500/10 text-accent-300 border border-accent-500/20 font-mono">
                         {item.durationSec.toFixed(1)}s
                       </span>
                     )}
-                    <span className="font-mono text-zinc-500">
+                    <span className="font-mono text-neutral-500">
                       {item.timestamp ? new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : ''}
                     </span>
                   </div>
                 </div>
 
-                <p className="text-zinc-200 font-medium leading-relaxed italic text-[12px] mb-2">
+                <p className="text-neutral-200 font-medium leading-relaxed italic text-[12px] mb-2">
                   “{item.text}”
                 </p>
                 <NotesCard hits={notesFor(item)} />
@@ -271,7 +271,7 @@ export function CompactTranscriptFeed({
                         fastMode: agentSettings?.fastMode,
                       })
                     }
-                    className="flex items-center gap-1 px-2 py-1 rounded-md bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 hover:text-white text-[10px] font-semibold transition cursor-pointer border border-indigo-500/30"
+                    className="flex items-center gap-1 px-2 py-1 rounded-md bg-accent-500/20 hover:bg-accent-500/30 text-accent-300 hover:text-white text-[10px] font-semibold transition cursor-pointer border border-accent-500/30"
                   >
                     <Sparkles size={10} />
                     <span>Diga isso</span>
@@ -298,7 +298,7 @@ export function CompactTranscriptFeed({
                 </button>
                 <div className="say-this__content">
                   {(item.isPreview || item.isUpdating || item.status === 'cancelled') && (
-                    <div className="mb-1.5 text-[10px] text-zinc-400">
+                    <div className="mb-1.5 text-[10px] text-neutral-400">
                       {item.status === 'cancelled' ? 'Sugestão interrompida' : item.isUpdating ? 'Atualizando sugestão…' : 'Sugestão ao vivo • fala em andamento'}
                     </div>
                   )}
@@ -333,7 +333,7 @@ export function CompactTranscriptFeed({
                 <div className="flex items-center gap-1.5 font-bold tracking-wide">
                   <AgentIcon size={12} className={style.icon} />
                   <span className={style.label}>{style.name}</span>
-                  <span className="text-[9px] font-mono text-zinc-400 font-normal">
+                  <span className="text-[9px] font-mono text-neutral-400 font-normal">
                     • {item.model || style.fallbackModel}
                   </span>
                 </div>
@@ -342,12 +342,12 @@ export function CompactTranscriptFeed({
                   <button
                     type="button"
                     onClick={() => handleCopy(item.text, key)}
-                    className="p-1 rounded hover:bg-white/10 text-zinc-400 hover:text-white transition cursor-pointer"
+                    className="p-1 rounded hover:bg-white/10 text-neutral-400 hover:text-white transition cursor-pointer"
                     title="Copiar saída"
                   >
                     {isCopied ? <Check size={11} className="text-emerald-400" /> : <Copy size={11} />}
                   </button>
-                  <span className="font-mono text-zinc-500">
+                  <span className="font-mono text-neutral-500">
                     {item.timestamp ? new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
                   </span>
                 </div>
@@ -355,14 +355,14 @@ export function CompactTranscriptFeed({
 
               {/* Tool call badge */}
               {item.toolCall && (
-                <div className="mb-2 px-2 py-1 rounded bg-black/40 border border-white/[0.08] text-[10px] font-mono text-zinc-300 flex items-center gap-1.5">
+                <div className="mb-2 px-2 py-1 rounded bg-black/40 border border-white/[0.08] text-[10px] font-mono text-neutral-300 flex items-center gap-1.5">
                   <Terminal size={10} className="text-amber-400 shrink-0" />
                   <span className="text-amber-300">{item.toolCall.tool}</span>
-                  <span className="truncate text-zinc-400">{JSON.stringify(item.toolCall.params || '')}</span>
+                  <span className="truncate text-neutral-400">{JSON.stringify(item.toolCall.params || '')}</span>
                 </div>
               )}
 
-              <div className="text-zinc-100 leading-relaxed text-[12px]">
+              <div className="text-neutral-100 leading-relaxed text-[12px]">
                 <FormattedAgentResponse text={item.text} />
               </div>
             </div>
@@ -373,22 +373,22 @@ export function CompactTranscriptFeed({
         {liveNotes && <NotesCard hits={liveNotes} live />}
 
         {!isCompact && pcLiveTranscripts.map((item) => (
-          <div key={item.utteranceId} className="rounded-xl border border-indigo-500/30 bg-indigo-500/[0.07] p-3" role="status" aria-live="polite">
-            <div className="flex items-center gap-1.5 mb-1 text-[10px] text-indigo-300 font-bold">
+          <div key={item.utteranceId} className="rounded-xl border border-accent-500/30 bg-accent-500/[0.07] p-3" role="status" aria-live="polite">
+            <div className="flex items-center gap-1.5 mb-1 text-[10px] text-accent-300 font-bold">
               <Monitor size={12} />
               <span>PC / REUNIÃO · TRANSCRIÇÃO AO VIVO</span>
             </div>
-            <p className="text-zinc-100 leading-relaxed text-[12px]">{item.text}</p>
+            <p className="text-neutral-100 leading-relaxed text-[12px]">{item.text}</p>
             <NotesCard hits={utteranceNotes[item.utteranceId]} live />
           </div>
         ))}
 
         {/* Live speech preview while speaking */}
         {!isCompact && interimTranscript && (
-          <div className="rounded-xl border border-cyan-500/40 bg-cyan-950/30 p-2.5 shadow-sm backdrop-blur-md animate-pulse">
-            <div className="flex items-center justify-between mb-1 text-[10px] text-cyan-400 font-bold">
+          <div className="rounded-xl border border-accent-500/40 bg-accent-950/30 p-2.5 shadow-sm backdrop-blur-md animate-pulse">
+            <div className="flex items-center justify-between mb-1 text-[10px] text-accent-400 font-bold">
               <div className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
+                <span className="w-1.5 h-1.5 rounded-full bg-accent-400 animate-ping" />
                 <span>OUVINDO AGORA...</span>
               </div>
               {/* Mini animated bars */}
@@ -396,13 +396,13 @@ export function CompactTranscriptFeed({
                 {miniBars.map((h, i) => (
                   <div
                     key={i}
-                    className="w-0.5 bg-cyan-400 rounded-full transition-all duration-75"
+                    className="w-0.5 bg-accent-400 rounded-full transition-all duration-75"
                     style={{ height: `${Math.max(20, h * 0.8)}%` }}
                   />
                 ))}
               </div>
             </div>
-            <p className="text-zinc-100 font-medium italic text-[12px]">
+            <p className="text-neutral-100 font-medium italic text-[12px]">
               “{interimTranscript}”
             </p>
           </div>
@@ -410,9 +410,9 @@ export function CompactTranscriptFeed({
 
         {/* Live Agent / Copilot Generating status */}
         {isProcessing && (
-          <div className="flex items-center justify-between p-2 rounded-xl bg-white/[0.03] border border-white/[0.06] text-[11px] text-zinc-300">
+          <div className="flex items-center justify-between p-2 rounded-xl bg-white/[0.03] border border-white/[0.06] text-[11px] text-neutral-300">
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+              <span className="w-2 h-2 rounded-full bg-accent-400 animate-ping" />
               <span>Gerando resposta com IA...</span>
             </div>
             {onAbort && (
@@ -447,10 +447,10 @@ export function CompactTranscriptFeed({
     return renderFeed(
       <>
         {qAndAs.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-center p-6 text-zinc-500 min-h-[260px]">
-            <Terminal size={20} className="mb-2 text-zinc-500" />
-            <h4 className="text-zinc-300 font-semibold text-xs mb-1">Nenhum momento registrado</h4>
-            <p className="text-[11px] text-zinc-500">
+          <div className="h-full flex flex-col items-center justify-center text-center p-6 text-neutral-500 min-h-[260px]">
+            <Terminal size={20} className="mb-2 text-neutral-500" />
+            <h4 className="text-neutral-300 font-semibold text-xs mb-1">Nenhum momento registrado</h4>
+            <p className="text-[11px] text-neutral-500">
               Perguntas e respostas da sua reunião serão agrupadas aqui para fácil consulta.
             </p>
           </div>
@@ -460,14 +460,14 @@ export function CompactTranscriptFeed({
               key={idx}
               className="rounded-xl border border-white/[0.06] bg-[#121218]/90 p-3 shadow-sm backdrop-blur-md space-y-2"
             >
-              <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
+              <div className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">
                 Momento #{idx + 1}
               </div>
               <div className="p-2 rounded bg-white/[0.03] border border-white/[0.04]">
-                <div className="text-[10px] text-zinc-400 mb-1 font-semibold">
+                <div className="text-[10px] text-neutral-400 mb-1 font-semibold">
                   {pair.question.role === 'interlocutor' ? 'INTERLOCUTOR PERGUNTOU:' : 'VOCÊ FALOU:'}
                 </div>
-                <p className="text-zinc-200 text-[11px] italic">“{pair.question.text}”</p>
+                <p className="text-neutral-200 text-[11px] italic">“{pair.question.text}”</p>
               </div>
 
               {pair.answer ? (
@@ -486,7 +486,7 @@ export function CompactTranscriptFeed({
                       )}
                     </button>
                   </div>
-                  <p className="text-zinc-100 text-[11px] leading-relaxed line-clamp-4">
+                  <p className="text-neutral-100 text-[11px] leading-relaxed line-clamp-4">
                     {pair.answer.text}
                   </p>
                 </div>
@@ -501,7 +501,7 @@ export function CompactTranscriptFeed({
                       fastMode: agentSettings?.fastMode,
                     })
                   }
-                  className="w-full py-1 rounded bg-blue-500/15 hover:bg-blue-500/25 border border-blue-500/30 text-blue-300 text-[10px] font-semibold transition cursor-pointer"
+                  className="w-full py-1 rounded bg-accent-500/15 hover:bg-accent-500/25 border border-accent-500/30 text-accent-300 text-[10px] font-semibold transition cursor-pointer"
                 >
                   Gerar sugestão para este momento
                 </button>

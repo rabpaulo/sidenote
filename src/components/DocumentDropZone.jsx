@@ -117,10 +117,10 @@ export function DocumentDropZone({ kind, title, hint, onImported, googleConnecte
           {busyFile ? <Loader2 size={15} className="animate-spin" /> : <FileUp size={15} />}
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block text-xs font-medium text-zinc-100">
+          <span className="block text-xs font-medium text-neutral-100">
             {busyFile ? 'Lendo e organizando com a IA…' : dragging ? 'Solte o arquivo aqui' : title}
           </span>
-          <span className="block truncate text-[11px] text-zinc-500">{busyFile || hint}</span>
+          <span className="block truncate text-[11px] text-neutral-500">{busyFile || hint}</span>
         </span>
         <input
           ref={inputRef}
@@ -135,18 +135,18 @@ export function DocumentDropZone({ kind, title, hint, onImported, googleConnecte
       </div>
       {googleConnected && (
         <form onSubmit={importGoogleDoc} className="flex gap-1.5">
-          <label className="flex-1 min-w-0 flex items-center gap-1.5 rounded-lg border border-white/10 bg-black/30 px-2 py-1 focus-within:border-blue-500/50">
-            <Link2 size={11} className="text-zinc-500 shrink-0" />
+          <label className="flex-1 min-w-0 flex items-center gap-1.5 rounded-lg border border-white/10 bg-black/30 px-2 py-1 focus-within:border-accent-500/50">
+            <Link2 size={11} className="text-neutral-500 shrink-0" />
             <input
               value={docUrl}
               onChange={(event) => setDocUrl(event.target.value)}
               placeholder="Ou cole o link de um Google Docs"
               spellCheck={false}
               aria-label={`Link do Google Docs para ${title.toLowerCase()}`}
-              className="flex-1 min-w-0 bg-transparent text-[11px] text-zinc-100 outline-none placeholder:text-zinc-600"
+              className="flex-1 min-w-0 bg-transparent text-[11px] text-neutral-100 outline-none placeholder:text-neutral-600"
             />
           </label>
-          <button type="submit" disabled={!docUrl.trim() || Boolean(busyFile)} className="px-2.5 rounded-lg border border-white/10 text-[11px] text-zinc-300 hover:bg-white/5 disabled:opacity-40 cursor-pointer disabled:cursor-default">
+          <button type="submit" disabled={!docUrl.trim() || Boolean(busyFile)} className="px-2.5 rounded-lg border border-white/10 text-[11px] text-neutral-300 hover:bg-white/5 disabled:opacity-40 cursor-pointer disabled:cursor-default">
             Importar
           </button>
         </form>

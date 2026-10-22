@@ -54,14 +54,14 @@ export function PcSourcePicker({ source, captureApp, isPcCapturing, onSelect }) 
   return (
     <div className="pl-16 space-y-1 text-[10px]">
       <div className="flex items-center gap-1.5">
-        <AppWindow size={11} className={app ? 'text-blue-300' : 'text-zinc-600'} />
+        <AppWindow size={11} className={app ? 'text-accent-300' : 'text-neutral-600'} />
         <select
           value={value}
           onChange={(event) => choose(event.target.value)}
           onFocus={refresh}
           aria-label="Fonte do áudio do PC"
           title="Ouvir o desktop inteiro ou só o áudio da reunião"
-          className="flex-1 min-w-0 rounded bg-zinc-900 border border-white/10 px-1.5 py-0.5 text-[10px] text-zinc-200 cursor-pointer"
+          className="flex-1 min-w-0 rounded bg-neutral-900 border border-white/10 px-1.5 py-0.5 text-[10px] text-neutral-200 cursor-pointer"
         >
           <option value={DESKTOP}>Desktop inteiro</option>
           {missing && <option value="missing">{app.name} (sem áudio agora)</option>}
@@ -75,7 +75,7 @@ export function PcSourcePicker({ source, captureApp, isPcCapturing, onSelect }) 
           disabled={loading}
           aria-label="Atualizar lista de aplicativos"
           title="Atualizar lista e medir o som de cada um"
-          className="p-0.5 rounded text-zinc-500 hover:text-zinc-200 hover:bg-white/10 cursor-pointer disabled:opacity-40"
+          className="p-0.5 rounded text-neutral-500 hover:text-neutral-200 hover:bg-white/10 cursor-pointer disabled:opacity-40"
         >
           <RefreshCw size={10} className={loading ? 'animate-spin' : ''} />
         </button>
@@ -89,7 +89,7 @@ export function PcSourcePicker({ source, captureApp, isPcCapturing, onSelect }) 
           {app.name} está tocando {siblings} áudios (abas ou janelas). Confira se o escolhido é o da chamada: ele aparece “com som agora” enquanto alguém fala.
         </p>
       ) : null}
-      {!streams.length && !app && !error && <p className="text-zinc-500">Abra a chamada para escolher o áudio dela.</p>}
+      {!streams.length && !app && !error && <p className="text-neutral-500">Abra a chamada para escolher o áudio dela.</p>}
       {error && <p className="text-rose-300">{error}</p>}
     </div>
   );

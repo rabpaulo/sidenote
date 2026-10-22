@@ -63,7 +63,7 @@ export function CodeBlock({ code, language = 'javascript' }) {
     <div className="code-frame">
       <div className="code-frame__header">
         <div className="code-frame__title">
-          <Terminal size={12} className="text-cyan-400" />
+          <Terminal size={12} className="text-accent-400" />
           <span>{languageLabel(language)}</span>
         </div>
         <CopyButton text={code} />

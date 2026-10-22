@@ -47,12 +47,12 @@ export function CompactBottomBar({
             placeholder="Digite sua dúvida ou comando..."
             autoFocus
             disabled={isProcessing}
-            className="app-text-input flex-1 bg-white/[0.05] border border-white/[0.1] rounded-xl px-2.5 py-1.5 text-xs text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-blue-500/50"
+            className="app-text-input flex-1 bg-white/[0.05] border border-white/[0.1] rounded-xl px-2.5 py-1.5 text-xs text-neutral-100 placeholder-neutral-500 focus:outline-none focus:border-accent-500/50"
           />
           <button
             type="submit"
             disabled={!textInput.trim() || isProcessing}
-            className="app-primary-button px-2.5 py-1.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold flex items-center gap-1 transition cursor-pointer disabled:opacity-40"
+            className="app-primary-button px-2.5 py-1.5 rounded-full bg-accent-200 hover:bg-white text-neutral-950 text-xs font-semibold flex items-center gap-1 transition cursor-pointer disabled:opacity-40"
           >
             <Send size={11} />
             <span>Enviar</span>
@@ -60,7 +60,7 @@ export function CompactBottomBar({
           <button
             type="button"
             onClick={() => setShowInputDrawer(false)}
-            className="p-1.5 text-zinc-400 hover:text-white rounded-lg transition cursor-pointer"
+            className="p-1.5 text-neutral-400 hover:text-white rounded-lg transition cursor-pointer"
           >
             <X size={14} />
           </button>
@@ -86,10 +86,10 @@ export function CompactBottomBar({
             }}
             aria-label="Meu contexto"
             title={hasContext ? 'Meu contexto' : 'Meu contexto (vazio): preencha para respostas personalizadas'}
-            className="app-quiet-button relative p-2 rounded-xl transition cursor-pointer text-zinc-400"
+            className="app-quiet-button relative p-2 rounded-xl transition cursor-pointer text-neutral-400"
           >
             <UserRound size={15} />
-            {!hasContext && <span aria-hidden="true" className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-blue-400" />}
+            {!hasContext && <span aria-hidden="true" className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-accent-400" />}
           </button>
           <button
             type="button"
@@ -97,7 +97,7 @@ export function CompactBottomBar({
             className={`p-2 rounded-xl transition cursor-pointer ${
               showInputDrawer
                 ? 'bg-white/10 text-white border border-white/20'
-                : 'app-quiet-button text-zinc-400'
+                : 'app-quiet-button text-neutral-400'
             }`}
             title="Digitar comando ou pergunta de texto"
           >
@@ -113,13 +113,13 @@ export function CompactBottomBar({
             onClick={toggleListening}
             className={`relative flex items-center justify-center w-11 h-11 rounded-full transition-all duration-200 cursor-pointer shadow-lg ${
               isListening
-                ? 'bg-blue-500 text-white shadow-blue-500/20 scale-105 ring-4 ring-blue-500/15'
-                : 'bg-white text-black hover:scale-105 hover:bg-zinc-200 font-bold'
+                ? 'bg-neutral-900 text-white scale-105 ring-2 ring-white/70'
+                : 'bg-white text-black hover:scale-105 hover:bg-neutral-200 font-bold'
             }`}
             title={isListening ? 'Clique para parar (Alt+Space)' : 'Clique para falar (Alt+Space ou segure ESPAÇO)'}
           >
             {isListening && (
-              <span className="absolute inset-0 rounded-full bg-blue-400 animate-ping opacity-20 pointer-events-none" />
+              <span className="absolute inset-0 rounded-full bg-white animate-ping opacity-10 pointer-events-none" />
             )}
             {isListening ? <MicOff size={18} /> : <Mic size={18} />}
           </button>

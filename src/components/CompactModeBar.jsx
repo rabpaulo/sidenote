@@ -17,7 +17,7 @@ export function CompactModeBar({ menuProps, agentSettings, meterProps, onExitCom
         onClick={onExitCompact}
         aria-label="Desativar modo compacto"
         title="Desativar modo compacto"
-        className="app-no-drag app-quiet-button p-2 rounded-xl transition cursor-pointer text-zinc-400"
+        className="app-no-drag app-quiet-button p-2 rounded-xl transition cursor-pointer text-neutral-400"
       >
         <Maximize2 size={15} />
       </button>

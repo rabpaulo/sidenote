@@ -41,13 +41,13 @@ export function PersonaSelectorModal({
       />
 
       {/* Modal Dialog */}
-      <div className="relative w-full max-w-md rounded-3xl border border-zinc-800 bg-[#0e0e14] shadow-2xl overflow-hidden z-10 flex flex-col max-h-[90vh]">
+      <div className="relative w-full max-w-md rounded-3xl border border-neutral-800 bg-[#0e0e14] shadow-2xl overflow-hidden z-10 flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800/80 bg-zinc-950/60">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-800/80 bg-neutral-950/60">
           <h2 className="text-lg font-bold text-white tracking-tight">Modo</h2>
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-zinc-400 hover:text-white hover:bg-zinc-800/80 transition cursor-pointer"
+            className="p-2 rounded-xl text-neutral-400 hover:text-white hover:bg-neutral-800/80 transition cursor-pointer"
           >
             <X size={18} />
           </button>
@@ -57,7 +57,7 @@ export function PersonaSelectorModal({
         <div className="p-4 overflow-y-auto space-y-4 flex-1 custom-scrollbar">
           {PERSONA_CATEGORIES.map((category) => (
             <div key={category.id}>
-              <label className="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2 px-2 block">
+              <label className="text-xs font-bold uppercase tracking-wider text-neutral-400 mb-2 px-2 block">
                 {category.name}
               </label>
 
@@ -76,16 +76,16 @@ export function PersonaSelectorModal({
                       }}
                       className={`w-full px-3 py-2.5 rounded-xl border flex items-center gap-3 text-left cursor-pointer transition ${
                         isSelected
-                          ? 'border-blue-500/50 bg-blue-950/20'
-                          : 'border-transparent hover:bg-zinc-900/70'
+                          ? 'border-accent-500/50 bg-accent-950/20'
+                          : 'border-transparent hover:bg-neutral-900/70'
                       }`}
                     >
-                      <IconComponent size={16} className={isSelected ? 'text-blue-400' : 'text-zinc-400'} />
+                      <IconComponent size={16} className={isSelected ? 'text-accent-400' : 'text-neutral-400'} />
                       <div className="flex-1 min-w-0">
                         <div className="text-sm font-semibold text-white">{persona.shortName}</div>
-                        <div className="text-xs text-zinc-500 truncate">{persona.description}</div>
+                        <div className="text-xs text-neutral-500 truncate">{persona.description}</div>
                       </div>
-                      {isSelected && <Check size={14} strokeWidth={3} className="text-blue-400 shrink-0" />}
+                      {isSelected && <Check size={14} strokeWidth={3} className="text-accent-400 shrink-0" />}
                     </button>
                   );
                 })}
