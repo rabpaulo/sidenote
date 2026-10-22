@@ -29,7 +29,7 @@ Copiloto desktop para reuniões. Ele ouve a chamada, transcreve enquanto as pess
 | :---: | :---: |
 | <img src="docs/screenshots/menu.png" width="260" alt="Menu com modelo, modo, reconhecimento de voz, notas e nova sessão"> | <img src="docs/screenshots/modelo.png" width="260" alt="Seleção de provedor e modelo"> |
 
-<sub>Capturas de uma reunião simulada: as falas foram geradas por TTS e tocadas como se fossem o áudio do Meet; empresa, pessoas, números e a vault são fictícios. A transcrição, as notas, as sugestões e o resumo saíram do app de verdade.</sub>
+<sub>Capturas de uma reunião simulada: as falas foram geradas por TTS e tocadas como se fossem o áudio do Meet; empresa, pessoas, números e a vault são fictícios. A transcrição, as notas, as sugestões e o resumo saíram do app de verdade; as telas foram refeitas com o tema atual a partir dessa mesma reunião.</sub>
 
 ## Baixar
 

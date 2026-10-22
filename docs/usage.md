@@ -43,7 +43,7 @@ O [LM Studio](https://lmstudio.ai) também é detectado: com o servidor local li
 
 ## Meu contexto
 
-O ícone de pessoa na barra inferior abre o editor em tela cheia. Um ponto azul no ícone indica que o perfil ainda está vazio. Preencha apenas fatos que você consiga sustentar na conversa; campos vazios são ignorados.
+O ícone de pessoa na barra inferior abre o editor em tela cheia. Um ponto claro no ícone indica que o perfil ainda está vazio. Preencha apenas fatos que você consiga sustentar na conversa; campos vazios são ignorados.
 
 | Aba | Campos |
 | --- | --- |
@@ -104,7 +104,7 @@ Num pacote gerado com o cliente embutido (veja o [guia de desenvolvimento](devel
 
 **Conectar conta Google** abre o login no navegador; ao autorizar, a página diz para voltar ao app. O Sidenote pede só leitura dos eventos da agenda, leitura dos Docs e acesso aos arquivos que ele mesmo criar no Drive. As credenciais ficam em `google.json`, ao lado do perfil, legíveis só pelo seu usuário, e a interface nunca recebe os tokens. **Desconectar** apaga os tokens e revoga o acesso no Google. Também dá para passar o cliente por `SIDENOTE_GOOGLE_CLIENT_ID` e `SIDENOTE_GOOGLE_CLIENT_SECRET`.
 
-**Agenda.** A tela lista os eventos de agora até o fim de amanhã (os recusados ficam de fora). **Usar nesta reunião** coloca o evento no contexto da sessão: título, horário, organizador, participantes, descrição e o texto de até 2 Google Docs anexados ao evento (uma pauta, por exemplo) vão junto com cada sugestão, mensagem direta e resumo. Quando há uma reunião na agenda acontecendo agora (ou começando em 10 minutos), uma faixa azul acima da transcrição oferece **Usar como contexto**; com um evento escolhido, a mesma faixa mostra qual é e o × o tira. **Nova sessão** guarda o evento na reunião do histórico e limpa a escolha para a próxima.
+**Agenda.** A tela lista os eventos de agora até o fim de amanhã (os recusados ficam de fora). **Usar nesta reunião** coloca o evento no contexto da sessão: título, horário, organizador, participantes, descrição e o texto de até 2 Google Docs anexados ao evento (uma pauta, por exemplo) vão junto com cada sugestão, mensagem direta e resumo. Quando há uma reunião na agenda acontecendo agora (ou começando em 10 minutos), uma faixa acima da transcrição oferece **Usar como contexto**; com um evento escolhido, a mesma faixa mostra qual é e o × o tira. **Nova sessão** guarda o evento na reunião do histórico e limpa a escolha para a próxima.
 
 **Docs.** No **Resumo**, o botão de upload cria um Google Docs com o resumo e a transcrição da sessão e mostra o link. No **Histórico**, o mesmo botão cria o documento da reunião uma vez e depois passa a abri-lo. Em ⚙, **Salvar reuniões terminadas no Google Docs** faz isso sozinho ao fim de cada reunião. Para importar um Google Docs no perfil, veja [Importar currículo e vaga](#importar-currículo-e-vaga).
 
