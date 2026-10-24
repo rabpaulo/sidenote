@@ -209,9 +209,10 @@ export function prepareAgentSession(options) {
 }
 
 // Copilot answers that run as one-shot turns: no conversation to keep, and a
-// cancelled answer leaves no cold start behind (warm Antigravity pool, HTTP APIs and local runtimes).
+// cancelled answer leaves no cold start behind (warm Antigravity pool, HTTP APIs and
+// local runtimes, and OpenCode, whose server aborts a turn without restarting).
 export function runsOneShot(provider) {
-  return provider === 'antigravity' || isHttpProvider(provider);
+  return provider === 'antigravity' || provider === 'opencode' || isHttpProvider(provider);
 }
 
 /** Starts the processes one-shot turns will use, without sending a prompt. */
@@ -274,7 +275,7 @@ export function runIsolatedAgent({ timeoutMs = 120000, onText, signal, ...option
  * Unified runner that dispatches to Antigravity, Codex, Claude Code, OpenCode, an API provider or a local runtime.
  */
 export function runUnifiedAgent(options) {
-  if (options.provider === 'opencode') return runOpencodeAgent(options);
+  if (options.provider === 'opencode') return runOpencodeAgent({ ...options, isolated: options.isolated || !!options.oneShot });
   if (isHttpProvider(options.provider)) return runApiAgent({ ...options, isolated: options.isolated || !!options.oneShot });
   if (options.provider === 'codex') {
     return runCodexAgent(options);

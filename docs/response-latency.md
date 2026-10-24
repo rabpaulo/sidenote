@@ -97,7 +97,11 @@ O objetivo é que a sugestão já esteja na tela quando o interlocutor termina a
 - Se a transcrição final for diferente, a prévia é cancelada e a resposta final começa na hora. Uma resposta final nunca é cancelada por uma prévia da fala seguinte.
 - Essas respostas rodam fora da conversa do CLI, como turnos avulsos; o prompt já leva as falas recentes. No Antigravity, o app mantém dois processos já iniciados para esses turnos, e uma prévia cancelada custa um processo, não uma inicialização de cerca de 4 s antes da próxima resposta. Mensagens diretas recebem as falas e sugestões feitas desde a mensagem anterior, que a conversa do CLI não viu.
 
-Codex, Claude Code e OpenCode continuam respondendo somente à fala consolidada: lá, cancelar significa reiniciar o processo, e a pergunta completa esperaria a prévia descartada.
+O OpenCode também responde prévias: o servidor (`opencode serve`) cancela um turno sem reiniciar, e cada resposta ao vivo usa uma sessão própria, apagada ao terminar. Codex e Claude Code continuam respondendo somente à fala consolidada: lá, cancelar significa reiniciar o processo, e a pergunta completa esperaria a prévia descartada.
+
+Nos provedores HTTP, uma prévia usa o menor raciocínio do modelo (`low`, ou sem raciocínio no Ollama) quando o usuário escolheu um nível explícito. Se a transcrição final for igual à da prévia, essa resposta mais curta de raciocínio vira a resposta final. Nos CLIs o nível é fixo no processo, então a prévia usa o nível escolhido.
+
+O prompt do copiloto começa pela parte que não muda durante a sessão (persona, regras, contexto pessoal e evento) e termina com o que muda a cada resposta (notas encontradas, falas recentes e a fala atual), para que os provedores com cache de prefixo reaproveitem o início. Na Anthropic, esse início vai marcado com `cache_control`. Com um provedor local, uma atualização automática do resumo em andamento é interrompida quando uma resposta ao vivo começa e roda de novo depois.
 
 As prévias aumentam o número de pedidos ao provedor, em geral de dois a quatro por pergunta longa.
 

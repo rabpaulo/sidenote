@@ -103,6 +103,26 @@ test('waits while a live answer is running', async () => {
   assert.equal(calls.length, 1);
 });
 
+test('an automatic update yields to a live answer and runs again later', async () => {
+  const { service, calls, say } = setup();
+  say('interlocutor', 'a');
+  say('user', 'b');
+  await tick(30);
+  assert.equal(calls.length, 1);
+  service.yieldToLive();
+  assert.equal(calls[0].options.signal.aborted, true);
+  assert.equal(service.state.status, 'idle');
+  await tick(30);
+  assert.equal(calls.length, 2, 'the update starts over');
+  // A request made meanwhile starts in place of the automatic update and is never stopped.
+  service.request('manual');
+  service.yieldToLive();
+  assert.equal(calls[1].options.signal.aborted, true);
+  assert.equal(calls.length, 3);
+  service.yieldToLive();
+  assert.equal(calls[2].options.signal.aborted, false);
+});
+
 test('a manual request streams, and one made while running reruns afterwards', async () => {
   const { service, calls, say } = setup({ auto: false });
   say('interlocutor', 'a');

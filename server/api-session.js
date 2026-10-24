@@ -18,7 +18,8 @@ const MAX_OUTPUT_TOKENS = 16000;
 const FALLBACK_MODELS = new Set(['claude-fable-5-1', 'claude-opus-5-5', 'claude-opus-5', 'claude-sonnet-5-5']);
 
 // Context window asked of Ollama: its default (4k tokens) cuts the copilot prompt short.
-const OLLAMA_CONTEXT = Number(process.env.SIDENOTE_OLLAMA_CTX) || 8192;
+// 16k fits the largest copilot prompt (16 recent turns, full profile, notes and event documents).
+const OLLAMA_CONTEXT = Number(process.env.SIDENOTE_OLLAMA_CTX) || 16384;
 
 const conversations = new Map();
 
@@ -187,12 +188,20 @@ async function streamOllama({ model, reasoningEffort, messages, images, prompt, 
   return { text, usage };
 }
 
-async function streamAnthropic({ model, reasoningEffort, messages, images, prompt, signal, onText }) {
+// Anthropic caches only up to a marked block: the session-wide start of a copilot
+// prompt is sent as its own block so the next answer reads it from the cache.
+// Below the model's minimum length the mark is ignored.
+function anthropicText(prompt, prefix) {
+  if (!prefix || prompt.length <= prefix.length || !prompt.startsWith(prefix)) return [{ type: 'text', text: prompt }];
+  return [{ type: 'text', text: prefix, cache_control: { type: 'ephemeral' } }, { type: 'text', text: prompt.slice(prefix.length) }];
+}
+
+async function streamAnthropic({ model, reasoningEffort, messages, images, prompt, promptPrefix, signal, onText }) {
   const client = new Anthropic({ apiKey: apiKey('anthropic') });
   const attached = normalizeImages(images);
-  const content = attached.length
+  const content = attached.length || promptPrefix
     ? [...attached.map(({ mimeType, data }) => ({ type: 'image', source: { type: 'base64', media_type: mimeType, data } })),
-      { type: 'text', text: prompt }]
+      ...anthropicText(prompt, promptPrefix)]
     : prompt;
   const params = {
     model,
@@ -233,7 +242,7 @@ async function streamAnthropic({ model, reasoningEffort, messages, images, promp
   };
 }
 
-export function runApiAgent({ provider, model, reasoningEffort, prompt, images, conversationId, isolated = false, onMessage, onError, onClose }) {
+export function runApiAgent({ provider, model, reasoningEffort, prompt, promptPrefix, images, conversationId, isolated = false, onMessage, onError, onClose }) {
   const controller = new AbortController();
   const chat = conversation(conversationId, isolated);
   const turn = { done: false, startedAt: Date.now() };
@@ -250,7 +259,7 @@ export function runApiAgent({ provider, model, reasoningEffort, prompt, images, 
       onMessage?.({ event: 'session_started', conversation_id: chat.id });
       const stream = { anthropic: streamAnthropic, ollama: streamOllama }[config.protocol] || streamOpenAi;
       const { text, usage } = await stream({
-        provider, model, reasoningEffort, prompt, images, messages: chat.messages, signal: controller.signal,
+        provider, model, reasoningEffort, prompt, promptPrefix, images, messages: chat.messages, signal: controller.signal,
         onText: (delta) => {
           if (!turn.done) onMessage?.({ event: 'step_update', step_update: { conversation_id: chat.id, text_delta: delta } });
         },

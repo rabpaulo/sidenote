@@ -33,8 +33,8 @@ import { unavailableReason } from '../shared/provider-availability.js';
 import { createProviderAvailability } from './provider-availability.js';
 import { providerKeys } from './provider-keys.js';
 import { resetApiConversations } from './api-session.js';
-import { API_PROVIDER_IDS, isApiProvider, isHttpProvider } from '../shared/api-providers.js';
-import { LOCAL_PROVIDER_IDS } from '../shared/local-providers.js';
+import { API_PROVIDER_IDS, apiReasoningLevels, isApiProvider, isHttpProvider } from '../shared/api-providers.js';
+import { LOCAL_PROVIDER_IDS, LOCAL_PROVIDERS, isLocalProvider } from '../shared/local-providers.js';
 import { createLocalModels, isModelName } from './local-models.js';
 import { createGoogle, GoogleError } from './google.js';
 import { accountEmail, createDocument, getEvent, listEvents, readDocument } from './google-workspace.js';
@@ -539,8 +539,21 @@ systemAudioEngine.on('status', (status) => {
   broadcast({ type: 'pc_capture_status', ...status });
 });
 
+// A preview is usually replaced before it finishes, so on HTTP providers it reasons
+// as little as the model allows. Only an effort the user chose is lowered: with
+// "default" the model may not take an effort at all. A CLI process keeps the effort
+// it was started with, so the other providers answer previews as usual.
+function previewEffort(provider, effort) {
+  if (!isHttpProvider(provider) || !effort || effort === 'default') return effort;
+  const levels = (isApiProvider(provider) ? apiReasoningLevels(provider) : LOCAL_PROVIDERS[provider]?.reasoningLevels || [])
+    .map((level) => level.id);
+  return ['off', 'low'].find((id) => levels.includes(id)) || effort;
+}
+
 function triggerCopilotForText(transcript, overrideOptions = {}) {
   if (!transcript?.trim()) return;
+  // A local runtime answers one request at a time: an automatic summary waits.
+  if (isLocalProvider(summaryConfig().provider)) summaryService.yieldToLive();
   // A preview answers speech still in progress; only the complete utterance is remembered.
   const startsAsPreview = typeof overrideOptions.isPreview === 'function' ? overrideOptions.isPreview() : !!overrideOptions.isPreview;
   if (!startsAsPreview) conversationMemory.remember('interlocutor', transcript);
@@ -565,7 +578,8 @@ function triggerCopilotForText(transcript, overrideOptions = {}) {
   const provider = overrideOptions.provider || selectedProvider || 'antigravity';
   const model = overrideOptions.model || selectedModel || defaultModelFor(provider);
   const persona = overrideOptions.persona || selectedPersona;
-  const reasoningEffort = overrideOptions.reasoningEffort || selectedReasoningEffort || 'medium';
+  const chosenEffort = overrideOptions.reasoningEffort || selectedReasoningEffort || 'medium';
+  const reasoningEffort = startsAsPreview ? previewEffort(provider, chosenEffort) : chosenEffort;
   const fastMode = overrideOptions.fastMode !== undefined ? overrideOptions.fastMode : selectedFastMode;
   // Live answers carry the recent speech in the prompt, so they can run outside the
   // conversation where that makes cancelling a preview cheap.

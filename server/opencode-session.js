@@ -150,10 +150,19 @@ export function runOpencodeAgent({ prompt, images, onMessage, onError, onClose, 
     turn.text += delta;
     onMessage?.({ event: 'step_update', step_update: { conversation_id: turn.session.id, text_delta: delta } });
   };
-  const end = () => {
+  // An isolated session serves one turn: OpenCode would otherwise keep every
+  // one-shot answer, previews included, in its session list.
+  const discard = (session, aborted = Promise.resolve()) => {
+    session.server.sessions.delete(session.id);
+    aborted.then(() => request(session.server, 'DELETE', `/session/${session.id}`)).catch(() => {});
+  };
+  const end = (abort = false) => {
     turn.done = true;
-    if (turn.session?.active === turn) turn.session.active = null;
-    if (options.isolated) turn.session?.server.sessions.delete(turn.session.id);
+    const session = turn.session;
+    if (!session) return;
+    if (session.active === turn) session.active = null;
+    const aborted = abort ? request(session.server, 'POST', `/session/${session.id}/abort`).catch(() => {}) : undefined;
+    if (options.isolated) discard(session, aborted);
   };
   turn.fail = (error) => {
     if (turn.done) return;
@@ -215,7 +224,10 @@ export function runOpencodeAgent({ prompt, images, onMessage, onError, onClose, 
 
   (async () => {
     const session = await getSession(options);
-    if (turn.done) return;
+    if (turn.done) {
+      if (options.isolated) discard(session);
+      return;
+    }
     if (session.active) throw new Error('O OpenCode ainda está respondendo a pergunta anterior.');
     turn.session = session;
     session.prepared = false;
@@ -233,10 +245,7 @@ export function runOpencodeAgent({ prompt, images, onMessage, onError, onClose, 
 
   return {
     kill() {
-      if (turn.done) return;
-      const session = turn.session;
-      end();
-      if (session) request(session.server, 'POST', `/session/${session.id}/abort`).catch(() => {});
+      if (!turn.done) end(true);
     },
   };
 }

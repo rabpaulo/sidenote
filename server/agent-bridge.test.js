@@ -270,8 +270,9 @@ test('one-shot turns use pre-started processes and leave the conversation untouc
   assert.equal(continued.handle.pid, conversation.handle.pid, 'the warm conversation keeps its process');
 });
 
-test('only Antigravity and HTTP providers answer live speech as one-shot turns', () => {
+test('only Antigravity, OpenCode and HTTP providers answer live speech as one-shot turns', () => {
   assert.equal(bridge.runsOneShot('antigravity'), true);
+  assert.equal(bridge.runsOneShot('opencode'), true);
   assert.equal(bridge.runsOneShot('gemini'), true);
   assert.equal(bridge.runsOneShot('codex'), false);
   assert.equal(bridge.runsOneShot('claude'), false);

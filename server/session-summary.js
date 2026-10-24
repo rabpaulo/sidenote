@@ -185,7 +185,7 @@ export function createSummaryService({
     const spoken = transcript.spokenCount;
     const prompt = buildSummaryPrompt({ entries, startedAt: transcript.startedAt, previous: basis(), context: settings.context || '' });
     const controller = new AbortController();
-    const current = { controller };
+    const current = { controller, kind };
     job = current;
     state = { ...state, status: 'running', draft: '', error: null };
     emit();
@@ -236,6 +236,19 @@ export function createSummaryService({
       }
       emit();
       scheduleAuto();
+    },
+    // A live answer needs the model: an automatic update in progress stops and
+    // runs again later. Requested summaries are left alone.
+    yieldToLive() {
+      if (!job || job.kind !== 'auto') return;
+      job.controller.abort();
+      job = null;
+      state = { ...state, status: 'idle', draft: '' };
+      emit();
+      const next = pending;
+      pending = null;
+      if (next) generate(next);
+      else scheduleAuto();
     },
     get state() { return snapshot(); },
     // The summary text if it still covers every line of the transcript.

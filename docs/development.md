@@ -123,7 +123,7 @@ Mudanças no backend exigem reiniciar seu processo. Fechar o Electron encerra o 
 | OLLAMA_HOST | Endereço do Ollama (`127.0.0.1:11434`, `0.0.0.0:11434` ou uma URL); padrão `http://127.0.0.1:11434`. |
 | OLLAMA_BIN, LMS_BIN | Caminhos do `ollama` e do `lms` (LM Studio); sem elas, o `PATH` e os locais de instalação usuais (`~/.lmstudio/bin`, `%LOCALAPPDATA%\Programs\Ollama`). |
 | LMSTUDIO_URL | Base da API do LM Studio; padrão `http://127.0.0.1:1234/v1`. |
-| SIDENOTE_OLLAMA_CTX | Janela de contexto pedida ao Ollama (`num_ctx`); padrão 8192. |
+| SIDENOTE_OLLAMA_CTX | Janela de contexto pedida ao Ollama (`num_ctx`); padrão 16384. |
 | SIDENOTE_GOOGLE_CLIENT_ID, SIDENOTE_GOOGLE_CLIENT_SECRET | Cliente OAuth do Google (tipo App para computador); têm prioridade sobre o salvo pela interface. |
 | SIDENOTE_GOOGLE_PATH | Arquivo das credenciais do Google; padrão `google.json` ao lado do perfil. |
 | LATENCY_PROVIDER, LATENCY_MODEL, LATENCY_RUNS | Configuração do script de medição de latência. |
